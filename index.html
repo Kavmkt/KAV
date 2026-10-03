@@ -138,22 +138,23 @@
         </div>
       </div>
 
-      <!-- Mídia Principal: Vídeo MP4 Scroll-Driven + Fallback Canvas 3D -->
+      <!-- Mídia Principal: Vídeo MP4 Scroll-Driven (25.4MB 3D Render) -->
       <div class="hero-media-wrapper">
         <video 
           class="hero-scroll-video" 
+          id="heroScrollVideo"
+          src="assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4"
           muted 
           playsinline 
+          webkit-playsinline 
           preload="auto" 
           disablepictureinpicture 
-          poster="assets/video/hero-poster.svg"
           aria-hidden="true">
-          <!-- Ordem de carregamento: arquivo renderizado padrão ou com o nome do render enviado -->
-          <source src="assets/video/hero-scroll.mp4" type="video/mp4">
+          <!-- Prioridade Absoluta: Arquivo Renderizado 3D Oficial Enviado -->
           <source src="assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4" type="video/mp4">
-          <source src="assets/video/hero-scroll.webm" type="video/webm">
+          <source src="assets/video/hero-scroll.mp4" type="video/mp4">
         </video>
-        <!-- Canvas 3D Procedural Fallback (se o vídeo faltar ou scrub travar no iOS) -->
+        <!-- Canvas 3D Procedural Fallback -->
         <canvas class="hero-fallback-canvas" aria-hidden="true"></canvas>
       </div>
 
