@@ -18,12 +18,13 @@ O início da home apresenta um plano contínuo guiado pela rolagem do visitante 
 
 ---
 
-## 🌍 Abertura imersiva (antes do Hero Scroll)
+## 🌍 Abertura imersiva (mesma cena do Hero Scroll)
 
-* **Tela cheia, sem menu:** vídeo `assets/video/intro-planeta.mp4` em loop, logo Kav (`assets/img/kav-logo-intro.png`) e texto de boas-vindas em branco.
-* **Três barrinhas** no canto superior direito abrem um menu em tela cheia (`#immersiveMenu`), disponível durante a abertura e o vídeo do hero.
-* **Menu real fixo (`.site-chrome`)** só aparece no fim da rolagem do hero (progresso > 95%); aí as três barrinhas e o HUD somem.
-* Código: `css/intro.css` e `js/intro.js`; a regra de exibição do menu real fica em `updateStoryUI` (`js/hero-scroll.js`).
+* **Uma cena só:** a abertura (`#introSection`, vídeo `intro-planeta.mp4` + logo + boas-vindas) é uma camada dentro do viewport sticky do hero. Nos primeiros 100vh de scroll o planeta faz zoom e se dissolve no primeiro frame do vídeo do sapato, sem corte entre "containers".
+* **Sem HUD:** não há mais barra de progresso, abas "1 · Começo…" nem texto/botão no primeiro take; só vídeo e as inserções de texto dos passos.
+* **Três barrinhas** no canto superior direito abrem um menu em tela cheia (`#immersiveMenu`) durante a abertura e o vídeo.
+* **Menu real fixo (`.site-chrome`)** só aparece no fim da rolagem do hero (progresso > 95%).
+* Código: `css/intro.css`, `js/intro.js` (menu/autoplay) e `updateIntro` em `js/hero-scroll.js` (zoom/dissolve; ajuste `scroll.introScreens`).
 * Testes locais: use um servidor com suporte a HTTP Range (ex.: `npx http-server`), senão o scrub do vídeo não funciona.
 
 ---

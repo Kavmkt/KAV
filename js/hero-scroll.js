@@ -22,8 +22,10 @@ const HERO_SCROLL_CONFIG = {
   },
 
   scroll: {
-    desktopHeight: '520vh',
-    mobileHeight: '400vh'
+    // 100vh extra no início: é a "abertura" (planeta) que se dissolve no sapato na mesma cena
+    introScreens: 1,
+    desktopHeight: '620vh',
+    mobileHeight: '500vh'
   },
 
   acts: [
@@ -34,17 +36,6 @@ const HERO_SCROLL_CONFIG = {
 
   // 8 Etapas da Jornada com margens deliberadas de respiro (gaps) para evitar qualquer sobreposição
   steps: [
-    {
-      id: 'step-opening',
-      act: 1,
-      minProgress: 0.00,
-      maxProgress: 0.06,  // Sai completamente aos 6%
-      position: 'bottom-center',
-      showScrollHint: true,
-      badge: null,
-      title: 'Leve o seu negócio ao topo da sua região.',
-      subtitle: 'Anúncios, conteúdo e atendimento no WhatsApp para pequenos e médios negócios venderem mais.'
-    },
     // GAP: 0.06 -> 0.09 (Respiro total: H1 e hint 100% ocultos, centro livre)
     {
       id: 'step-entender',
@@ -148,6 +139,12 @@ class KavHeroScrollEngine {
     this.actButtons = this.section.querySelectorAll('.act-pill-btn');
     this.textSteps = this.section.querySelectorAll('.hero-story-step');
     this.scrollHint = this.section.querySelector('.hero-scroll-hint');
+    this.introLayer = document.getElementById('introSection');
+    this.introVideo = document.getElementById('introVideo');
+    this.introContent = document.getElementById('introContent');
+    this.introCue = document.getElementById('introCue');
+    this.introProgress = 0;
+    this.introHidden = false;
     this.bufferBar = this.section.querySelector('.hero-buffer-bar');
 
     // Estado da rolagem e renderização
@@ -355,6 +352,10 @@ class KavHeroScrollEngine {
     }
   }
 
+  getIntroDistance() {
+    return window.innerHeight * (this.config.scroll.introScreens || 0);
+  }
+
   handleScroll() {
     if (this.isReducedMotion) return;
 
@@ -362,20 +363,24 @@ class KavHeroScrollEngine {
     const sectionHeight = this.section.offsetHeight;
     const windowHeight = window.innerHeight;
     const scrollableDistance = sectionHeight - windowHeight;
+    const introDistance = this.getIntroDistance();
+    const heroDistance = scrollableDistance - introDistance;
 
-    if (scrollableDistance <= 0) return;
+    if (heroDistance <= 0) return;
 
     const scrolled = -rect.top;
-    this.rawProgress = Math.max(0, Math.min(1, scrolled / scrollableDistance));
+    this.introProgress = introDistance > 0 ? Math.max(0, Math.min(1, scrolled / introDistance)) : 1;
+    this.rawProgress = Math.max(0, Math.min(1, (scrolled - introDistance) / heroDistance));
   }
 
   scrollToProgress(targetProg) {
     const sectionTop = this.section.offsetTop;
     const sectionHeight = this.section.offsetHeight;
     const windowHeight = window.innerHeight;
-    const scrollableDistance = sectionHeight - windowHeight;
+    const introDistance = this.getIntroDistance();
+    const scrollableDistance = sectionHeight - windowHeight - introDistance;
 
-    const targetScrollY = sectionTop + (targetProg * scrollableDistance);
+    const targetScrollY = sectionTop + introDistance + (targetProg * scrollableDistance);
     window.scrollTo({
       top: targetScrollY,
       behavior: 'smooth'
@@ -402,6 +407,7 @@ class KavHeroScrollEngine {
           this.drawCanvasFrame(this.smoothProgress);
         }
 
+        this.updateIntro(this.introProgress);
         this.updateStoryUI(this.smoothProgress);
       }
 
@@ -466,6 +472,45 @@ class KavHeroScrollEngine {
     } else {
       // Guarda a última posição solicitada pelo usuário durante a rolagem
       this.pendingSeekTime = targetTime;
+    }
+  }
+
+  /**
+   * Abertura contínua: o planeta faz zoom (como se mergulhássemos nele) e se dissolve,
+   * revelando o primeiro frame do vídeo do sapato que já está por baixo.
+   */
+  updateIntro(p) {
+    if (!this.introLayer) return;
+    const smooth = (a, b, x) => {
+      const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+      return t * t * (3 - 2 * t);
+    };
+
+    if (p >= 1) {
+      if (!this.introHidden) {
+        this.introHidden = true;
+        this.introLayer.style.opacity = '0';
+        if (this.introVideo) this.introVideo.pause();
+      }
+      return;
+    }
+
+    this.introHidden = false;
+    if (this.introVideo && this.introVideo.paused) {
+      const pl = this.introVideo.play();
+      if (pl && pl.catch) pl.catch(() => {});
+    }
+
+    this.introLayer.style.opacity = String(1 - smooth(0.3, 1, p));
+
+    if (this.introContent) {
+      const c = smooth(0, 0.35, p);
+      this.introContent.style.opacity = String(1 - c);
+      this.introContent.style.transform = `translateY(${-c * 60}px) scale(${1 - c * 0.05})`;
+    }
+    if (this.introCue) this.introCue.style.opacity = String(1 - smooth(0, 0.12, p));
+    if (this.introVideo) {
+      this.introVideo.style.transform = `scale(${1 + smooth(0, 1, p) * 0.9})`;
     }
   }
 
