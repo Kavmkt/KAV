@@ -1,9 +1,10 @@
 /**
  * ============================================================================
- * KAV — MAIN JAVASCRIPT ORCHESTRATION (v5.0 Revisão Estratégica)
+ * KAV — MAIN JAVASCRIPT ORCHESTRATION (v5.1 Otimização Mobile Avançada)
  * ============================================================================
  * - Gestão unificada da CTA do WhatsApp (constante WHATSAPP_NUMBER).
- * - Menu mobile acessível (ARIA, ESC, clique fora).
+ * - Menu mobile acessível (ARIA, ESC, clique fora, bloqueio de scroll de fundo).
+ * - Botão flutuante de WhatsApp (FAB) no mobile após a rolagem inicial.
  * - Simulação realista de chat de atendimento IA em loop contínuo.
  * - FAQ interativo em acordeão com transições suaves.
  * - Nova Calculadora de Vendas Perdidas por Demora no Atendimento.
@@ -57,46 +58,61 @@ document.addEventListener('DOMContentLoaded', () => {
     btnIaTest.setAttribute('rel', 'noopener noreferrer');
   }
 
-  // 2. Menu de Navegação Mobile
+  // 2. Menu de Navegação Mobile com Bloqueio de Fundo
   const mobileToggle = document.getElementById('mobileToggle');
   const navMenu = document.getElementById('navMenu');
+
+  function closeMobileMenu() {
+    if (navMenu && mobileToggle) {
+      navMenu.classList.remove('open');
+      mobileToggle.classList.remove('active');
+      mobileToggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+    }
+  }
 
   if (mobileToggle && navMenu) {
     mobileToggle.addEventListener('click', () => {
       const isOpen = navMenu.classList.toggle('open');
       mobileToggle.classList.toggle('active', isOpen);
       mobileToggle.setAttribute('aria-expanded', isOpen);
+      document.body.classList.toggle('menu-open', isOpen);
     });
 
     // Fechar ao clicar em qualquer link
     document.querySelectorAll('.nav-link').forEach((link) => {
-      link.addEventListener('click', () => {
-        navMenu.classList.remove('open');
-        mobileToggle.classList.remove('active');
-        mobileToggle.setAttribute('aria-expanded', 'false');
-      });
+      link.addEventListener('click', closeMobileMenu);
     });
 
     // Fechar com a tecla Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && navMenu.classList.contains('open')) {
-        navMenu.classList.remove('open');
-        mobileToggle.classList.remove('active');
-        mobileToggle.setAttribute('aria-expanded', 'false');
+        closeMobileMenu();
       }
     });
 
     // Fechar ao clicar fora do menu
     document.addEventListener('click', (e) => {
       if (navMenu.classList.contains('open') && !navMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
-        navMenu.classList.remove('open');
-        mobileToggle.classList.remove('active');
-        mobileToggle.setAttribute('aria-expanded', 'false');
+        closeMobileMenu();
       }
     });
   }
 
-  // 3. Simulação Dinâmica de Chat no Mockup de Celular (Seção WhatsApp)
+  // 3. Botão Flutuante de WhatsApp (FAB) com ativação suave no scroll
+  const mobileFab = document.getElementById('mobileWhatsappFab');
+  if (mobileFab) {
+    window.addEventListener('scroll', () => {
+      // Exibe após rolar além da primeira tela (350px)
+      if (window.scrollY > 350) {
+        mobileFab.classList.add('visible');
+      } else {
+        mobileFab.classList.remove('visible');
+      }
+    }, { passive: true });
+  }
+
+  // 4. Simulação Dinâmica de Chat no Mockup de Celular (Seção WhatsApp)
   const phoneScreen = document.getElementById('phoneChatScreen');
   if (phoneScreen) {
     const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -109,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     if (isReducedMotion) {
-      // Modo estático para acessibilidade
       phoneScreen.innerHTML = '';
       chatScript.forEach(msg => {
         const bubble = document.createElement('div');
@@ -145,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
             bubble.style.transform = 'translateY(8px)';
             phoneScreen.appendChild(bubble);
 
-            // Animação de entrada
             requestAnimationFrame(() => {
               bubble.style.opacity = '1';
               bubble.style.transform = 'translateY(0)';
@@ -164,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 4. FAQ Acordeão Interativo
+  // 5. FAQ Acordeão Interativo
   const faqItems = document.querySelectorAll('.faq-item');
   faqItems.forEach((item) => {
     const questionBtn = item.querySelector('.faq-question');
@@ -172,14 +186,12 @@ document.addEventListener('DOMContentLoaded', () => {
       questionBtn.addEventListener('click', () => {
         const isActive = item.classList.contains('active');
         
-        // Fecha outros itens para leitura limpa
         faqItems.forEach(other => {
           other.classList.remove('active');
           const btn = other.querySelector('.faq-question');
           if (btn) btn.setAttribute('aria-expanded', 'false');
         });
 
-        // Alterna o atual
         if (!isActive) {
           item.classList.add('active');
           questionBtn.setAttribute('aria-expanded', 'true');
@@ -188,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 5. Nova Calculadora: "Quanto você pode estar perdendo por demorar a responder?"
+  // 6. Nova Calculadora: "Quanto você pode estar perdendo por demorar a responder?"
   const calcMsgDia = document.getElementById('calcMsgDia');
   const calcTicketMedio = document.getElementById('calcTicketMedio');
   const calcTaxaDesistencia = document.getElementById('calcTaxaDesistencia');
@@ -206,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const ticketMedio = parseFloat(calcTicketMedio.value);
     const desistenciaDeCadaDez = parseInt(calcTaxaDesistencia.value, 10);
 
-    // Atualiza os rótulos visuais dos sliders
     if (msgDiaDisplay) msgDiaDisplay.textContent = `${msgDia} mensagens / dia`;
     if (ticketMedioDisplay) {
       ticketMedioDisplay.textContent = new Intl.NumberFormat('pt-BR', {
@@ -219,10 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
       taxaDesistenciaDisplay.textContent = `${desistenciaDeCadaDez} de cada 10 clientes`;
     }
 
-    // Fórmula clara e transparente:
-    // Mensagens/mês = msgDia * 30
-    // Clientes que desistem = totalMsg * (desistencia / 10)
-    // Perda estimada em vendas = clientes que desistem * ticketMedio
     const msgMes = msgDia * 30;
     const clientesPerdidos = Math.round(msgMes * (desistenciaDeCadaDez / 10));
     const perdaEstimada = clientesPerdidos * ticketMedio;
@@ -235,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     calcPerdaValor.textContent = `${perdaFormatada} por mês`;
 
-    // Atualiza o link do WhatsApp com a estimativa do visitante
     if (calcWhatsappBtn) {
       calcWhatsappBtn.href = getWhatsAppUrl('calcCustom', perdaFormatada);
     }
@@ -245,10 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
     calcMsgDia.addEventListener('input', updateLossCalculator);
     calcTicketMedio.addEventListener('input', updateLossCalculator);
     calcTaxaDesistencia.addEventListener('input', updateLossCalculator);
-    updateLossCalculator(); // Cálculo inicial
+    updateLossCalculator();
   }
 
-  // 6. Formulário de Análise Gratuita do Negócio
+  // 7. Formulário de Análise Gratuita do Negócio
   const leadForm = document.getElementById('leadForm');
   const formSuccess = document.getElementById('formSuccessMessage');
   const directWhatsAppBtn = document.getElementById('directWhatsAppBtn');
@@ -266,13 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const challenge = document.getElementById('leadChallenge') ? document.getElementById('leadChallenge').value.trim() : '';
       const aiInterest = document.getElementById('leadAiInterest') ? document.getElementById('leadAiInterest').checked : false;
 
-      // Validação obrigatória
       if (!name || !whatsapp) {
         alert('Por favor, preencha os campos obrigatórios (Seu Nome e WhatsApp).');
         return;
       }
 
-      // Gera o link estruturado de WhatsApp
       const formData = {
         name,
         whatsapp,
@@ -291,7 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
         directWhatsAppBtn.href = whatsappUrl;
       }
 
-      // Transição para tela de sucesso amigável
       leadForm.style.display = 'none';
       if (formSuccess) {
         formSuccess.style.display = 'block';
@@ -301,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 7. Elevação visual suave do cabeçalho ao rolar
+  // 8. Elevação visual suave do cabeçalho ao rolar
   const header = document.getElementById('header');
   if (header) {
     window.addEventListener('scroll', () => {
