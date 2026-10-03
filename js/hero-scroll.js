@@ -190,6 +190,8 @@ class KavHeroScrollEngine {
     if (this.isReducedMotion) {
       this.log('Modo prefers-reduced-motion ativo. Desativando scrub contínuo.');
       this.section.classList.add('reduced-motion-mode');
+      // Sem scrub: o hero vira conteúdo estático, então o menu real já fica disponível
+      document.body.classList.add('chrome-visible');
     }
   }
 
@@ -519,13 +521,12 @@ class KavHeroScrollEngine {
     }
 
     // Elevação do header
+    // Menu real (topo fixo) só entra no fim do vídeo; nas telas anteriores existe apenas o menu imersivo
+    const chromeVisible = progress > 0.95;
+    document.body.classList.toggle('chrome-visible', chromeVisible);
     const header = document.getElementById('header');
     if (header) {
-      if (progress > 0.95) {
-        header.classList.add('header-scrolled-past');
-      } else {
-        header.classList.remove('header-scrolled-past');
-      }
+      header.classList.toggle('header-scrolled-past', chromeVisible);
     }
   }
 

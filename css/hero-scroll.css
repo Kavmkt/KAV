@@ -91,11 +91,12 @@
    -------------------------------------------------------------------------- */
 .hero-top-hud {
   position: absolute;
-  top: 76px;
+  top: 20px;
   left: 0;
   width: 100%;
   z-index: 10;
-  padding: 0 32px;
+  padding: 0 84px 0 32px;
+  transition: opacity 0.4s ease;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -549,8 +550,8 @@
 
 @media (max-width: 768px) {
   .hero-top-hud {
-    top: 68px;
-    padding: 0 16px;
+    top: 20px;
+    padding: 0 68px 0 16px;
   }
 
   .act-pill-btn {
@@ -617,9 +618,13 @@
 
 @media (max-width: 480px) {
   .hero-top-hud {
-    top: 62px;
-    padding: 0 10px;
+    top: 22px;
+    padding: 0 60px 0 10px;
     gap: 6px;
+  }
+
+  .hero-progress-meter {
+    display: none;
   }
 
   .acts-pill-nav {
@@ -669,8 +674,8 @@
 
 @media (max-width: 360px) {
   .hero-top-hud {
-    top: 58px;
-    padding: 0 6px;
+    top: 22px;
+    padding: 0 56px 0 6px;
     gap: 4px;
   }
 

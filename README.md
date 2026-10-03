@@ -18,6 +18,16 @@ O início da home apresenta um plano contínuo guiado pela rolagem do visitante 
 
 ---
 
+## 🌍 Abertura imersiva (antes do Hero Scroll)
+
+* **Tela cheia, sem menu:** vídeo `assets/video/intro-planeta.mp4` em loop, logo Kav (`assets/img/kav-logo-intro.png`) e texto de boas-vindas em branco.
+* **Três barrinhas** no canto superior direito abrem um menu em tela cheia (`#immersiveMenu`), disponível durante a abertura e o vídeo do hero.
+* **Menu real fixo (`.site-chrome`)** só aparece no fim da rolagem do hero (progresso > 95%); aí as três barrinhas e o HUD somem.
+* Código: `css/intro.css` e `js/intro.js`; a regra de exibição do menu real fica em `updateStoryUI` (`js/hero-scroll.js`).
+* Testes locais: use um servidor com suporte a HTTP Range (ex.: `npx http-server`), senão o scrub do vídeo não funciona.
+
+---
+
 ## ⚙️ Principais Funcionalidades
 
 1. **Atendimento com IA no WhatsApp 24/7:** Mockup de celular interativo com simulação de conversa em tempo real, demonstrando agendamento automático e suporte contínuo.

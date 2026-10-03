@@ -1,0 +1,290 @@
+/* ==========================================================================
+   KAV — ABERTURA IMERSIVA
+   Vídeo do planeta em tela cheia + logo + boas-vindas, sem menu.
+   Menu real (.site-chrome) só entra no fim da rolagem do vídeo do hero.
+   ========================================================================== */
+
+html {
+  scroll-padding-top: 96px;
+}
+
+/* --------------------------------------------------------------------------
+   Seção de abertura
+   -------------------------------------------------------------------------- */
+.intro-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--kav-navy-deep);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+}
+
+.intro-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  will-change: transform;
+  transform-origin: center 60%;
+}
+
+/* Leitura do texto + emenda suave com o hero logo abaixo */
+.intro-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(5, 11, 26, 0.55) 0%, rgba(5, 11, 26, 0.1) 30%, rgba(5, 11, 26, 0.2) 60%, rgba(5, 11, 26, 0.85) 100%),
+    radial-gradient(ellipse at center, rgba(5, 11, 26, 0.35) 0%, transparent 65%);
+}
+
+.intro-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px;
+  max-width: 900px;
+  will-change: transform, opacity;
+}
+
+.intro-logo {
+  width: clamp(220px, 36vw, 500px);
+  height: auto;
+  filter: drop-shadow(0 6px 36px rgba(111, 211, 255, 0.35));
+  animation: introLogoIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.intro-welcome {
+  margin-top: clamp(20px, 3.5vh, 36px);
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 3.8vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #fff;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  animation: introTextIn 1s cubic-bezier(0.16, 1, 0.3, 1) 1.1s both;
+}
+
+.intro-sub {
+  margin-top: 14px;
+  max-width: 560px;
+  font-family: var(--font-main);
+  font-size: clamp(0.98rem, 1.4vw, 1.18rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+  animation: introTextIn 1s cubic-bezier(0.16, 1, 0.3, 1) 1.45s both;
+}
+
+.intro-scroll-cue {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.85);
+  animation: introTextIn 1s ease 2.2s both;
+}
+
+@keyframes introLogoIn {
+  from { opacity: 0; transform: scale(0.9); filter: blur(14px) drop-shadow(0 6px 36px rgba(111, 211, 255, 0.35)); }
+  to   { opacity: 1; transform: scale(1);   filter: blur(0)    drop-shadow(0 6px 36px rgba(111, 211, 255, 0.35)); }
+}
+
+@keyframes introTextIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------------------------------------------------------------------
+   Menu real: escondido durante a abertura e o vídeo; entra no fim do scroll
+   -------------------------------------------------------------------------- */
+.site-chrome {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.45s ease, visibility 0.45s ease;
+}
+
+body.chrome-visible .site-chrome {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Três barrinhas (canto superior direito) + menu em tela cheia
+   -------------------------------------------------------------------------- */
+.immersive-toggle {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+  z-index: 1100;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.immersive-toggle span {
+  display: block;
+  width: 26px;
+  height: 2px;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+  transition: transform 0.3s ease, opacity 0.2s ease, width 0.3s ease;
+}
+
+.immersive-toggle span:nth-child(2) { width: 20px; align-self: flex-end; margin-right: 11px; }
+.immersive-toggle:hover span:nth-child(2) { width: 26px; margin-right: 11px; }
+
+.immersive-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.immersive-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.immersive-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+.immersive-toggle:focus-visible {
+  outline: 2px solid var(--kav-cyan);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+body.chrome-visible .immersive-toggle {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.immersive-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 11, 26, 0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  opacity: 0;
+  visibility: hidden;
+  overscroll-behavior: contain;
+  touch-action: none;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.immersive-menu.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.immersive-menu-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 24px;
+}
+
+.immersive-menu-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.im-link {
+  display: block;
+  padding: 8px 20px;
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.82);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.im-link:hover,
+.im-link:focus-visible {
+  color: var(--kav-orange-light);
+  transform: translateX(4px);
+  outline: none;
+}
+
+.immersive-menu .im-link,
+.immersive-menu .btn {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.immersive-menu.open .im-link,
+.immersive-menu.open .btn {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.immersive-menu.open li:nth-child(1) .im-link { transition-delay: 0.05s; }
+.immersive-menu.open li:nth-child(2) .im-link { transition-delay: 0.10s; }
+.immersive-menu.open li:nth-child(3) .im-link { transition-delay: 0.15s; }
+.immersive-menu.open li:nth-child(4) .im-link { transition-delay: 0.20s; }
+.immersive-menu.open li:nth-child(5) .im-link { transition-delay: 0.25s; }
+.immersive-menu.open li:nth-child(6) .im-link { transition-delay: 0.30s; }
+.immersive-menu.open li:nth-child(7) .im-link { transition-delay: 0.35s; }
+.immersive-menu.open .btn { transition-delay: 0.45s; }
+
+/* HUD do hero some quando o menu real assume o topo */
+body.chrome-visible .hero-top-hud {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Movimento reduzido
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .intro-logo,
+  .intro-welcome,
+  .intro-sub,
+  .intro-scroll-cue {
+    animation: none;
+  }
+  .intro-content { will-change: auto; }
+}
+
+@media (max-width: 768px) {
+  .intro-scroll-cue { bottom: 20px; }
+}

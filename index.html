@@ -43,6 +43,7 @@
   </script>
 
   <!-- Preload do Vídeo e Poster Hero para Inicialização Instantânea -->
+  <link rel="preload" as="image" href="assets/img/kav-logo-intro.png" type="image/png">
   <link rel="preload" as="image" href="assets/video/hero-poster.svg" type="image/svg+xml">
 
   <!-- Google Fonts: Space Grotesk & Plus Jakarta Sans -->
@@ -53,9 +54,33 @@
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/hero-scroll.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/intro.css">
+  <noscript><style>.site-chrome{opacity:1!important;visibility:visible!important;pointer-events:auto!important}.immersive-toggle{display:none!important}.intro-content,.intro-scroll-cue{opacity:1!important}</style></noscript>
 </head>
 <body>
 
+  <!-- Menu imersivo: 3 barrinhas no canto superior direito (aparece só na abertura e no scroll do vídeo) -->
+  <button type="button" class="immersive-toggle" id="immersiveToggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="immersiveMenu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="immersive-menu" id="immersiveMenu" aria-hidden="true">
+    <nav class="immersive-menu-inner" aria-label="Menu do site">
+      <ul class="immersive-menu-list">
+        <li><a href="#introSection" class="im-link">Início</a></li>
+        <li><a href="#como-funciona" class="im-link">Como funciona</a></li>
+        <li><a href="#atendimento" class="im-link">Atendimento WhatsApp</a></li>
+        <li><a href="#resultados" class="im-link">Resultados</a></li>
+        <li><a href="#para-quem-e" class="im-link">Para quem é</a></li>
+        <li><a href="#calculadora" class="im-link">Calculadora</a></li>
+        <li><a href="#analise" class="im-link">Contato</a></li>
+      </ul>
+      <a href="https://wa.me/5511999999999?text=Oi!%20Vim%20pelo%20site%20da%20Kav%20e%20quero%20conversar%20sobre%20o%20meu%20neg%C3%B3cio." class="btn btn-whatsapp-primary btn-whatsapp-trigger" target="_blank" rel="noopener noreferrer"><span>Falar no WhatsApp</span></a>
+    </nav>
+  </div>
+
+  <!-- Menu real (topo fixo): só aparece no fim da rolagem do vídeo -->
+  <div class="site-chrome" id="siteChrome">
   <!-- Top Announcement Bar (Regra 2: Chamada Única Secundária) -->
   <div class="top-bar">
     <div class="container top-bar-content">
@@ -122,6 +147,24 @@
       </div>
     </div>
   </header>
+  </div>
+
+  <!-- =========================================================================
+       ABERTURA: vídeo do planeta em tela cheia + logo Kav + boas-vindas
+       ========================================================================= -->
+  <section class="intro-section" id="introSection" aria-label="Boas-vindas à Kav">
+    <video class="intro-video" id="introVideo" src="assets/video/intro-planeta.mp4" autoplay muted loop playsinline webkit-playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video>
+    <div class="intro-shade" aria-hidden="true"></div>
+    <div class="intro-content" id="introContent">
+      <img class="intro-logo" src="assets/img/kav-logo-intro.png" alt="Kav" width="1200" height="588" fetchpriority="high">
+      <p class="intro-welcome">Bem-vindo à Kav.</p>
+      <p class="intro-sub">Aqui, o seu negócio começa uma nova jornada. Role a página e descubra cada passo.</p>
+    </div>
+    <div class="intro-scroll-cue" id="introCue" aria-hidden="true">
+      <div class="mouse-icon"><span class="mouse-wheel"></span></div>
+      <span>ROLE PARA COMEÇAR</span>
+    </div>
+  </section>
 
   <!-- =========================================================================
        HERO SCROLL-DRIVEN EXPERIENCE (8 ETAPAS ESTRATÉGICAS)
@@ -1005,5 +1048,6 @@
   <!-- Scripts: Hero Scroll-Driven Engine & Main Orchestration -->
   <script src="js/hero-scroll.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/intro.js"></script>
 </body>
 </html>
