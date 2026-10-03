@@ -1,45 +1,38 @@
 /**
  * ============================================================================
- * KAV + HYPERKAV — HERO SCROLL-DRIVEN EXPERIENCE ENGINE (v3.2 Production Ready)
+ * KAV — HERO SCROLL-DRIVEN EXPERIENCE ENGINE (v5.0 Revisão Estratégica)
  * ============================================================================
- * Design de Alta Fidelidade com scrub suave por hardware:
- * - Scrub com interpolação contínua (lerp) via requestAnimationFrame.
- * - Fila de seek não-bloqueante sincronizada pelo evento nativo 'seeked'.
- * - Scrub ativado estritamente quando readyState >= 3 e duration confirmada.
- * - Margens de respiro (deadband gaps) entre blocos de texto: ZERO colisão.
- * - Bloco de abertura e hint de scroll saem completamente antes do Ato 01.
- * - Monitoramento de buffer real com barra superior discreta.
- * - Fallback automático inteligente para Canvas / Poster caso o vídeo falhe.
- * - Suporte nativo a prefers-reduced-motion.
+ * - Zero telas de bloqueio: Carrega e exibe título + CTA no primeiro milissegundo.
+ * - Linguagem 100% voltada ao dono de pequenos e médios negócios.
+ * - 8 etapas contínuas com transições sem sobreposição (deadband gaps).
+ * - Scrub fluido de vídeo com proteção contra congelamento (watchdog de 100ms).
+ * - Suporte a prefers-reduced-motion e dispositivos móveis simples.
  * ============================================================================
  */
 
 const HERO_SCROLL_CONFIG = {
   video: {
-    // Ordem de prioridade de fontes
     desktopSrc: 'assets/video/hero-desktop.mp4',
     mobileSrc: 'assets/video/hero-mobile.mp4',
-    // Arquivo original de alta fidelidade confirmado presente no repositório (HTTP 200)
     legacySrc: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
-    posterJpg: 'assets/video/hero-poster.jpg',
     posterSvg: 'assets/video/hero-poster.svg',
-    fallbackDuration: 24, // segundos estimados caso duration ainda seja desconhecida
-    lerpFactor: 0.08,     // suavidade fluida no desktop
-    mobileLerpFactor: 0.14 // agilidade e resposta tátil no mobile
+    fallbackDuration: 24,
+    lerpFactor: 0.10,      // suavidade no desktop
+    mobileLerpFactor: 0.16 // agilidade no mobile
   },
 
   scroll: {
-    desktopHeight: '500vh',
-    mobileHeight: '380vh'
+    desktopHeight: '520vh',
+    mobileHeight: '400vh'
   },
 
   acts: [
-    { id: 1, label: '1 · Início', targetProgress: 0.15 },
-    { id: 2, label: '2 · Núcleo HyperKav', targetProgress: 0.55 },
-    { id: 3, label: '3 · Sucesso', targetProgress: 0.88 }
+    { id: 1, label: '1 · Começo', targetProgress: 0.15 },
+    { id: 2, label: '2 · Como funciona', targetProgress: 0.55 },
+    { id: 3, label: '3 · Resultado', targetProgress: 0.88 }
   ],
 
-  // Janelas com margens deliberadas de respiro (gaps) para evitar qualquer sobreposição
+  // 8 Etapas da Jornada com margens deliberadas de respiro (gaps) para evitar qualquer sobreposição
   steps: [
     {
       id: 'step-opening',
@@ -49,92 +42,92 @@ const HERO_SCROLL_CONFIG = {
       position: 'bottom-center',
       showScrollHint: true,
       badge: null,
-      title: 'Marketing e performance que levam o seu negócio ao topo.',
-      subtitle: 'Todo negócio começa em algum ponto do mapa. Role para ver para onde ele pode ir.'
+      title: 'Leve o seu negócio ao topo da sua região.',
+      subtitle: 'Anúncios, conteúdo e atendimento no WhatsApp para pequenos e médios negócios venderem mais.'
     },
-    // GAP: 0.06 -> 0.10 (Respiro total: H1 e hint 100% ocultos, centro livre)
+    // GAP: 0.06 -> 0.09 (Respiro total: H1 e hint 100% ocultos, centro livre)
     {
-      id: 'step-kav-enters',
+      id: 'step-entender',
       act: 1,
-      minProgress: 0.10,  // Entra apenas aos 10%
-      maxProgress: 0.20,
+      minProgress: 0.09,  // Entra aos 9%
+      maxProgress: 0.18,
       position: 'bottom-left',
       showScrollHint: false,
-      badge: 'ATO 01 • O INÍCIO',
-      title: 'A Kav entra em campo.',
-      subtitle: 'Mapeamos o seu mercado, os seus concorrentes e o que realmente move os clientes da sua região.'
+      badge: 'Passo 1',
+      title: 'Primeiro, entendemos o seu cliente.',
+      subtitle: 'Olhamos o seu mercado, os seus concorrentes e por que o cliente da sua região escolhe você, ou o vizinho.'
     },
-    // GAP: 0.20 -> 0.23 (Respiro)
+    // GAP: 0.18 -> 0.21 (Respiro)
     {
-      id: 'step-first-leap',
+      id: 'step-encontrado',
       act: 1,
-      minProgress: 0.23,
-      maxProgress: 0.34,
+      minProgress: 0.21,
+      maxProgress: 0.31,
       position: 'bottom-right',
       showScrollHint: false,
-      badge: 'TRAÇÃO INICIAL',
-      title: 'O primeiro salto é ganhar visibilidade.',
-      subtitle: 'Posicionamento, presença digital e campanhas que tiram seu negócio do anonimato.'
+      badge: 'Passo 2',
+      title: 'Depois, fazemos você ser encontrado.',
+      subtitle: 'Anúncios e conteúdo para mais gente da sua cidade conhecer e procurar o seu negócio.'
     },
-    // GAP: 0.34 -> 0.37 (Respiro)
+    // GAP: 0.31 -> 0.34 (Respiro)
     {
-      id: 'step-data-appears',
+      id: 'step-acompanhado',
       act: 2,
-      minProgress: 0.37,
-      maxProgress: 0.48,
+      minProgress: 0.34,
+      maxProgress: 0.45,
       position: 'bottom-left',
       showScrollHint: false,
-      badge: 'ATO 02 • INTELIGÊNCIA',
-      title: 'Cada campanha vira inteligência.',
-      subtitle: 'Pesquisas, métricas e relatórios mostram o que os maiores do seu mercado fazem e onde existe espaço para você passar na frente.'
+      badge: 'Passo 3',
+      title: 'Cada real investido é acompanhado.',
+      subtitle: 'Você vê quanto gastou, quantos clientes chegaram e quanto vendeu. Sem número bonito que não vira venda.'
     },
-    // GAP: 0.48 -> 0.51 (Respiro)
+    // GAP: 0.45 -> 0.48 (Respiro)
     {
-      id: 'step-hyperkav-core',
+      id: 'step-hyperkav',
       act: 2,
-      minProgress: 0.51,
-      maxProgress: 0.63,
+      minProgress: 0.48,
+      maxProgress: 0.59,
       position: 'bottom-left',
       showScrollHint: false,
-      badge: 'NÚCLEO HYPERKAV',
-      title: 'Seu negócio está pronto para entrar no núcleo.',
-      subtitle: 'O HyperKav é o núcleo de tecnologia, pesquisa e estratégia da Kav, onde dados viram decisão.'
+      badge: 'Passo 4',
+      title: 'O HyperKav é o nosso jeito de cuidar do seu dinheiro.',
+      subtitle: 'Acompanhamos tudo todos os dias e ajustamos o que não está dando resultado.'
     },
-    // GAP: 0.63 -> 0.66 (Respiro)
+    // GAP: 0.59 -> 0.62 (Respiro)
     {
-      id: 'step-transformation',
+      id: 'step-atendimento',
       act: 2,
-      minProgress: 0.66,
-      maxProgress: 0.77,
+      minProgress: 0.62,
+      maxProgress: 0.73,
       position: 'bottom-right',
       showScrollHint: false,
-      badge: 'TRANSFORMAÇÃO',
-      title: 'Estratégia, tecnologia e criatividade juntas.',
-      subtitle: 'Tráfego, conteúdo, automação e análise em um só sistema, desenhado para o seu negócio.'
+      badge: 'Passo 5',
+      title: 'E ninguém fica sem resposta.',
+      subtitle: 'Atendimento com inteligência artificial no WhatsApp: responde em segundos, de dia ou de madrugada, e passa para a sua equipe fechar a venda.'
     },
-    // GAP: 0.77 -> 0.80 (Respiro)
+    // GAP: 0.73 -> 0.76 (Respiro)
     {
-      id: 'step-the-summit',
+      id: 'step-prova',
       act: 3,
-      minProgress: 0.80,
-      maxProgress: 0.90,
+      minProgress: 0.76,
+      maxProgress: 0.88,
       position: 'bottom-left',
       showScrollHint: false,
-      badge: 'ATO 03 • O TOPO',
-      title: 'Acima da concorrência. Com método.',
-      subtitle: 'Do ponto de partida ao topo do mercado, com um caminho claro e mensurável.'
+      badge: 'Passo 6',
+      title: 'Cada R$ 1 investido virou R$ 6,50.',
+      subtitle: 'Foi o que fizemos com a Almeida Cestas. Com a PontoCar, +7 mil contatos no WhatsApp e o faturamento dobrou.'
     },
-    // GAP: 0.90 -> 0.92 (Respiro)
+    // GAP: 0.88 -> 0.91 (Respiro)
     {
-      id: 'step-cta-finale',
+      id: 'step-final',
       act: 3,
-      minProgress: 0.92,
+      minProgress: 0.91,
       maxProgress: 1.01,
       position: 'bottom-center',
       showScrollHint: false,
-      badge: 'KAV + HYPERKAV',
+      badge: 'Resultado',
       title: 'Vamos levar o seu negócio ao topo?',
-      subtitle: 'Do ponto de partida ao topo do mercado — com método, dados e tecnologia.'
+      subtitle: 'Análise gratuita do seu negócio, sem compromisso.'
     }
   ]
 };
@@ -150,7 +143,6 @@ class KavHeroScrollEngine {
     // Elementos DOM
     this.video = document.getElementById('heroScrollVideo');
     this.canvas = this.section.querySelector('.hero-fallback-canvas');
-    this.loader = this.section.querySelector('.hero-loader');
     this.progressFill = this.section.querySelector('.progress-fill');
     this.progressPercent = this.section.querySelector('.progress-percent-val');
     this.actButtons = this.section.querySelectorAll('.act-pill-btn');
@@ -169,10 +161,11 @@ class KavHeroScrollEngine {
     this.isReducedMotion = false;
     this.isRendering = false;
 
-    // Fila de seek precisa
+    // Fila de seek precisa com proteção contra travamento (Watchdog)
     this.isSeeking = false;
     this.pendingSeekTime = null;
     this.lastRenderedTime = -1;
+    this.seekWatchdog = null;
 
     this.init();
   }
@@ -186,7 +179,6 @@ class KavHeroScrollEngine {
   init() {
     this.checkReducedMotion();
     this.applySectionHeight();
-    this.selectVideoSource();
     this.setupVideoEvents();
     this.setupEventListeners();
     this.startRenderLoop();
@@ -208,13 +200,8 @@ class KavHeroScrollEngine {
       : this.config.scroll.desktopHeight;
   }
 
-  selectVideoSource() {
+  setupVideoEvents() {
     if (!this.video) return;
-
-    // Detecção de rede lenta ou economia de dados (Save-Data)
-    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    const isSlowConnection = conn && (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g');
-    const isMobile = window.innerWidth <= 768;
 
     // Atributos vitais para autoplay inline no iOS / WebKit
     this.video.defaultMuted = true;
@@ -225,24 +212,37 @@ class KavHeroScrollEngine {
     this.video.setAttribute('muted', '');
     this.video.disablePictureInPicture = true;
 
-    // Fonte comprovada presente no servidor (HTTP 200)
-    // Se o elemento não tiver uma fonte válida ativa ou der erro, carrega o arquivo principal
+    // Se o elemento não tiver uma fonte válida ativa, carrega o arquivo principal confirmado (HTTP 200)
     if (!this.video.src || this.video.src === '') {
       this.video.src = this.config.video.legacySrc;
     }
-  }
 
-  setupVideoEvents() {
-    if (!this.video) return;
-
-    // Sincronização via 'seeked' para evitar fila acumulada de frames
-    this.video.addEventListener('seeked', () => {
+    // Libera a fila de seek quando o frame foi decodificado
+    const onSeekComplete = () => {
       this.isSeeking = false;
+      if (this.seekWatchdog) {
+        clearTimeout(this.seekWatchdog);
+        this.seekWatchdog = null;
+      }
       if (this.pendingSeekTime !== null) {
         const nextTime = this.pendingSeekTime;
         this.pendingSeekTime = null;
         this.applyDirectSeek(nextTime);
       }
+    };
+
+    this.video.addEventListener('seeked', onSeekComplete);
+
+    // Eventos que indicam espera ou interrupção: NUNCA deixa isSeeking preso em true!
+    ['waiting', 'stalled', 'abort', 'suspend'].forEach(evt => {
+      this.video.addEventListener(evt, () => {
+        if (this.isSeeking && !this.seekWatchdog) {
+          this.seekWatchdog = setTimeout(() => {
+            this.isSeeking = false;
+            this.seekWatchdog = null;
+          }, 80);
+        }
+      });
     });
 
     // Monitoramento do buffer real de download (HTTP range)
@@ -258,60 +258,46 @@ class KavHeroScrollEngine {
             }, 800);
           }
         }
-        this.log(`Buffer carregado: ${percent}%`);
       }
     };
     this.video.addEventListener('progress', onBufferProgress);
 
-    // Condição estrita: habilita o scrub somente quando readyState >= 3 e duração confirmada
-    const evaluateReadiness = () => {
-      if (this.video.readyState >= 3 && this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0) {
+    // Ativação IMEDIATA assim que os metadados existirem (duração conhecida)
+    const onMetadataReady = () => {
+      if (this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0) {
         this.videoDuration = this.video.duration;
         this.isVideoReady = true;
-        this.log(`Vídeo totalmente pronto. Duração: ${this.videoDuration.toFixed(2)}s | readyState: ${this.video.readyState}`);
+        this.log(`Vídeo pronto. Duração: ${this.videoDuration.toFixed(2)}s | readyState: ${this.video.readyState}`);
 
-        // Garante a decodificação do primeiro frame imediatamente
+        // Aquece o decodificador no primeiro milissegundo
         try {
           if (this.video.currentTime === 0) {
             this.video.currentTime = 0.001;
           }
         } catch (e) {}
-
-        this.hideLoader();
       }
     };
 
-    this.video.addEventListener('loadedmetadata', evaluateReadiness);
-    this.video.addEventListener('loadeddata', evaluateReadiness);
-    this.video.addEventListener('canplay', evaluateReadiness);
-    this.video.addEventListener('canplaythrough', evaluateReadiness);
+    this.video.addEventListener('loadedmetadata', onMetadataReady);
+    this.video.addEventListener('loadeddata', onMetadataReady);
+    this.video.addEventListener('canplay', onMetadataReady);
+    this.video.addEventListener('canplaythrough', onMetadataReady);
 
-    if (this.video.readyState >= 3) {
-      evaluateReadiness();
+    if (this.video.readyState >= 1) {
+      onMetadataReady();
     }
 
     // Tratamento de falhas de rede resiliente
     this.video.addEventListener('error', (e) => {
       this.log('Falha de carregamento no vídeo:', e);
-      // Se estava tentando hero-desktop/hero-mobile e falhou, tenta imediatamente a URL do arquivo principal
       if (this.video.src && this.video.src.indexOf('Untitled_Scene') === -1) {
-        this.log('Redirecionando para o vídeo principal comprovado...');
+        this.log('Redirecionando para o vídeo principal...');
         this.video.src = this.config.video.legacySrc;
         try { this.video.load(); } catch (err) {}
       } else {
-        this.log('Ativando fallback procedural...');
         this.activateFallbackMode();
       }
     });
-
-    // Watchdog de segurança: só aciona fallback se o vídeo falhar completamente (readyState < 2 após 6s)
-    setTimeout(() => {
-      if (!this.isVideoReady && (!this.video.readyState || this.video.readyState < 2)) {
-        this.log('Timeout de carregamento do vídeo excedido. Ativando fallback procedural.');
-        this.activateFallbackMode();
-      }
-      this.hideLoader();
-    }, 6000);
 
     // Desbloqueio mobile no primeiro gesto do usuário
     const unlockMobile = () => {
@@ -338,16 +324,6 @@ class KavHeroScrollEngine {
     if (this.canvas) {
       this.canvas.style.display = 'block';
       this.initProceduralFallback();
-    }
-    this.hideLoader();
-  }
-
-  hideLoader() {
-    if (this.loader) {
-      this.loader.classList.add('fade-out');
-      setTimeout(() => {
-        this.loader.style.display = 'none';
-      }, 400);
     }
   }
 
@@ -434,16 +410,16 @@ class KavHeroScrollEngine {
   }
 
   /**
-   * MOTOR DE SCRUB PRECISO E FLUIDO
-   * Aplica busca no frame correto com throttle e sincronização por hardware
+   * MOTOR DE SCRUB PRECISO E FLUIDO (Zero Congelamento)
    */
   updateVideoFrame(progress) {
-    // Só atualiza se o vídeo estiver pronto e com readyState >= 3
-    if (!this.video || !this.isVideoReady || this.video.readyState < 3) return;
+    if (!this.video) return;
 
     const duration = (this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0)
       ? this.video.duration
       : this.videoDuration;
+
+    if (!duration || duration <= 0) return;
 
     const targetTime = Math.max(0, Math.min(duration, progress * duration));
 
@@ -459,12 +435,34 @@ class KavHeroScrollEngine {
 
     if (!this.isSeeking) {
       this.isSeeking = true;
+
+      // Watchdog de segurança: NUNCA permite que isSeeking fique travado em true por mais de 100ms
+      if (this.seekWatchdog) {
+        clearTimeout(this.seekWatchdog);
+      }
+      this.seekWatchdog = setTimeout(() => {
+        if (this.isSeeking) {
+          this.isSeeking = false;
+          this.seekWatchdog = null;
+          if (this.pendingSeekTime !== null) {
+            const next = this.pendingSeekTime;
+            this.pendingSeekTime = null;
+            this.applyDirectSeek(next);
+          }
+        }
+      }, 100);
+
       try {
-        this.video.currentTime = targetTime;
+        if ('fastSeek' in this.video) {
+          this.video.fastSeek(targetTime);
+        } else {
+          this.video.currentTime = targetTime;
+        }
       } catch (e) {
         this.isSeeking = false;
       }
     } else {
+      // Guarda a última posição solicitada pelo usuário durante a rolagem
       this.pendingSeekTime = targetTime;
     }
   }
@@ -489,7 +487,7 @@ class KavHeroScrollEngine {
       }
     }
 
-    // Identificar passo ativo respeitando as margens de respiro
+    // Identificar passo ativo respeitando as margens de respiro (gaps)
     const activeStep = this.config.steps.find((step) => {
       return progress >= step.minProgress && progress < step.maxProgress;
     }) || null;

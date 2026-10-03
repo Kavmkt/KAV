@@ -1,10 +1,63 @@
 /**
- * KAV Marketing Digital & Performance
- * Core Main Interactions: Mobile Navigation, SME ROI Simulator & Lead Generator
+ * ============================================================================
+ * KAV — MAIN JAVASCRIPT ORCHESTRATION (v5.0 Revisão Estratégica)
+ * ============================================================================
+ * - Gestão unificada da CTA do WhatsApp (constante WHATSAPP_NUMBER).
+ * - Menu mobile acessível (ARIA, ESC, clique fora).
+ * - Simulação realista de chat de atendimento IA em loop contínuo.
+ * - FAQ interativo em acordeão com transições suaves.
+ * - Nova Calculadora de Vendas Perdidas por Demora no Atendimento.
+ * - Formulário de Análise Gratuita com integração transparente ao WhatsApp.
+ * ============================================================================
  */
 
+// [CONFIRMAR: Número de WhatsApp oficial da Kav com DDI e DDD, ex: 5511999999999]
+const WHATSAPP_NUMBER = '5511999999999';
+
+// Mensagens padrão estruturadas
+const WHATSAPP_MSGS = {
+  default: encodeURIComponent('Oi! Vim pelo site da Kav e quero conversar sobre o meu negócio.'),
+  iaTest: encodeURIComponent('Quero ver o atendimento com IA funcionando'),
+  calcCustom: (valor) => encodeURIComponent(`Oi! Fiz a simulação no site da Kav e vi que posso estar deixando de vender cerca de ${valor}/mês por demorar a responder. Quero conversar sobre o meu negócio.`),
+  leadForm: (data) => encodeURIComponent(
+    `Olá Kav! Pedi uma análise gratuita do meu negócio pelo site.\n\n` +
+    `👤 *Nome:* ${data.name}\n` +
+    `📱 *WhatsApp:* ${data.whatsapp}\n` +
+    `🏢 *Negócio:* ${data.company || 'Não informado'}\n` +
+    `🏷️ *Tipo de Negócio:* ${data.businessType || 'Geral'}\n` +
+    `📧 *E-mail:* ${data.email || 'Não informado'}\n` +
+    `💰 *Faturamento:* ${data.revenue || 'Não informado'}\n` +
+    `🎯 *Maior Desafio:* ${data.challenge || 'Melhorar vendas e anúncios'}\n` +
+    `🤖 *Interesse em IA no WhatsApp:* ${data.aiInterest ? 'Sim' : 'Não'}\n\n` +
+    `Vim pelo site da Kav.`
+  )
+};
+
+function getWhatsAppUrl(msgKey = 'default', customParam = null) {
+  let text = WHATSAPP_MSGS.default;
+  if (msgKey === 'iaTest') text = WHATSAPP_MSGS.iaTest;
+  if (msgKey === 'calcCustom' && customParam) text = WHATSAPP_MSGS.calcCustom(customParam);
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Mobile Navigation Menu
+
+  // 1. Inicializar todos os links primários de WhatsApp com o número e mensagem padrão
+  document.querySelectorAll('.btn-whatsapp-trigger').forEach((btn) => {
+    btn.setAttribute('href', getWhatsAppUrl('default'));
+    btn.setAttribute('target', '_blank');
+    btn.setAttribute('rel', 'noopener noreferrer');
+  });
+
+  // Botão específico de teste da IA
+  const btnIaTest = document.getElementById('btnIaTestWhatsApp');
+  if (btnIaTest) {
+    btnIaTest.setAttribute('href', getWhatsAppUrl('iaTest'));
+    btnIaTest.setAttribute('target', '_blank');
+    btnIaTest.setAttribute('rel', 'noopener noreferrer');
+  }
+
+  // 2. Menu de Navegação Mobile
   const mobileToggle = document.getElementById('mobileToggle');
   const navMenu = document.getElementById('navMenu');
 
@@ -15,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mobileToggle.setAttribute('aria-expanded', isOpen);
     });
 
-    // Close on navigation link click
+    // Fechar ao clicar em qualquer link
     document.querySelectorAll('.nav-link').forEach((link) => {
       link.addEventListener('click', () => {
         navMenu.classList.remove('open');
@@ -24,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Close on Escape key
+    // Fechar com a tecla Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && navMenu.classList.contains('open')) {
         navMenu.classList.remove('open');
@@ -32,65 +85,170 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileToggle.setAttribute('aria-expanded', 'false');
       }
     });
+
+    // Fechar ao clicar fora do menu
+    document.addEventListener('click', (e) => {
+      if (navMenu.classList.contains('open') && !navMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
+        navMenu.classList.remove('open');
+        mobileToggle.classList.remove('active');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
   }
 
-  // 2. Interactive ROI & Growth Simulator for SMEs (Estimativa Ilustrativa)
-  const faturamentoSlider = document.getElementById('calcFaturamento');
-  const faturamentoDisplay = document.getElementById('faturamentoDisplay');
-  const segmentoSelect = document.getElementById('calcSegmento');
-  const projecaoDisplay = document.getElementById('projecaoFaturamento');
-  const crescimentoDisplay = document.getElementById('crescimentoPercentual');
-  const reducaoCACDisplay = document.getElementById('reducaoCAC');
+  // 3. Simulação Dinâmica de Chat no Mockup de Celular (Seção WhatsApp)
+  const phoneScreen = document.getElementById('phoneChatScreen');
+  if (phoneScreen) {
+    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Multiplicadores conservadores e realistas para PMEs (sem promessas exageradas)
-  const segmentMultipliers = {
-    ecommerce: { multiplier: 1.8, cacReduction: 25, percentStr: '+80%' },
-    servicos: { multiplier: 1.6, cacReduction: 20, percentStr: '+60%' },
-    saude: { multiplier: 1.5, cacReduction: 18, percentStr: '+50%' },
-    educacao: { multiplier: 1.7, cacReduction: 22, percentStr: '+70%' },
-    local: { multiplier: 1.4, cacReduction: 15, percentStr: '+40%' }
-  };
+    const chatScript = [
+      { sender: 'client', text: 'Oi! Qual o valor e o horário disponível para amanhã?', time: '14:20' },
+      { sender: 'ia', text: 'Olá! Temos às 10h e às 15h. Posso reservar o melhor horário para você agora.', time: '14:20' },
+      { sender: 'client', text: 'Pode agendar às 15h.', time: '14:21' },
+      { sender: 'ia', text: 'Pronto! Horário reservado. Um especialista continuará com você para finalizar.', time: '14:21' }
+    ];
 
-  function updateCalculator() {
-    if (!faturamentoSlider || !projecaoDisplay || !segmentoSelect) return;
+    if (isReducedMotion) {
+      // Modo estático para acessibilidade
+      phoneScreen.innerHTML = '';
+      chatScript.forEach(msg => {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${msg.sender}`;
+        bubble.innerHTML = `${msg.text}<span class="msg-time">${msg.time}</span>`;
+        phoneScreen.appendChild(bubble);
+      });
+    } else {
+      let isChatRunning = true;
 
-    const faturamentoAtual = parseFloat(faturamentoSlider.value);
-    const segmento = segmentoSelect.value;
-    const config = segmentMultipliers[segmento] || segmentMultipliers.servicos;
+      const runChatLoop = async () => {
+        while (isChatRunning) {
+          phoneScreen.innerHTML = '';
+          
+          for (let i = 0; i < chatScript.length; i++) {
+            const msg = chatScript[i];
 
-    const faturamentoFormatado = new Intl.NumberFormat('pt-BR', {
+            // Indicador de "digitando..."
+            const typingBubble = document.createElement('div');
+            typingBubble.className = 'typing-bubble';
+            typingBubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+            phoneScreen.appendChild(typingBubble);
+            phoneScreen.scrollTop = phoneScreen.scrollHeight;
+
+            await new Promise(r => setTimeout(r, msg.sender === 'client' ? 700 : 1000));
+            typingBubble.remove();
+
+            // Mensagem real
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${msg.sender}`;
+            bubble.innerHTML = `${msg.text}<span class="msg-time">${msg.time}</span>`;
+            bubble.style.opacity = '0';
+            bubble.style.transform = 'translateY(8px)';
+            phoneScreen.appendChild(bubble);
+
+            // Animação de entrada
+            requestAnimationFrame(() => {
+              bubble.style.opacity = '1';
+              bubble.style.transform = 'translateY(0)';
+            });
+
+            phoneScreen.scrollTop = phoneScreen.scrollHeight;
+            await new Promise(r => setTimeout(r, 1200));
+          }
+
+          // Pausa antes de reiniciar o loop da conversa
+          await new Promise(r => setTimeout(r, 4500));
+        }
+      };
+
+      runChatLoop();
+    }
+  }
+
+  // 4. FAQ Acordeão Interativo
+  const faqItems = document.querySelectorAll('.faq-item');
+  faqItems.forEach((item) => {
+    const questionBtn = item.querySelector('.faq-question');
+    if (questionBtn) {
+      questionBtn.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+        
+        // Fecha outros itens para leitura limpa
+        faqItems.forEach(other => {
+          other.classList.remove('active');
+          const btn = other.querySelector('.faq-question');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+        });
+
+        // Alterna o atual
+        if (!isActive) {
+          item.classList.add('active');
+          questionBtn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    }
+  });
+
+  // 5. Nova Calculadora: "Quanto você pode estar perdendo por demorar a responder?"
+  const calcMsgDia = document.getElementById('calcMsgDia');
+  const calcTicketMedio = document.getElementById('calcTicketMedio');
+  const calcTaxaDesistencia = document.getElementById('calcTaxaDesistencia');
+
+  const msgDiaDisplay = document.getElementById('msgDiaDisplay');
+  const ticketMedioDisplay = document.getElementById('ticketMedioDisplay');
+  const taxaDesistenciaDisplay = document.getElementById('taxaDesistenciaDisplay');
+  const calcPerdaValor = document.getElementById('calcPerdaValor');
+  const calcWhatsappBtn = document.getElementById('calcWhatsappBtn');
+
+  function updateLossCalculator() {
+    if (!calcMsgDia || !calcTicketMedio || !calcTaxaDesistencia || !calcPerdaValor) return;
+
+    const msgDia = parseInt(calcMsgDia.value, 10);
+    const ticketMedio = parseFloat(calcTicketMedio.value);
+    const desistenciaDeCadaDez = parseInt(calcTaxaDesistencia.value, 10);
+
+    // Atualiza os rótulos visuais dos sliders
+    if (msgDiaDisplay) msgDiaDisplay.textContent = `${msgDia} mensagens / dia`;
+    if (ticketMedioDisplay) {
+      ticketMedioDisplay.textContent = new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        maximumFractionDigits: 0
+      }).format(ticketMedio);
+    }
+    if (taxaDesistenciaDisplay) {
+      taxaDesistenciaDisplay.textContent = `${desistenciaDeCadaDez} de cada 10 clientes`;
+    }
+
+    // Fórmula clara e transparente:
+    // Mensagens/mês = msgDia * 30
+    // Clientes que desistem = totalMsg * (desistencia / 10)
+    // Perda estimada em vendas = clientes que desistem * ticketMedio
+    const msgMes = msgDia * 30;
+    const clientesPerdidos = Math.round(msgMes * (desistenciaDeCadaDez / 10));
+    const perdaEstimada = clientesPerdidos * ticketMedio;
+
+    const perdaFormatada = new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
       maximumFractionDigits: 0
-    }).format(faturamentoAtual);
+    }).format(perdaEstimada);
 
-    if (faturamentoDisplay) {
-      faturamentoDisplay.textContent = `${faturamentoFormatado} / mês`;
-    }
+    calcPerdaValor.textContent = `${perdaFormatada} por mês`;
 
-    const projecaoValor = faturamentoAtual * config.multiplier;
-    const projecaoFormatada = new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      maximumFractionDigits: 0
-    }).format(projecaoValor);
-
-    projecaoDisplay.textContent = `${projecaoFormatada} / mês`;
-    if (crescimentoDisplay) {
-      crescimentoDisplay.textContent = config.percentStr;
-    }
-    if (reducaoCACDisplay) {
-      reducaoCACDisplay.textContent = `Até -${config.cacReduction}%`;
+    // Atualiza o link do WhatsApp com a estimativa do visitante
+    if (calcWhatsappBtn) {
+      calcWhatsappBtn.href = getWhatsAppUrl('calcCustom', perdaFormatada);
     }
   }
 
-  if (faturamentoSlider && segmentoSelect) {
-    faturamentoSlider.addEventListener('input', updateCalculator);
-    segmentoSelect.addEventListener('change', updateCalculator);
-    updateCalculator(); // Execução inicial
+  if (calcMsgDia && calcTicketMedio && calcTaxaDesistencia) {
+    calcMsgDia.addEventListener('input', updateLossCalculator);
+    calcTicketMedio.addEventListener('input', updateLossCalculator);
+    calcTaxaDesistencia.addEventListener('input', updateLossCalculator);
+    updateLossCalculator(); // Cálculo inicial
   }
 
-  // 3. Lead Form Submission & WhatsApp Link Builder
+  // 6. Formulário de Análise Gratuita do Negócio
   const leadForm = document.getElementById('leadForm');
   const formSuccess = document.getElementById('formSuccessMessage');
   const directWhatsAppBtn = document.getElementById('directWhatsAppBtn');
@@ -100,55 +258,59 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
 
       const name = document.getElementById('leadName') ? document.getElementById('leadName').value.trim() : '';
+      const whatsapp = document.getElementById('leadWhatsapp') ? document.getElementById('leadWhatsapp').value.trim() : '';
       const company = document.getElementById('leadCompany') ? document.getElementById('leadCompany').value.trim() : '';
       const email = document.getElementById('leadEmail') ? document.getElementById('leadEmail').value.trim() : '';
-      const whatsapp = document.getElementById('leadWhatsapp') ? document.getElementById('leadWhatsapp').value.trim() : '';
+      const businessType = document.getElementById('leadBusinessType') ? document.getElementById('leadBusinessType').value : '';
       const revenue = document.getElementById('leadRevenue') ? document.getElementById('leadRevenue').value : '';
       const challenge = document.getElementById('leadChallenge') ? document.getElementById('leadChallenge').value.trim() : '';
+      const aiInterest = document.getElementById('leadAiInterest') ? document.getElementById('leadAiInterest').checked : false;
 
-      // Validação básica
-      if (!name || !email || !whatsapp) {
-        alert('Por favor, preencha os campos obrigatórios (Nome, E-mail e WhatsApp).');
+      // Validação obrigatória
+      if (!name || !whatsapp) {
+        alert('Por favor, preencha os campos obrigatórios (Seu Nome e WhatsApp).');
         return;
       }
 
-      // Mensagem estruturada para envio direto via WhatsApp
-      const rawMessage = `Olá Kav! Gostaria de solicitar um diagnóstico estratégico para minha empresa.\n\n` +
-        `👤 *Nome:* ${name}\n` +
-        `🏢 *Empresa:* ${company || 'Não informado'}\n` +
-        `📧 *E-mail:* ${email}\n` +
-        `📱 *WhatsApp:* ${whatsapp}\n` +
-        `💰 *Faturamento Médio:* ${revenue}\n` +
-        `🎯 *Principal Desafio:* ${challenge || 'Estruturação de marketing e vendas'}\n\n` +
-        `Vim através do site da Kav.`;
+      // Gera o link estruturado de WhatsApp
+      const formData = {
+        name,
+        whatsapp,
+        company,
+        email,
+        businessType,
+        revenue,
+        challenge,
+        aiInterest
+      };
 
-      // Número oficial da agência Kav (configurável)
-      const phoneKav = '5511999999999'; // Substituir pelo número comercial oficial
-      const encodedMsg = encodeURIComponent(rawMessage);
-      const whatsappUrl = `https://wa.me/${phoneKav}?text=${encodedMsg}`;
+      const customMsg = WHATSAPP_MSGS.leadForm(formData);
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${customMsg}`;
 
       if (directWhatsAppBtn) {
         directWhatsAppBtn.href = whatsappUrl;
       }
 
-      // Transição suave para mensagem de confirmação
+      // Transição para tela de sucesso amigável
       leadForm.style.display = 'none';
       if (formSuccess) {
         formSuccess.style.display = 'block';
         formSuccess.classList.add('active');
+        formSuccess.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
   }
 
-  // 4. Header backdrop elevation on scroll
+  // 7. Elevação visual suave do cabeçalho ao rolar
   const header = document.getElementById('header');
   if (header) {
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 30) {
+      if (window.scrollY > 25) {
         header.classList.add('header-scrolled');
       } else {
         header.classList.remove('header-scrolled');
       }
     }, { passive: true });
   }
+
 });
