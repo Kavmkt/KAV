@@ -87,11 +87,7 @@ const EXPERIENCE_CONFIG = {
   // Caminhos dos Assets
   assets: {
     introVideoMp4: 'assets/video/intro-planeta.mp4',
-    introVideoWebm: 'assets/video/intro-planeta.webm',
-    introPosterJpg: 'assets/video/intro-poster.jpg',
-    introPosterWebp: 'assets/video/intro-poster.webp',
     journeyVideoMp4: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
-    journeyPosterJpg: 'assets/video/hero-poster.svg',
     logoSvg: 'assets/img/kav-logo-branco.svg'
   },
 
