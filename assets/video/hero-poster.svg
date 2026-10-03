@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <!-- Deep Navy Ambient Gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#0A1633" />
+      <stop offset="40%" stop-color="#070E22" />
+      <stop offset="85%" stop-color="#050B1A" />
+      <stop offset="100%" stop-color="#03060E" />
+    </radialGradient>
+
+    <!-- HyperKav Orange Core Glow -->
+    <radialGradient id="orangeCoreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+      <stop offset="15%" stop-color="#FFA048" stop-opacity="0.95" />
+      <stop offset="45%" stop-color="#FF6A1A" stop-opacity="0.75" />
+      <stop offset="75%" stop-color="#FF6A1A" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FF6A1A" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Cyan Telemetry Glow -->
+    <radialGradient id="cyanAmbient" cx="50%" cy="40%" r="40%">
+      <stop offset="0%" stop-color="#6FD3FF" stop-opacity="0.18" />
+      <stop offset="60%" stop-color="#6FD3FF" stop-opacity="0.04" />
+      <stop offset="100%" stop-color="#6FD3FF" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Horizon Beam -->
+    <linearGradient id="horizonGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6FD3FF" stop-opacity="0" />
+      <stop offset="35%" stop-color="#6FD3FF" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#FFA048" stop-opacity="0.5" />
+      <stop offset="65%" stop-color="#FF6A1A" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FF6A1A" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Vignette Gradient -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="60%">
+      <stop offset="40%" stop-color="#000000" stop-opacity="0" />
+      <stop offset="85%" stop-color="#050B1A" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#050B1A" stop-opacity="0.85" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#bgGlow)" />
+
+  <!-- Cyan Ambient Field -->
+  <circle cx="960" cy="460" r="600" fill="url(#cyanAmbient)" />
+
+  <!-- 3D Perspective Grid -->
+  <g opacity="0.3" stroke="#6FD3FF" stroke-width="1">
+    <!-- Converging Perspective Lines -->
+    <line x1="960" y1="460" x2="-200" y2="1080" />
+    <line x1="960" y1="460" x2="100" y2="1080" />
+    <line x1="960" y1="460" x2="350" y2="1080" />
+    <line x1="960" y1="460" x2="580" y2="1080" />
+    <line x1="960" y1="460" x2="780" y2="1080" />
+    <line x1="960" y1="460" x2="960" y2="1080" stroke-width="1.5" stroke="#FFA048" opacity="0.5" />
+    <line x1="960" y1="460" x2="1140" y2="1080" />
+    <line x1="960" y1="460" x2="1340" y2="1080" />
+    <line x1="960" y1="460" x2="1570" y2="1080" />
+    <line x1="960" y1="460" x2="1820" y2="1080" />
+    <line x1="960" y1="460" x2="2120" y2="1080" />
+
+    <!-- Isometric Transverse Curves -->
+    <path d="M 0,980 Q 960,860 1920,980" fill="none" opacity="0.4" />
+    <path d="M 0,860 Q 960,760 1920,860" fill="none" opacity="0.35" />
+    <path d="M 0,740 Q 960,660 1920,740" fill="none" opacity="0.3" />
+    <path d="M 0,640 Q 960,580 1920,640" fill="none" opacity="0.25" />
+    <path d="M 0,550 Q 960,510 1920,550" fill="none" opacity="0.2" />
+    <path d="M 0,480 Q 960,460 1920,480" fill="none" opacity="0.15" />
+  </g>
+
+  <!-- Horizon Line -->
+  <line x1="0" y1="460" x2="1920" y2="460" stroke="url(#horizonGlow)" stroke-width="2" />
+
+  <!-- Concentric Orbital Wireframe Rings around HyperKav Core -->
+  <g opacity="0.25" fill="none" stroke="#6FD3FF" stroke-width="1">
+    <ellipse cx="960" cy="460" rx="340" ry="110" transform="rotate(-8 960 460)" />
+    <ellipse cx="960" cy="460" rx="260" ry="85" transform="rotate(12 960 460)" stroke="#FF9A3C" opacity="0.4" />
+    <ellipse cx="960" cy="460" rx="160" ry="50" transform="rotate(-4 960 460)" stroke="#FFA048" opacity="0.6" />
+  </g>
+
+  <!-- Core Orange Glowing Sphere (First Frame of 3D Scene) -->
+  <circle cx="960" cy="460" r="140" fill="url(#orangeCoreGlow)" />
+  <circle cx="960" cy="460" r="18" fill="#FFFFFF" />
+
+  <!-- Subtle Data Points / Constellations -->
+  <g fill="#6FD3FF" opacity="0.6">
+    <circle cx="820" cy="445" r="2.5" />
+    <circle cx="1100" cy="475" r="2.5" />
+    <circle cx="710" cy="470" r="2" />
+    <circle cx="1210" cy="440" r="2" />
+    <circle cx="910" cy="380" r="1.5" />
+    <circle cx="1020" cy="530" r="1.5" />
+  </g>
+
+  <!-- Peripheral Vignette Overlay -->
+  <rect width="1920" height="1080" fill="url(#vignette)" />
+
+  <!-- Cinematic Framing Corners -->
+  <g stroke="#6FD3FF" stroke-width="1.5" opacity="0.3" fill="none">
+    <path d="M 40,80 L 40,40 L 80,40" />
+    <path d="M 1880,80 L 1880,40 L 1840,40" />
+    <path d="M 40,1000 L 40,1040 L 80,1040" />
+    <path d="M 1880,1000 L 1880,1040 L 1840,1040" />
+  </g>
+</svg>

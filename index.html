@@ -14,14 +14,14 @@
   <meta property="og:url" content="https://kavmkt.github.io/KAV/">
   <meta property="og:title" content="Kav | Marketing para pequenos e médios negócios">
   <meta property="og:description" content="Anúncios, conteúdo e atendimento no WhatsApp para pequenos e médios negócios venderem mais. Análise gratuita do seu negócio.">
-  <meta property="og:image" content="https://kavmkt.github.io/KAV/assets/img/kav-logo-branco.svg">
+  <meta property="og:image" content="https://kavmkt.github.io/KAV/assets/video/hero-poster.svg">
 
   <!-- Twitter Cards -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://kavmkt.github.io/KAV/">
   <meta property="twitter:title" content="Kav | Marketing para pequenos e médios negócios">
   <meta property="twitter:description" content="Anúncios, conteúdo e atendimento no WhatsApp para pequenos e médios negócios venderem mais. Análise gratuita do seu negócio.">
-  <meta property="twitter:image" content="https://kavmkt.github.io/KAV/assets/img/kav-logo-branco.svg">
+  <meta property="twitter:image" content="https://kavmkt.github.io/KAV/assets/video/hero-poster.svg">
 
   <!-- Schema.org JSON-LD -->
   <script type="application/ld+json">
@@ -42,13 +42,16 @@
   }
   </script>
 
-  <!-- Google Fonts: Montserrat (Fallback de Gotham), Space Grotesk & Plus Jakarta Sans -->
+  <!-- Preload do Vídeo e Poster Hero para Inicialização Instantânea -->
+  <link rel="preload" as="image" href="assets/video/hero-poster.svg" type="image/svg+xml">
+
+  <!-- Google Fonts: Space Grotesk & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/experience.css">
+  <link rel="stylesheet" href="css/hero-scroll.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -121,74 +124,119 @@
   </header>
 
   <!-- =========================================================================
-       EXPERIÊNCIA INTEGRADA KAV (ABERTURA PLANETA + JORNADA SCROLL-DRIVEN)
+       HERO SCROLL-DRIVEN EXPERIENCE (8 ETAPAS ESTRATÉGICAS)
        ========================================================================= -->
-  <section class="experience" id="experience" aria-label="Experiência Kav: do planeta ao topo">
-    <div class="experience__stage">
+  <section class="hero-scroll-section" id="heroScrollSection" aria-label="Jornada Kav para pequenos e médios negócios">
+    <div class="hero-sticky-viewport">
       
-      <!-- Vídeo 1: Abertura Planeta (Autoplay 3s ao carregar) -->
-      <video id="introVideo" class="exp-video exp-video--intro" muted playsinline preload="auto" aria-hidden="true">
-        <source src="assets/video/intro-planeta.mp4" type="video/mp4">
-      </video>
-
-      <!-- Vídeo 2: Jornada (Controlado pelo Scroll) -->
-      <video id="journeyVideo" class="exp-video exp-video--journey" muted playsinline preload="auto" aria-hidden="true">
-        <source src="assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4" type="video/mp4">
-      </video>
-
-      <!-- Vinheta Suave de Contraste para Leitura Central Livre -->
-      <div class="experience__vignette" aria-hidden="true"></div>
-
-      <!-- Camada A: Overlay Intro (Logo Kav Branco + Frase de Abertura) -->
-      <div class="overlay-intro">
-        <div class="intro-logo-wrapper">
-          <img class="intro-logo" src="assets/img/kav-logo-branco.svg" alt="Kav" width="220" height="88">
-        </div>
-        <p class="intro-phrase">De cima, tudo faz mais sentido.</p>
+      <!-- Linhas Contínuas de Buffer e Progresso no Topo -->
+      <div class="hero-scroll-progress-bar" aria-hidden="true">
+        <div class="hero-buffer-bar"></div>
+        <div class="progress-fill"></div>
       </div>
 
-      <!-- Camada B: Overlay Steps (HUD Superior + Blocos Cronológicos das Etapas) -->
-      <div class="overlay-steps">
-        
-        <!-- Linha Contínua de Progresso no Topo -->
-        <div class="exp-progress-line" aria-hidden="true">
-          <div class="exp-progress-fill"></div>
+      <!-- Barra de HUD Superior: Abas Atualizadas (1 · Começo, 2 · Como funciona, 3 · Resultado) -->
+      <div class="hero-top-hud">
+        <nav class="acts-pill-nav" aria-label="Navegação pelos Atos">
+          <button type="button" class="act-pill-btn active" data-act="1" title="Ir para o Começo">1 · Começo</button>
+          <button type="button" class="act-pill-btn" data-act="2" title="Ir para Como funciona">2 · Como funciona</button>
+          <button type="button" class="act-pill-btn" data-act="3" title="Ir para Resultado">3 · Resultado</button>
+        </nav>
+
+        <!-- Medidor simples sem a palavra 'jornada em %' -->
+        <div class="hero-progress-meter" aria-live="polite">
+          <span class="progress-dot-live"></span>
+          <span>PROGRESSO <span class="progress-percent-val">0%</span></span>
         </div>
+      </div>
 
-        <!-- Barra HUD Superior: Abas e Medidor -->
-        <div class="exp-top-hud">
-          <nav class="acts-pill-nav" aria-label="Navegação pelas Etapas">
-            <button type="button" class="act-pill-btn active" data-act="1" title="Ir para Começo">1 · Começo</button>
-            <button type="button" class="act-pill-btn" data-act="2" title="Ir para Como funciona">2 · Como funciona</button>
-            <button type="button" class="act-pill-btn" data-act="3" title="Ir para Resultado">3 · Resultado</button>
-          </nav>
+      <!-- Mídia Principal: Vídeo MP4 Scroll-Driven com Fallback e Preload Seguro -->
+      <div class="hero-media-wrapper">
+        <video 
+          class="hero-scroll-video" 
+          id="heroScrollVideo"
+          src="assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4"
+          poster="assets/video/hero-poster.svg"
+          muted 
+          playsinline 
+          webkit-playsinline 
+          preload="auto" 
+          disablepictureinpicture 
+          aria-hidden="true">
+          <source src="assets/video/hero-desktop.mp4" type="video/mp4" media="(min-width: 769px)">
+          <source src="assets/video/hero-mobile.mp4" type="video/mp4" media="(max-width: 768px)">
+          <source src="assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4" type="video/mp4">
+        </video>
+        <!-- Canvas Fallback Procedural de Alta Fidelidade -->
+        <canvas class="hero-fallback-canvas" aria-hidden="true"></canvas>
+      </div>
 
-          <div class="exp-progress-meter" aria-live="polite">
-            <span class="progress-dot-live"></span>
-            <span>PROGRESSO <span class="progress-percent-val">0%</span></span>
+      <!-- Vinheta e Gradientes Suaves de Contraste para Leitura (Centro Sempre Livre) -->
+      <div class="hero-vignette-overlay" aria-hidden="true"></div>
+
+      <!-- Container de Textos de Storytelling (8 Etapas com Margens de Respiro) -->
+      <div class="hero-story-container">
+        
+        <!-- 1. Abertura: Leve o seu negócio ao topo da sua região + Botão WhatsApp visível -->
+        <div class="hero-story-step pos-bottom-center active" data-step-id="step-opening">
+          <h1 class="story-step-title">Leve o seu negócio ao topo da sua região.</h1>
+          <p class="story-step-subtitle">Anúncios, conteúdo e atendimento no WhatsApp para pequenos e médios negócios venderem mais.</p>
+          <div class="story-cta-actions" style="margin-top: 18px;">
+            <a href="https://wa.me/5511999999999?text=Oi!%20Vim%20pelo%20site%20da%20Kav%20e%20quero%20conversar%20sobre%20o%20meu%20neg%C3%B3cio." class="btn btn-whatsapp-primary btn-whatsapp-trigger" target="_blank" rel="noopener noreferrer">
+              <span>Falar no WhatsApp</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.63c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.23.9 2.43 1.03 2.6.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.12-.22-.19-.47-.32z"/></svg>
+            </a>
           </div>
         </div>
 
-        <!-- Etapa 1: Começo (Passo 1 - Único H1 semântico do site) -->
-        <div class="exp-story-step pos-bottom-left" id="step-1">
-          <span class="exp-step-badge">Passo 1</span>
-          <h1 class="exp-step-title">Primeiro, entendemos o seu cliente.</h1>
-          <p class="exp-step-subtitle">Olhamos o seu mercado, os seus concorrentes e por que o cliente da sua região escolhe você, ou o vizinho.</p>
+        <!-- 2. Passo 1: Primeiro, entendemos o seu cliente -->
+        <div class="hero-story-step pos-bottom-left" data-step-id="step-entender">
+          <span class="story-step-badge">Passo 1</span>
+          <h2 class="story-step-title">Primeiro, entendemos o seu cliente.</h2>
+          <p class="story-step-subtitle">Olhamos o seu mercado, os seus concorrentes e por que o cliente da sua região escolhe você, ou o vizinho.</p>
         </div>
 
-        <!-- Etapa 2: Como funciona (Passo 2) -->
-        <div class="exp-story-step pos-bottom-right" id="step-2">
-          <span class="exp-step-badge">Passo 2</span>
-          <h2 class="exp-step-title">Depois, fazemos você ser encontrado.</h2>
-          <p class="exp-step-subtitle">Anúncios e conteúdo para mais gente da sua cidade conhecer e procurar o seu negócio. Cada real investido é acompanhado para você ver quanto gastou, quantos clientes chegaram e quanto vendeu.</p>
+        <!-- 3. Passo 2: Depois, fazemos você ser encontrado -->
+        <div class="hero-story-step pos-bottom-right" data-step-id="step-encontrado">
+          <span class="story-step-badge">Passo 2</span>
+          <h2 class="story-step-title">Depois, fazemos você ser encontrado.</h2>
+          <p class="story-step-subtitle">Anúncios e conteúdo para mais gente da sua cidade conhecer e procurar o seu negócio.</p>
         </div>
 
-        <!-- Etapa 3: Resultado (Fechamento com CTA Direto) -->
-        <div class="exp-story-step pos-bottom-center" id="step-3">
-          <span class="exp-step-badge">Resultado</span>
-          <h2 class="exp-step-title">Vamos levar o seu negócio ao topo?</h2>
-          <p class="exp-step-subtitle">Análise gratuita do seu negócio, sem compromisso.</p>
-          <div class="exp-step-cta">
+        <!-- 4. Passo 3: Cada real investido é acompanhado -->
+        <div class="hero-story-step pos-bottom-left" data-step-id="step-acompanhado">
+          <span class="story-step-badge">Passo 3</span>
+          <h2 class="story-step-title">Cada real investido é acompanhado.</h2>
+          <p class="story-step-subtitle">Você vê quanto gastou, quantos clientes chegaram e quanto vendeu. Sem número bonito que não vira venda.</p>
+        </div>
+
+        <!-- 5. Passo 4: O HyperKav é o nosso jeito de cuidar do seu dinheiro -->
+        <div class="hero-story-step pos-bottom-left" data-step-id="step-hyperkav">
+          <span class="story-step-badge">Passo 4</span>
+          <h2 class="story-step-title">O HyperKav é o nosso jeito de cuidar do seu dinheiro.</h2>
+          <p class="story-step-subtitle">Acompanhamos tudo todos os dias e ajustamos o que não está dando resultado.</p>
+        </div>
+
+        <!-- 6. Passo 5: E ninguém fica sem resposta -->
+        <div class="hero-story-step pos-bottom-right" data-step-id="step-atendimento">
+          <span class="story-step-badge">Passo 5</span>
+          <h2 class="story-step-title">E ninguém fica sem resposta.</h2>
+          <p class="story-step-subtitle">Atendimento com inteligência artificial no WhatsApp: responde em segundos, de dia ou de madrugada, e passa para a sua equipe fechar a venda.</p>
+        </div>
+
+        <!-- 7. Passo 6: Cada R$ 1 investido virou R$ 6,50 -->
+        <div class="hero-story-step pos-bottom-left" data-step-id="step-prova">
+          <span class="story-step-badge">Passo 6</span>
+          <h2 class="story-step-title">Cada R$ 1 investido virou R$ 6,50.</h2>
+          <p class="story-step-subtitle">Foi o que fizemos com a Almeida Cestas. Com a PontoCar, +7 mil contatos no WhatsApp e o faturamento dobrou.</p>
+        </div>
+
+        <!-- 8. Final: Vamos levar o seu negócio ao topo? -->
+        <div class="hero-story-step pos-bottom-center" data-step-id="step-final">
+          <span class="story-step-badge">Resultado</span>
+          <h2 class="story-step-title">Vamos levar o seu negócio ao topo?</h2>
+          <p class="story-step-subtitle">Análise gratuita do seu negócio, sem compromisso.</p>
+          <div class="story-cta-actions">
             <a href="https://wa.me/5511999999999?text=Oi!%20Vim%20pelo%20site%20da%20Kav%20e%20quero%20conversar%20sobre%20o%20meu%20neg%C3%B3cio." class="btn btn-whatsapp-primary btn-whatsapp-trigger" target="_blank" rel="noopener noreferrer">
               <span>Falar no WhatsApp</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.63c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.23.9 2.43 1.03 2.6.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.12-.22-.19-.47-.32z"/></svg>
@@ -201,12 +249,12 @@
 
       </div>
 
-      <!-- UM Único Indicador de Scroll ("Role para começar") -->
-      <div class="scroll-cue" role="button" tabindex="0" aria-label="Role para começar">
-        <div class="scroll-cue-mouse" aria-hidden="true">
-          <span class="scroll-cue-wheel"></span>
+      <!-- Indicador Animado de Rolagem (Dica ao Usuário) -->
+      <div class="hero-scroll-hint" role="button" tabindex="0" aria-label="Rolar para ver como funciona">
+        <div class="mouse-icon" aria-hidden="true">
+          <span class="mouse-wheel"></span>
         </div>
-        <span class="scroll-cue-text">Role para começar</span>
+        <span>ROLE PARA EXPLORAR</span>
       </div>
 
     </div>
@@ -954,8 +1002,8 @@
     <span>WhatsApp</span>
   </a>
 
-  <!-- Scripts: Experiência Integrada & Orquestração Geral -->
-  <script src="js/experience.js"></script>
+  <!-- Scripts: Hero Scroll-Driven Engine & Main Orchestration -->
+  <script src="js/hero-scroll.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
