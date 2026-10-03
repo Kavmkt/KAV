@@ -17,6 +17,9 @@ const HERO_SCROLL_CONFIG = {
     legacySrc: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
     posterSvg: 'assets/video/hero-poster.svg',
     fallbackDuration: 24,
+    // Fluidez: ao parar de rolar, o vídeo segue tocando devagar (sem seek) até esta folga à frente do scroll
+    driftRate: 0.5,        // velocidade do "seguir tocando" (1 = normal)
+    driftMaxSeconds: 2.5,  // quanto o vídeo pode ficar à frente da posição do scroll (s)
     introLeadSeconds: 3,   // trecho do vídeo (s) tocado durante a dissolução do planeta
     lerpFactor: 0.10,      // suavidade no desktop
     mobileLerpFactor: 0.16 // agilidade no mobile
@@ -167,6 +170,12 @@ class KavHeroScrollEngine {
     this.isSeeking = false;
     this.pendingSeekTime = null;
     this.lastRenderedTime = -1;
+    this.lastScrolled = 0;
+    this.scrollDir = 1;     // 1 = descendo, -1 = subindo
+    this.isDrifting = false;
+    this.prevTargetTime = 0;
+    this.prevTargetAt = 0;
+    this.targetVelocity = 0; // s de vídeo por s real, suavizado
     this.seekWatchdog = null;
 
     this.init();
@@ -380,6 +389,10 @@ class KavHeroScrollEngine {
     if (heroDistance <= 0) return;
 
     const scrolled = -rect.top;
+    if (scrolled !== this.lastScrolled) {
+      this.scrollDir = scrolled > this.lastScrolled ? 1 : -1;
+      this.lastScrolled = scrolled;
+    }
     this.introProgress = introDistance > 0 ? Math.max(0, Math.min(1, scrolled / introDistance)) : 1;
     this.rawProgress = Math.max(0, Math.min(1, (scrolled - heroStart) / heroDistance));
   }
@@ -447,6 +460,47 @@ class KavHeroScrollEngine {
     // Trecho inicial (lead) acompanha a dissolução do planeta; o restante acompanha o scroll do hero
     const lead = Math.min(this.config.video.introLeadSeconds || 0, duration * 0.3);
     const targetTime = Math.max(0, Math.min(duration, this.smoothIntro * lead + progress * (duration - lead)));
+
+    const cfg = this.config.video;
+    const current = this.video.currentTime;
+
+    // Velocidade com que o scroll empurra o vídeo (para o modo "tocar" nunca ficar atrás da rolagem)
+    const nowMs = performance.now();
+    const dtMs = nowMs - this.prevTargetAt;
+    if (dtMs >= 16) {
+      const inst = this.prevTargetAt ? Math.max(0, (targetTime - this.prevTargetTime) / (dtMs / 1000)) : 0;
+      this.targetVelocity += (inst - this.targetVelocity) * 0.25;
+      this.prevTargetTime = targetTime;
+      this.prevTargetAt = nowMs;
+    }
+    const canDrift = !this.isReducedMotion && this.video.readyState >= 3;
+
+    // Modo "tocar": descendo e com o vídeo já na posição do scroll (ou à frente).
+    // Em vez de pular quadro a quadro (seek, que trava), deixa o decodificador tocar devagar,
+    // com uma folga máxima à frente do scroll para o vídeo nunca ficar muito fora de contexto.
+    if (canDrift && this.scrollDir >= 0 && current >= targetTime - 0.06) {
+      const cap = Math.min(duration - 0.05, targetTime + cfg.driftMaxSeconds);
+      if (current < cap - 0.03) {
+        const rate = Math.max(cfg.driftRate, Math.min(2, this.targetVelocity * 1.15));
+        if (Math.abs(this.video.playbackRate - rate) > 0.05) this.video.playbackRate = rate;
+        if (!this.isDrifting || this.video.paused) {
+          const pl = this.video.play();
+          if (pl && pl.catch) pl.catch(() => { this.isDrifting = false; });
+          this.isDrifting = true;
+        }
+      } else if (this.isDrifting) {
+        this.video.pause();
+        this.isDrifting = false;
+      }
+      this.lastRenderedTime = current;
+      return;
+    }
+
+    // Modo "scrub": o scroll está à frente do vídeo (ou subindo) -> busca a posição exata
+    if (this.isDrifting) {
+      this.video.pause();
+      this.isDrifting = false;
+    }
 
     // Apenas busca se houver mudança perceptível de tempo (> 0.02s)
     if (Math.abs(targetTime - this.lastRenderedTime) > 0.02) {

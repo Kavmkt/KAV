@@ -25,6 +25,7 @@ O início da home apresenta um plano contínuo guiado pela rolagem do visitante 
 * **Três barrinhas** no canto superior direito abrem um menu em tela cheia (`#immersiveMenu`) durante a abertura e o vídeo.
 * **Menu real fixo (`.site-chrome`)** só aparece no fim da rolagem do hero (progresso > 95%).
 * Código: `css/intro.css`, `js/intro.js` (menu/autoplay) e `updateIntro` em `js/hero-scroll.js` (zoom/dissolve; ajuste `scroll.introScreens`).
+* **Fluidez do vídeo:** ao parar de rolar (ou rolar devagar), o vídeo do sapato continua tocando em câmera lenta, sem seek, até `video.driftMaxSeconds` à frente do scroll; rolando rápido ou subindo, volta ao modo scrub. Ajuste `driftRate` e `driftMaxSeconds` em `js/hero-scroll.js`.
 * Testes locais: use um servidor com suporte a HTTP Range (ex.: `npx http-server`), senão o scrub do vídeo não funciona.
 
 ---
