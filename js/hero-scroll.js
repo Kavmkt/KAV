@@ -8,12 +8,8 @@
  * O tempo e os frames do vídeo 3D avançam estritamente sincronizados ao scroll
  * do usuário, com suavização por interpolação (lerp) via requestAnimationFrame.
  *
- * Inclui:
- * - Controle de scrubbing de vídeo sem jitter
- * - Canvas 3D procedural como fallback resiliente (se vídeo faltar ou falhar)
- * - Suporte total a prefers-reduced-motion
- * - Storytelling com textos laterais/inferiores (centro 100% desobstruído)
- * - Indicadores interativos de atos com rolagem suave
+ * Configurado especificamente para o arquivo:
+ * 'Untitled_Scene_10-03_00_51_11_20261002215523.mp4' e 'hero-scroll.mp4'.
  * ============================================================================
  */
 
@@ -25,11 +21,11 @@
 const HERO_SCROLL_CONFIG = {
   // Configuração dos arquivos de mídia
   video: {
-    // Caminho padrão do arquivo de vídeo
-    src: 'assets/video/hero-scroll.mp4',
-    // Caminho alternativo com o nome original do render enviado
-    altSrc: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
-    // Imagem do primeiro frame / poster de abertura
+    // Caminho primário: nome exato do arquivo renderizado enviado
+    src: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
+    // Caminho secundário: nome padrão limpo caso renomeado
+    altSrc: 'assets/video/hero-scroll.mp4',
+    // Imagem do primeiro frame / poster de abertura instantânea
     poster: 'assets/video/hero-poster.svg',
     // Duração estimada em segundos (usada caso os metadados do vídeo demorem)
     fallbackDuration: 24,
@@ -42,17 +38,17 @@ const HERO_SCROLL_CONFIG = {
   // Altura da seção de scroll (define a quantidade de rolagem)
   scroll: {
     desktopHeight: '520vh', // ~100vh para cada 5s de vídeo
-    mobileHeight: '380vh'   // Menor no mobile para não cansar o polegar
+    mobileHeight: '380vh'   // Menor no mobile para rolagem fluida no polegar
   },
 
-  // Marcadores dos 3 Atos (indicadores clicáveis na tela)
+  // Marcadores dos 3 Atos (indicadores clicáveis no HUD superior)
   acts: [
     { id: 1, label: '1 · Início', targetProgress: 0.14 },
     { id: 2, label: '2 · Núcleo HyperKav', targetProgress: 0.56 },
     { id: 3, label: '3 · O Topo', targetProgress: 0.88 }
   ],
 
-  // Faixas de scroll e textos de storytelling sincronizados
+  // Faixas de scroll e textos de storytelling sincronizados com os 3 Atos
   // IMPORTANTE: Cada texto fica na lateral ou no terço inferior, NUNCA no centro.
   steps: [
     {
@@ -75,7 +71,7 @@ const HERO_SCROLL_CONFIG = {
       showScrollHint: false,
       title: 'A Kav entra em campo.',
       subtitle: 'Mapeamos o seu mercado, os seus concorrentes e o que realmente move os clientes da sua região.',
-      badge: 'DIAGNÓSTICO INICIAL'
+      badge: 'ATO 01 • O INÍCIO'
     },
     {
       id: 'step-first-leap',
@@ -97,7 +93,7 @@ const HERO_SCROLL_CONFIG = {
       showScrollHint: false,
       title: 'Cada campanha vira inteligência.',
       subtitle: 'Pesquisas, métricas e relatórios mostram o que os maiores do seu mercado fazem e onde existe espaço para você passar na frente.',
-      badge: 'INTELIGÊNCIA COMPETITIVA'
+      badge: 'ATO 02 • INTELIGÊNCIA'
     },
     {
       id: 'step-hyperkav-core',
@@ -119,7 +115,7 @@ const HERO_SCROLL_CONFIG = {
       showScrollHint: false,
       title: 'Estratégia, tecnologia e criatividade, trabalhando juntas.',
       subtitle: 'Tráfego, conteúdo, automação e análise em um só sistema, desenhado para o seu negócio.',
-      badge: 'ECOSSISTEMA INTEGRADO'
+      badge: 'TRANSFORMAÇÃO'
     },
     {
       id: 'step-the-summit',
@@ -130,7 +126,7 @@ const HERO_SCROLL_CONFIG = {
       showScrollHint: false,
       title: 'Acima da concorrência. Com método.',
       subtitle: 'Do ponto de partida ao topo do mercado, com um caminho claro.',
-      badge: 'LIDERANÇA DE MERCADO'
+      badge: 'ATO 03 • O TOPO'
     },
     {
       id: 'step-cta-finale',
@@ -228,39 +224,74 @@ class KavHeroScrollExperience {
   setupVideo() {
     if (!this.video) return;
 
+    this.video.defaultMuted = true;
     this.video.muted = true;
     this.video.playsInline = true;
+    this.video.setAttribute('playsinline', '');
+    this.video.setAttribute('webkit-playsinline', '');
+    this.video.setAttribute('muted', '');
     this.video.disablePictureInPicture = true;
 
-    // Tentativa de carregar o vídeo
-    const onLoadedMetadata = () => {
+    // Se o elemento não tiver src explícito, associar o caminho primário do render
+    if (!this.video.currentSrc && !this.video.src) {
+      this.video.src = this.config.video.src;
+    }
+
+    // Callback disparado quando os dados do vídeo estão prontos
+    const onVideoReady = () => {
       this.isVideoReady = true;
       if (this.video.duration && !isNaN(this.video.duration)) {
         this.videoDuration = this.video.duration;
       }
+      
+      // Se estava em modo fallback temporário, restaura o vídeo em tela cheia
+      if (this.useCanvasFallback) {
+        this.useCanvasFallback = false;
+        if (this.canvas) this.canvas.style.display = 'none';
+        this.video.style.display = 'block';
+      }
+      
       this.hideLoader();
     };
 
-    const onError = () => {
-      console.warn('Vídeo MP4 não encontrado localmente ou formato não suportado. Ativando Canvas 3D procedural.');
+    this.video.addEventListener('loadedmetadata', onVideoReady);
+    this.video.addEventListener('loadeddata', onVideoReady);
+    this.video.addEventListener('canplay', onVideoReady);
+    this.video.addEventListener('canplaythrough', onVideoReady);
+
+    // Fallback inteligente para caminho alternativo
+    let triedAlt = false;
+    const handleError = () => {
+      if (!triedAlt && this.config.video.altSrc) {
+        triedAlt = true;
+        this.video.src = this.config.video.altSrc;
+        try {
+          this.video.load();
+        } catch (e) {
+          console.warn(e);
+        }
+        return;
+      }
+      // Se nem o alternativo existir localmente, ativa o canvas procedural sem quebrar a UI
       this.activateCanvasFallback();
       this.hideLoader();
     };
 
-    this.video.addEventListener('loadedmetadata', onLoadedMetadata);
-    this.video.addEventListener('canplaythrough', onLoadedMetadata);
-    this.video.addEventListener('error', onError);
+    this.video.addEventListener('error', handleError);
 
-    // Timeout de segurança: se após 2.5s o vídeo não responder, ativa o canvas fallback
+    // Timeout de tolerância de 5 segundos para conexões mais lentas
     setTimeout(() => {
       if (!this.isVideoReady && !this.useCanvasFallback) {
         this.activateCanvasFallback();
         this.hideLoader();
       }
-    }, 2500);
+    }, 5000);
 
-    // Iniciar carregamento
-    this.video.load();
+    try {
+      this.video.load();
+    } catch (e) {
+      console.warn(e);
+    }
   }
 
   activateCanvasFallback() {
@@ -282,7 +313,7 @@ class KavHeroScrollExperience {
   }
 
   setupEventListeners() {
-    // Scroll com medição passiva para alta taxa de quadros (60/120fps)
+    // Scroll passivo para garantir 60fps/120fps (sem lag de layout)
     window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
 
     // Redimensionamento de janela
@@ -293,7 +324,7 @@ class KavHeroScrollExperience {
       }
     });
 
-    // Cliques nos botões dos Atos (rolar até o momento do vídeo)
+    // Cliques nos botões dos Atos (rolar até o momento exato do vídeo)
     this.actButtons.forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const actId = parseInt(btn.dataset.act, 10);
@@ -304,7 +335,7 @@ class KavHeroScrollExperience {
       });
     });
 
-    // Clique no indicador de scroll
+    // Clique no indicador de scroll para iniciar a descida
     if (this.scrollHint) {
       this.scrollHint.addEventListener('click', () => {
         this.scrollToProgress(0.12);
@@ -322,7 +353,7 @@ class KavHeroScrollExperience {
 
     if (scrollableDistance <= 0) return;
 
-    // Calcular progresso absoluto entre 0 e 1
+    // Progresso relativo normalizado entre 0 e 1
     const scrolled = -rect.top;
     this.rawProgress = Math.max(0, Math.min(1, scrolled / scrollableDistance));
   }
@@ -347,12 +378,12 @@ class KavHeroScrollExperience {
       if (!this.isRendering) return;
 
       if (!this.isReducedMotion) {
-        // Suavização por interpolação (lerp)
+        // Suavização por interpolação linear (lerp)
         const isMobile = window.innerWidth <= 768;
         const factor = isMobile ? this.config.video.mobileLerpFactor : this.config.video.lerpFactor;
         this.smoothProgress += (this.rawProgress - this.smoothProgress) * factor;
 
-        // Atualizar vídeo de forma otimizada
+        // Atualizar vídeo de forma contínua e sem jitter
         this.updateVideoScrub(this.smoothProgress);
 
         // Se o canvas fallback estiver ativo, desenha o frame procedural
@@ -360,7 +391,7 @@ class KavHeroScrollExperience {
           this.drawCanvasFrame(this.smoothProgress);
         }
 
-        // Atualizar UI (textos, progresso, atos)
+        // Sincronizar textos, progresso HUD e Atos
         this.updateStoryUI(this.smoothProgress);
       }
 
@@ -375,11 +406,14 @@ class KavHeroScrollExperience {
 
     const targetTime = progress * this.videoDuration;
 
-    // Evita chamadas desnecessárias se a diferença for imperceptível
-    if (Math.abs(this.video.currentTime - targetTime) > 0.03) {
-      // Uso preferencial de fastSeek quando disponível no navegador
+    // Evita chamadas desnecessárias se o delta de tempo for desprezível
+    if (Math.abs(this.video.currentTime - targetTime) > 0.02) {
       if (typeof this.video.fastSeek === 'function') {
-        this.video.fastSeek(targetTime);
+        try {
+          this.video.fastSeek(targetTime);
+        } catch (e) {
+          this.video.currentTime = targetTime;
+        }
       } else {
         this.video.currentTime = targetTime;
       }
@@ -387,7 +421,7 @@ class KavHeroScrollExperience {
   }
 
   updateStoryUI(progress) {
-    // 1. Atualizar barra de progresso
+    // 1. Atualizar barra e percentual do progresso
     const percentInt = Math.round(progress * 100);
     if (this.progressFill) {
       this.progressFill.style.width = `${progress * 100}%`;
@@ -404,7 +438,7 @@ class KavHeroScrollExperience {
     if (activeStep && activeStep.id !== this.currentStepId) {
       this.currentStepId = activeStep.id;
 
-      // Atualizar classes dos passos de texto
+      // Alternar classes ativas com animação suave de opacidade e translação
       this.textSteps.forEach((el) => {
         const isCurrent = el.dataset.stepId === activeStep.id;
         el.classList.toggle('active', isCurrent);
@@ -420,13 +454,13 @@ class KavHeroScrollExperience {
       });
     }
 
-    // 4. Mostrar/ocultar dica de scroll
+    // 4. Mostrar/ocultar dica de scroll (some a partir de 7% de rolagem)
     if (this.scrollHint) {
       this.scrollHint.style.opacity = progress > 0.07 ? '0' : '1';
       this.scrollHint.style.pointerEvents = progress > 0.07 ? 'none' : 'auto';
     }
 
-    // 5. Controlar transparência do header ao sair do hero
+    // 5. Controlar background do header ao ultrapassar a hero
     const header = document.getElementById('header');
     if (header) {
       if (progress > 0.95) {
@@ -441,8 +475,8 @@ class KavHeroScrollExperience {
    * --------------------------------------------------------------------------
    * 3. RENDERIZADOR PROCEDURAL CANVAS 3D (FALLBACK RESILIENTE)
    * --------------------------------------------------------------------------
-   * Garante visual 100% cinematográfico em azul-marinho (#0A1633), laranja neon
-   * (#FF6A1A) e ciano (#6FD3FF) mesmo sem o MP4 no diretório.
+   * Garante visual cinematográfico em azul-marinho (#0A1633), laranja neon
+   * (#FF6A1A) e ciano (#6FD3FF) caso o arquivo de vídeo ainda não esteja no servidor.
    */
   initCanvasFallbackRenderer() {
     const ctx = this.canvas.getContext('2d');
@@ -462,7 +496,7 @@ class KavHeroScrollExperience {
 
       ctx.clearRect(0, 0, w, h);
 
-      // Fundo azul-marinho escuro cinematográfico
+      // Fundo azul-marinho profundo cinematográfico
       const bgGrad = ctx.createRadialGradient(cx, cy, 50, cx, cy, Math.max(w, h));
       bgGrad.addColorStop(0, '#102244');
       bgGrad.addColorStop(0.5, '#0A1633');
@@ -493,7 +527,7 @@ class KavHeroScrollExperience {
       }
       ctx.restore();
 
-      // Prédios / Comércios concorrentes (em tons de azul suave)
+      // Prédios / Comércios concorrentes (em tons de azul escuro)
       ctx.save();
       ctx.fillStyle = 'rgba(14, 35, 71, 0.7)';
       ctx.strokeStyle = 'rgba(28, 61, 115, 0.6)';
@@ -588,7 +622,6 @@ class KavHeroScrollExperience {
         beamGrad.addColorStop(0, 'rgba(255, 106, 26, 0.4)');
         beamGrad.addColorStop(1, 'rgba(111, 211, 255, 0.8)');
         ctx.fillStyle = beamGrad;
-        ctx.beginPath();
         ctx.moveTo(cx - 30, cy);
         ctx.lineTo(cx, 0);
         ctx.lineTo(cx + 30, cy);
