@@ -42,12 +42,16 @@
   }
   </script>
 
-  <!-- Google Fonts: Space Grotesk & Plus Jakarta Sans -->
+  <!-- Preload do Poster da Abertura Planeta -->
+  <link rel="preload" as="image" href="assets/video/intro-poster.svg" type="image/svg+xml">
+
+  <!-- Google Fonts: Montserrat (Fallback de Gotham), Space Grotesk & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/intro.css">
   <link rel="stylesheet" href="css/hero-scroll.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -119,6 +123,32 @@
       </div>
     </div>
   </header>
+
+  <!-- =========================================================================
+       0. ABERTURA PLANETA (INTRO CINEMATOGRÁFICA)
+       ========================================================================= -->
+  <section id="intro" class="intro" aria-label="Abertura Kav Planeta">
+    <video class="intro__video" muted playsinline preload="auto" poster="assets/video/intro-poster.svg" aria-hidden="true">
+      <source src="assets/video/intro-planeta.webm" type="video/webm">
+      <source src="assets/video/intro-planeta.mp4" type="video/mp4">
+    </video>
+    <div class="intro__poster-bg" aria-hidden="true"></div>
+    <div class="intro__overlay" aria-hidden="true"></div>
+    <div class="intro__content">
+      <div class="intro__logo-wrapper">
+        <img class="intro__logo" src="assets/img/kav-logo-branco.svg" alt="Kav" width="220" height="88">
+      </div>
+      <p class="intro__phrase">De cima, tudo faz mais sentido.</p>
+    </div>
+    <div class="intro__cue" role="button" tabindex="0" aria-label="Role para começar">
+      <div class="intro__cue-mouse" aria-hidden="true">
+        <span class="intro__cue-wheel"></span>
+      </div>
+      <span class="intro__cue-text">Role para começar</span>
+    </div>
+  </section>
+
+
 
   <!-- =========================================================================
        HERO SCROLL-DRIVEN EXPERIENCE (8 ETAPAS ESTRATÉGICAS)
@@ -1001,7 +1031,8 @@
     <span>WhatsApp</span>
   </a>
 
-  <!-- Scripts: Hero Scroll-Driven Engine & Main Orchestration -->
+  <!-- Scripts: Intro Planeta, Hero Scroll-Driven Engine & Main Orchestration -->
+  <script src="js/intro.js"></script>
   <script src="js/hero-scroll.js"></script>
   <script src="js/main.js"></script>
 </body>
