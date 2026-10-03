@@ -94,25 +94,7 @@
   <header class="site-header" id="header">
     <div class="container header-container">
       <a href="#" class="brand-logo" aria-label="Kav Página Inicial">
-        <span class="logo-symbol">
-          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 32L20 8L34 32" stroke="url(#logo_grad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 24H28" stroke="url(#orange_grad)" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="20" cy="8" r="3.5" fill="#FF6A1A"/>
-            <defs>
-              <linearGradient id="logo_grad" x1="6" y1="8" x2="34" y2="32" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#FF6A1A"/>
-                <stop offset="0.5" stop-color="#FFA048"/>
-                <stop offset="1" stop-color="#6FD3FF"/>
-              </linearGradient>
-              <linearGradient id="orange_grad" x1="12" y1="24" x2="28" y2="24" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#FF6A1A"/>
-                <stop offset="1" stop-color="#FFA048"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </span>
-        <span class="logo-text">Kav<span class="logo-dot">.</span></span>
+        <img class="brand-logo-img" src="assets/img/kav-logo-intro.png" alt="Kav" width="1200" height="588">
       </a>
 
       <!-- Menu Conforme Regra 2: Como funciona · Atendimento WhatsApp · Resultados · Para quem é · Calculadora · Contato -->
@@ -513,83 +495,136 @@
         <div class="section-tag">CASES REAIS</div>
         <h2 class="section-title">Resultados de negócios como o seu</h2>
         <p class="section-description">
-          Números verdadeiros construídos com pequenos e médios negócios na prática, com acompanhamento direto de cada real investido.
+          Números verdadeiros construídos com pequenos e médios negócios, com acompanhamento direto de cada real investido.
         </p>
       </div>
 
-      <!-- Grid dos 2 Cases Principais (Almeida Cestas & PontoCar) -->
-      <div class="cases-grid-main">
-        
-        <!-- Case 1: Almeida Cestas -->
-        <div class="case-card-featured">
-          <div>
-            <div class="case-header">
-              <span class="case-client-badge">Lojas & Presentes (iFood)</span>
-              <h3 class="case-title">Cada R$ 1 investido virou R$ 6,50.</h3>
-              <div class="case-sub-detail">ROAS de 2 para 6.5 em vendas diretas</div>
-            </div>
-            <p class="case-desc">
-              Reestruturamos a operação de mídia e o cardápio digital da Almeida Cestas dentro do iFood.
-            </p>
-            <div class="case-stats-row">
-              <div class="case-stat-pill">
-                <span class="csp-val">3x</span>
-                <span class="csp-lbl">Conversão da loja</span>
-              </div>
-              <div class="case-stat-pill">
-                <span class="csp-val">+716%</span>
-                <span class="csp-lbl">Pedidos concluídos</span>
-                <!-- [CONFIRMAR: Porcentagem exata de pedidos concluídos] -->
-              </div>
-            </div>
-          </div>
-          <!-- Espaço de Imagem Marcado para o Usuário -->
-          <div class="case-visual-placeholder">
-            <span>📷 [IMAGEM: Print do painel e foto da loja Almeida Cestas do site anterior (agenciakav.com.br)]</span>
-          </div>
-        </div>
+      <div class="case-stack">
 
-        <!-- Case 2: PontoCar (com âncora #case-pontocar) -->
-        <div class="case-card-featured" id="case-pontocar">
-          <div>
-            <div class="case-header">
-              <span class="case-client-badge">Oficinas & Serviços Automotivos</span>
-              <h3 class="case-title">+7 mil contatos qualificados no WhatsApp.</h3>
-              <div class="case-sub-detail">Atendimento inteligente & anúncios integrados</div>
+        <!-- Case 1: Almeida Cestas -->
+        <article class="case-showcase" id="case-almeida">
+          <div class="cs-panel cs-panel--blue">
+            <img class="cs-logo" src="assets/img/cases/almeida-logo-branco.png" alt="Almeida Cestas" width="318" height="119" loading="lazy">
+            <div class="cs-meta">
+              <span class="cs-chip cs-chip--ifood"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>iFood</span>
+              <span class="cs-sector">Cestas e presentes</span>
             </div>
-            <p class="case-desc">
-              Criamos do zero o funil de vendas da PontoCar no WhatsApp: do primeiro contato ao agendamento, tudo fluido, rápido e mensurável.
-            </p>
-            <div class="case-stats-row">
-              <div class="case-stat-pill">
-                <span class="csp-val">2x</span>
-                <span class="csp-lbl">Faturamento</span>
+            <p class="cs-text">Reestruturamos a operação de mídia e o cardápio digital da Almeida Cestas dentro do iFood: saímos de um <strong>ROAS 2 para ROAS 6.5</strong> e triplicamos a taxa de conversão da loja.</p>
+            <div class="cs-stats cs-stats--stack">
+              <div class="cs-stat">
+                <span class="cs-label">ROAS</span>
+                <span class="cs-num">2 <span class="cs-arrow">&rarr;</span> 6.5</span>
+                <span class="cs-desc">Cada real investido passou a devolver mais de seis.</span>
               </div>
-              <div class="case-stat-pill">
-                <span class="csp-val">+600</span>
-                <span class="csp-lbl">Contatos por mês</span>
+              <div class="cs-stat">
+                <span class="cs-label">Taxa de conversão</span>
+                <span class="cs-num">3x</span>
+                <span class="cs-desc">Triplicamos a conversão do cardápio em relação ao período anterior.</span>
               </div>
-              <div class="case-stat-pill" style="grid-column: span 2;">
-                <span class="csp-val">+1,6k</span>
-                <span class="csp-lbl">Seguidores no Instagram</span>
+              <div class="cs-stat">
+                <span class="cs-label">Pedidos concluídos</span>
+                <span class="cs-num">+716%</span>
+                <span class="cs-desc">Crescimento de pedidos finalizados no período analisado.</span>
               </div>
             </div>
           </div>
-          <!-- Espaço de Imagem Marcado para o Usuário -->
-          <div class="case-visual-placeholder">
-            <span>📷 [IMAGEM: Logo e visual do case PontoCar do site anterior (agenciakav.com.br)]</span>
+          <div class="cs-panel cs-panel--media">
+            <div class="cs-frame">
+              <img src="assets/img/cases/almeida-colagem.webp" alt="Loja da Almeida Cestas e painel do iFood mostrando +716% em pedidos concluídos" width="1263" height="544" loading="lazy">
+            </div>
           </div>
-        </div>
+        </article>
+
+        <!-- Case 2: PontoCar -->
+        <article class="case-showcase case-showcase--reverse" id="case-pontocar">
+          <div class="cs-panel cs-panel--media">
+            <div class="cs-mock">
+              <div class="cs-mock-card cs-mock-card--head">
+                <span class="cs-mock-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.63c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.23.9 2.43 1.03 2.6.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.12-.22-.19-.47-.32z"/></svg></span>
+                <div><strong>WhatsApp Business</strong><span>Canal de vendas ativo 24h</span></div>
+              </div>
+              <div class="cs-mock-card">
+                <div class="cs-mock-row"><span class="cs-mock-label">Leads no mês</span><span class="cs-mock-up">+600</span></div>
+                <div class="cs-bars" aria-hidden="true">
+                  <i style="height:38%"></i><i style="height:70%"></i><i style="height:48%"></i><i style="height:86%"></i><i style="height:56%"></i><i style="height:100%"></i><i style="height:80%"></i>
+                </div>
+              </div>
+              <div class="cs-mock-card">
+                <div class="cs-mock-row"><span class="cs-mock-label">Vendas online</span><strong>Todo dia</strong></div>
+                <p>Atendimento e vendas automatizadas pelo WhatsApp, com handoff humano quando necessário.</p>
+              </div>
+            </div>
+          </div>
+          <div class="cs-panel cs-panel--dark">
+            <img class="cs-logo" src="assets/img/cases/pontocar-logo-branco.png" alt="PontoCar" width="960" height="343" loading="lazy">
+            <div class="cs-meta">
+              <span class="cs-chip cs-chip--wa"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.63c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.23.9 2.43 1.03 2.6.13.17 1.77 2.7 4.29 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.12-.22-.19-.47-.32z"/></svg>WhatsApp</span>
+              <span class="cs-chip cs-chip--ig"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>@car_ponto</span>
+              <span class="cs-sector">Centro automotivo</span>
+            </div>
+            <p class="cs-text">Criamos do zero o funil de vendas da PontoCar no WhatsApp: do primeiro contato ao agendamento, tudo fluido, rápido e mensurável. O resultado foi <strong>mais de 7 mil leads qualificados</strong> e um canal de vendas que funciona todos os dias.</p>
+            <div class="cs-stats cs-stats--row">
+              <div class="cs-stat">
+                <span class="cs-label">Leads qualificados</span>
+                <span class="cs-num">+7 mil</span>
+                <span class="cs-desc">Contatos captados e qualificados diretamente no WhatsApp.</span>
+              </div>
+              <div class="cs-stat">
+                <span class="cs-label">Faturamento</span>
+                <span class="cs-num">2x</span>
+                <span class="cs-desc">Dobro de faturamento com o novo canal de vendas ativo.</span>
+              </div>
+              <div class="cs-stat">
+                <span class="cs-label">Seguidores no Instagram</span>
+                <span class="cs-num">+1,6k</span>
+                <span class="cs-desc">Crescimento real da comunidade da marca.</span>
+              </div>
+            </div>
+          </div>
+        </article>
 
       </div>
+    </div>
+  </section>
 
+  <!-- =========================================================================
+       MARCAS CRIADAS PELA KAV
+       ========================================================================= -->
+  <section class="results-section section-light brands-section" id="marcas">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">PORTFÓLIO</div>
+        <h2 class="section-title">Marcas criadas pela Kav</h2>
+        <p class="section-description">
+          Um recorte de identidades construídas com estratégia, pesquisa e um olhar obsessivo por detalhe.
+        </p>
+      </div>
+
+      <div class="brands-grid">
+        <figure class="brand-card">
+          <img src="assets/img/marcas/lily-cestas.webp" alt="Identidade visual da Lily Cestas" width="900" height="900" loading="lazy">
+          <figcaption><strong>Lily Cestas</strong><span>Identidade visual</span></figcaption>
+        </figure>
+        <figure class="brand-card">
+          <img src="assets/img/marcas/pontocar.webp" alt="Marca e aplicações da PontoCar" width="900" height="900" loading="lazy">
+          <figcaption><strong>PontoCar</strong><span>Marca e aplicações</span></figcaption>
+        </figure>
+        <figure class="brand-card">
+          <img src="assets/img/marcas/nn-restaurante.webp" alt="Branding completo do N&amp;N Restaurante" width="900" height="900" loading="lazy">
+          <figcaption><strong>N&amp;N Restaurante</strong><span>Branding completo</span></figcaption>
+        </figure>
+        <figure class="brand-card">
+          <img src="assets/img/marcas/alicya-lash.webp" alt="Identidade e ambiente da Alicya Lash Designer" width="900" height="900" loading="lazy">
+          <figcaption><strong>Alicya Lash Designer</strong><span>Identidade e ambiente</span></figcaption>
+        </figure>
+      </div>
     </div>
   </section>
 
   <!-- =========================================================================
        8. PARA QUEM É (id: para-quem-e)
        ========================================================================= -->
-  <section class="results-section section-light" id="para-quem-e" style="padding-top: 40px;">
+  <section class="results-section section-light" id="para-quem-e" style="padding-top: 0;">
     <div class="container">
       <div class="section-header">
         <div class="section-tag">SEGMENTOS</div>

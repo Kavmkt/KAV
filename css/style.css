@@ -1988,3 +1988,329 @@ h1, h2, h3, h4 {
 .section-light .sector-link:hover {
   color: #E8590C;
 }
+
+/* ==========================================================================
+   LOGO DO MENU FIXO (só o símbolo da Kav)
+   ========================================================================== */
+.brand-logo-img {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .brand-logo-img { height: 28px; }
+}
+
+/* ==========================================================================
+   CABEÇALHOS DE SEÇÃO (hierarquia: etiqueta → título → descrição)
+   ========================================================================== */
+.section-header {
+  max-width: 760px;
+  margin: 0 auto 56px;
+  text-align: center;
+}
+
+.section-tag {
+  display: inline-block;
+  margin-bottom: 18px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: rgba(111, 211, 255, 0.1);
+  border: 1px solid rgba(111, 211, 255, 0.28);
+  color: var(--accent-cyan);
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  text-wrap: balance;
+}
+
+.section-description {
+  max-width: 620px;
+  margin: 0 auto;
+  font-size: clamp(1rem, 1.5vw, 1.12rem);
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* Respiro entre seções claras e fluidez do degradê */
+.results-section.section-light { padding: 96px 0; }
+.results-section.section-light + .section-light { padding-top: 0; }
+.brands-section { background: linear-gradient(180deg, #E7F3FF 0%, #E7F3FF 100%); }
+#para-quem-e { background: linear-gradient(180deg, #E7F3FF 0%, #DCEEFF 100%); }
+#resultados { background: linear-gradient(180deg, #F6FAFF 0%, #E7F3FF 100%); }
+
+/* ==========================================================================
+   CASES REAIS — containers de destaque (dois painéis)
+   ========================================================================== */
+.case-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.case-showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 40px;
+  overflow: hidden;
+  background: #FBFDFF;
+  border: 1px solid rgba(10, 22, 51, 0.08);
+  box-shadow: 0 24px 60px rgba(14, 60, 120, 0.14);
+}
+
+.case-showcase--reverse {
+  grid-template-columns: 1fr 1.05fr;
+}
+
+.cs-panel {
+  padding: clamp(32px, 4.2vw, 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cs-panel--blue {
+  background: linear-gradient(155deg, #0A3F6B 0%, #1A6FB0 55%, #2186C9 100%);
+  color: #fff;
+}
+
+.cs-panel--dark {
+  background: #1A212B;
+  color: #fff;
+}
+
+.cs-panel--media {
+  background: #FBFDFF;
+  align-items: center;
+}
+
+.cs-logo {
+  height: clamp(44px, 5vw, 60px);
+  width: auto;
+  align-self: flex-start;
+  margin-bottom: 26px;
+}
+
+.cs-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.cs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 100px;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cs-chip--ifood { background: #EA1D2C; }
+.cs-chip--wa { background: #25D366; }
+.cs-chip--ig { background: linear-gradient(90deg, #F58529, #DD2A7B 60%, #C13584); }
+
+.cs-sector {
+  margin-left: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.cs-text {
+  font-size: clamp(1.02rem, 1.5vw, 1.3rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 34px;
+}
+
+.cs-text strong { color: #fff; font-weight: 700; }
+
+.cs-stats { display: grid; gap: 24px; }
+.cs-stats--row { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.cs-stats--stack { gap: 26px; }
+
+.cs-stat { display: flex; flex-direction: column; gap: 6px; }
+
+.cs-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.cs-num {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.cs-arrow { color: #5BB8F5; font-weight: 700; }
+
+.cs-desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.cs-stats--row .cs-num { font-size: clamp(2rem, 3.2vw, 3rem); }
+.cs-stats--row .cs-desc { font-size: 0.9rem; }
+
+/* Moldura da imagem do case (direita do Almeida) */
+.cs-frame {
+  width: 100%;
+  padding: 10px;
+  background: #fff;
+  border-radius: 26px;
+  border: 1px solid rgba(10, 22, 51, 0.08);
+  box-shadow: 0 16px 44px rgba(14, 60, 120, 0.14);
+}
+
+.cs-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+}
+
+/* Cartões ilustrativos do case PontoCar */
+.cs-mock { width: 100%; display: flex; flex-direction: column; gap: 18px; }
+
+.cs-mock-card {
+  background: #fff;
+  border: 1px solid rgba(10, 22, 51, 0.07);
+  border-radius: 24px;
+  padding: 22px 26px;
+  box-shadow: 0 14px 36px rgba(14, 60, 120, 0.1);
+  color: #0A1633;
+}
+
+.cs-mock-card--head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cs-mock-card--head strong { display: block; font-size: 1.15rem; }
+.cs-mock-card--head span:not(.cs-mock-icon) { display: block; font-size: 0.92rem; color: #52607C; }
+
+.cs-mock-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(37, 211, 102, 0.14);
+  color: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-mock-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.cs-mock-label { font-size: 0.82rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #52607C; }
+.cs-mock-up { font-weight: 700; color: #16A34A; font-size: 1.1rem; }
+.cs-mock-card p { font-size: 0.92rem; line-height: 1.5; color: #52607C; margin: 0; }
+.cs-mock-card strong { font-size: 1.05rem; }
+
+.cs-bars { display: flex; align-items: flex-end; gap: 8px; height: 64px; margin-top: 10px; }
+.cs-bars i { flex: 1; border-radius: 8px; background: #BBF7D0; }
+
+/* ==========================================================================
+   MARCAS CRIADAS PELA KAV
+   ========================================================================== */
+.brands-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.brand-card {
+  margin: 0;
+  background: #fff;
+  border: 1px solid rgba(10, 22, 51, 0.08);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 14px 36px rgba(14, 60, 120, 0.1);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.brand-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 48px rgba(14, 60, 120, 0.18);
+}
+
+.brand-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(10, 22, 51, 0.07);
+}
+
+.brand-card figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 22px 22px;
+}
+
+.brand-card figcaption strong {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: #0A1633;
+}
+
+.brand-card figcaption span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #0E5FA8;
+}
+
+/* Espaço entre as seções claras e cabeçalho da "Para quem é" */
+#para-quem-e .section-header { margin-bottom: 44px; }
+
+@media (max-width: 1024px) {
+  .brands-grid { grid-template-columns: repeat(2, 1fr); }
+  .cs-stats--row { grid-template-columns: 1fr; gap: 22px; }
+}
+
+@media (max-width: 860px) {
+  .case-showcase,
+  .case-showcase--reverse { grid-template-columns: 1fr; border-radius: 28px; }
+  /* No mobile o texto vem primeiro e a mídia depois, nos dois cases */
+  .case-showcase--reverse .cs-panel--media { order: 2; }
+  .case-showcase--reverse .cs-panel--dark { order: 1; }
+  .cs-panel { padding: 30px 22px; }
+  .section-header { margin-bottom: 40px; }
+  .results-section.section-light { padding: 72px 0; }
+}
+
+@media (max-width: 520px) {
+  .brands-grid { grid-template-columns: 1fr; }
+}
