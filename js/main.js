@@ -1,71 +1,40 @@
 /**
  * KAV Marketing Digital & Performance
- * Core Main Interactions, 3D Orchestration, ROI Simulator & Lead Generator
+ * Core Main Interactions: Mobile Navigation, SME ROI Simulator & Lead Generator
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Initialize 3D Engine
-  const experience3D = new KAV3DExperience('canvas3DContainer');
-
-  // 2. Stage Syncing (Tabs + Story Cards)
-  const stageTabs = document.querySelectorAll('.stage-tab');
-  const storyCards = document.querySelectorAll('.story-card');
-
-  function setActiveStage(stageNum) {
-    const num = parseInt(stageNum, 10);
-
-    // Update 3D Scene
-    if (experience3D && typeof experience3D.setStage === 'function') {
-      experience3D.setStage(num);
-    }
-
-    // Update Tabs
-    stageTabs.forEach((tab) => {
-      const tabStage = parseInt(tab.dataset.stage, 10);
-      tab.classList.toggle('active', tabStage === num);
-    });
-
-    // Update Story Cards
-    storyCards.forEach((card) => {
-      const cardStage = parseInt(card.dataset.stage, 10);
-      card.classList.toggle('active', cardStage === num);
-    });
-  }
-
-  // Click on tabs
-  stageTabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      setActiveStage(tab.dataset.stage);
-    });
-  });
-
-  // Click on story cards
-  storyCards.forEach((card) => {
-    card.addEventListener('click', () => {
-      setActiveStage(card.dataset.stage);
-    });
-  });
-
-  // 3. Mobile Navigation Menu
+  // 1. Mobile Navigation Menu
   const mobileToggle = document.getElementById('mobileToggle');
   const navMenu = document.getElementById('navMenu');
 
   if (mobileToggle && navMenu) {
     mobileToggle.addEventListener('click', () => {
-      navMenu.classList.toggle('open');
-      const isOpen = navMenu.classList.contains('open');
+      const isOpen = navMenu.classList.toggle('open');
+      mobileToggle.classList.toggle('active', isOpen);
       mobileToggle.setAttribute('aria-expanded', isOpen);
     });
 
-    // Close on link click
+    // Close on navigation link click
     document.querySelectorAll('.nav-link').forEach((link) => {
       link.addEventListener('click', () => {
         navMenu.classList.remove('open');
+        mobileToggle.classList.remove('active');
+        mobileToggle.setAttribute('aria-expanded', 'false');
       });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navMenu.classList.contains('open')) {
+        navMenu.classList.remove('open');
+        mobileToggle.classList.remove('active');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+      }
     });
   }
 
-  // 4. Interactive ROI & Growth Simulator for SMEs
+  // 2. Interactive ROI & Growth Simulator for SMEs (Estimativa Ilustrativa)
   const faturamentoSlider = document.getElementById('calcFaturamento');
   const faturamentoDisplay = document.getElementById('faturamentoDisplay');
   const segmentoSelect = document.getElementById('calcSegmento');
@@ -73,16 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const crescimentoDisplay = document.getElementById('crescimentoPercentual');
   const reducaoCACDisplay = document.getElementById('reducaoCAC');
 
+  // Multiplicadores conservadores e realistas para PMEs (sem promessas exageradas)
   const segmentMultipliers = {
-    ecommerce: { multiplier: 2.9, cacReduction: 38, percentStr: '+190%' },
-    servicos: { multiplier: 2.7, cacReduction: 35, percentStr: '+170%' },
-    saude: { multiplier: 2.6, cacReduction: 32, percentStr: '+160%' },
-    educacao: { multiplier: 3.2, cacReduction: 42, percentStr: '+220%' },
-    local: { multiplier: 2.4, cacReduction: 30, percentStr: '+140%' }
+    ecommerce: { multiplier: 1.8, cacReduction: 25, percentStr: '+80%' },
+    servicos: { multiplier: 1.6, cacReduction: 20, percentStr: '+60%' },
+    saude: { multiplier: 1.5, cacReduction: 18, percentStr: '+50%' },
+    educacao: { multiplier: 1.7, cacReduction: 22, percentStr: '+70%' },
+    local: { multiplier: 1.4, cacReduction: 15, percentStr: '+40%' }
   };
 
   function updateCalculator() {
-    if (!faturamentoSlider || !projecaoDisplay) return;
+    if (!faturamentoSlider || !projecaoDisplay || !segmentoSelect) return;
 
     const faturamentoAtual = parseFloat(faturamentoSlider.value);
     const segmento = segmentoSelect.value;
@@ -94,7 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
       maximumFractionDigits: 0
     }).format(faturamentoAtual);
 
-    faturamentoDisplay.textContent = `${faturamentoFormatado} / mês`;
+    if (faturamentoDisplay) {
+      faturamentoDisplay.textContent = `${faturamentoFormatado} / mês`;
+    }
 
     const projecaoValor = faturamentoAtual * config.multiplier;
     const projecaoFormatada = new Intl.NumberFormat('pt-BR', {
@@ -104,17 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }).format(projecaoValor);
 
     projecaoDisplay.textContent = `${projecaoFormatada} / mês`;
-    crescimentoDisplay.textContent = config.percentStr;
-    reducaoCACDisplay.textContent = `-${config.cacReduction}%`;
+    if (crescimentoDisplay) {
+      crescimentoDisplay.textContent = config.percentStr;
+    }
+    if (reducaoCACDisplay) {
+      reducaoCACDisplay.textContent = `Até -${config.cacReduction}%`;
+    }
   }
 
   if (faturamentoSlider && segmentoSelect) {
     faturamentoSlider.addEventListener('input', updateCalculator);
     segmentoSelect.addEventListener('change', updateCalculator);
-    updateCalculator(); // Initial calculation
+    updateCalculator(); // Execução inicial
   }
 
-  // 5. Lead Form Submission & WhatsApp Link Builder
+  // 3. Lead Form Submission & WhatsApp Link Builder
   const leadForm = document.getElementById('leadForm');
   const formSuccess = document.getElementById('formSuccessMessage');
   const directWhatsAppBtn = document.getElementById('directWhatsAppBtn');
@@ -123,25 +99,31 @@ document.addEventListener('DOMContentLoaded', () => {
     leadForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const name = document.getElementById('leadName').value.trim();
-      const company = document.getElementById('leadCompany').value.trim();
-      const email = document.getElementById('leadEmail').value.trim();
-      const whatsapp = document.getElementById('leadWhatsapp').value.trim();
-      const revenue = document.getElementById('leadRevenue').value;
-      const challenge = document.getElementById('leadChallenge').value.trim();
+      const name = document.getElementById('leadName') ? document.getElementById('leadName').value.trim() : '';
+      const company = document.getElementById('leadCompany') ? document.getElementById('leadCompany').value.trim() : '';
+      const email = document.getElementById('leadEmail') ? document.getElementById('leadEmail').value.trim() : '';
+      const whatsapp = document.getElementById('leadWhatsapp') ? document.getElementById('leadWhatsapp').value.trim() : '';
+      const revenue = document.getElementById('leadRevenue') ? document.getElementById('leadRevenue').value : '';
+      const challenge = document.getElementById('leadChallenge') ? document.getElementById('leadChallenge').value.trim() : '';
 
-      // Format WhatsApp Message for direct conversion
-      const rawMessage = `Olá KAV! Gostaria de agendar uma Sessão Estratégica para minha empresa.\n\n` +
+      // Validação básica
+      if (!name || !email || !whatsapp) {
+        alert('Por favor, preencha os campos obrigatórios (Nome, E-mail e WhatsApp).');
+        return;
+      }
+
+      // Mensagem estruturada para envio direto via WhatsApp
+      const rawMessage = `Olá Kav! Gostaria de solicitar um diagnóstico estratégico para minha empresa.\n\n` +
         `👤 *Nome:* ${name}\n` +
-        `🏢 *Empresa:* ${company}\n` +
+        `🏢 *Empresa:* ${company || 'Não informado'}\n` +
         `📧 *E-mail:* ${email}\n` +
         `📱 *WhatsApp:* ${whatsapp}\n` +
-        `💰 *Faturamento Atual:* ${revenue}\n` +
-        `🎯 *Principal Desafio:* ${challenge || 'Acelerar vendas e previsibilidade'}\n\n` +
-        `Vim através do site e me interessei pelo Núcleo HyperKav!`;
+        `💰 *Faturamento Médio:* ${revenue}\n` +
+        `🎯 *Principal Desafio:* ${challenge || 'Estruturação de marketing e vendas'}\n\n` +
+        `Vim através do site da Kav.`;
 
-      // Official WhatsApp Number for KAV Agency
-      const phoneKav = '5511999999999'; // Can be adjusted in config
+      // Número oficial da agência Kav (configurável)
+      const phoneKav = '5511999999999'; // Substituir pelo número comercial oficial
       const encodedMsg = encodeURIComponent(rawMessage);
       const whatsappUrl = `https://wa.me/${phoneKav}?text=${encodedMsg}`;
 
@@ -149,24 +131,24 @@ document.addEventListener('DOMContentLoaded', () => {
         directWhatsAppBtn.href = whatsappUrl;
       }
 
-      // Hide form and display success card
+      // Transição suave para mensagem de confirmação
       leadForm.style.display = 'none';
       if (formSuccess) {
+        formSuccess.style.display = 'block';
         formSuccess.classList.add('active');
       }
-
-      console.log('Lead KAV gravado:', { name, company, email, whatsapp, revenue, challenge });
     });
   }
 
-  // 6. Header backdrop glow & sticky elevation
+  // 4. Header backdrop elevation on scroll
   const header = document.getElementById('header');
-  window.addEventListener('scroll', () => {
-    if (!header) return;
-    if (window.scrollY > 30) {
-      header.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.6)';
-    } else {
-      header.style.boxShadow = 'none';
-    }
-  });
+  if (header) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 30) {
+        header.classList.add('header-scrolled');
+      } else {
+        header.classList.remove('header-scrolled');
+      }
+    }, { passive: true });
+  }
 });
