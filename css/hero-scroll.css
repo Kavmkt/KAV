@@ -421,6 +421,7 @@
    Preloader Discreto
    -------------------------------------------------------------------------- */
 .hero-loader {
+  display: none !important;
   position: absolute;
   inset: 0;
   background-color: var(--kav-navy-deep);
