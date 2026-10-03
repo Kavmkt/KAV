@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <!-- Deep Space Gradient (#071533 -> #0B2A5B) -->
+    <radialGradient id="spaceGrad" cx="53%" cy="60%" r="75%">
+      <stop offset="0%" stop-color="#0B2A5B" />
+      <stop offset="45%" stop-color="#071B3E" />
+      <stop offset="80%" stop-color="#071533" />
+      <stop offset="100%" stop-color="#040C20" />
+    </radialGradient>
+
+    <!-- Earth Atmosphere Glow Gradient (#8CCBFF -> #DCEBFF) -->
+    <radialGradient id="atmoGlow" cx="53%" cy="60%" r="45%">
+      <stop offset="0%" stop-color="#DCEBFF" stop-opacity="0.9" />
+      <stop offset="25%" stop-color="#8CCBFF" stop-opacity="0.6" />
+      <stop offset="60%" stop-color="#4FA8FF" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#071533" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Sun Flare (#FFB470 -> Pure White) -->
+    <radialGradient id="sunCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+      <stop offset="25%" stop-color="#FFF2E0" stop-opacity="0.95" />
+      <stop offset="55%" stop-color="#FFB470" stop-opacity="0.7" />
+      <stop offset="85%" stop-color="#FF6A1A" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#071533" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Horizontal Lens Beam -->
+    <linearGradient id="lensBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8CCBFF" stop-opacity="0" />
+      <stop offset="35%" stop-color="#8CCBFF" stop-opacity="0.35" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="53%" stop-color="#FFB470" stop-opacity="0.8" />
+      <stop offset="68%" stop-color="#8CCBFF" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#8CCBFF" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Vignette -->
+    <radialGradient id="introVignette" cx="50%" cy="50%" r="65%">
+      <stop offset="45%" stop-color="#000000" stop-opacity="0" />
+      <stop offset="85%" stop-color="#040C20" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#020610" stop-opacity="0.8" />
+    </radialGradient>
+  </defs>
+
+  <!-- Deep Space Canvas -->
+  <rect width="1920" height="1080" fill="url(#spaceGrad)" />
+
+  <!-- Starfield Points -->
+  <g fill="#FFFFFF" opacity="0.65">
+    <circle cx="140" cy="180" r="1.5" />
+    <circle cx="280" cy="90" r="1" opacity="0.4" />
+    <circle cx="420" cy="220" r="1.5" />
+    <circle cx="620" cy="120" r="1" />
+    <circle cx="750" cy="260" r="2" opacity="0.9" />
+    <circle cx="890" cy="80" r="1.2" />
+    <circle cx="1080" cy="150" r="1.5" />
+    <circle cx="1240" cy="70" r="2" opacity="0.8" />
+    <circle cx="1380" cy="210" r="1" />
+    <circle cx="1520" cy="110" r="1.5" />
+    <circle cx="1710" cy="190" r="2" opacity="0.85" />
+    <circle cx="1820" cy="90" r="1" />
+    <circle cx="210" cy="340" r="1.2" />
+    <circle cx="360" cy="410" r="1.5" />
+    <circle cx="510" cy="320" r="1" />
+    <circle cx="1450" cy="360" r="1.5" opacity="0.7" />
+    <circle cx="1620" cy="420" r="1" />
+    <circle cx="1770" cy="330" r="1.8" opacity="0.9" />
+  </g>
+
+  <!-- Atmosphere Diffuse Radial Glow -->
+  <circle cx="1018" cy="648" r="420" fill="url(#atmoGlow)" />
+
+  <!-- Curved Earth Limb & Body -->
+  <!-- Earth center at (960, 2430), radius = 1760. Top apex at y=670 -->
+  <path d="M -100,1180 Q 960,620 2020,1180 L 2020,1200 L -100,1200 Z" fill="#040C1A" />
+
+  <!-- Atmosphere Thin Curved Edge Highlight (#DCEBFF / #8CCBFF) -->
+  <path d="M -80,1170 Q 960,616 2000,1170" fill="none" stroke="#DCEBFF" stroke-width="3.5" opacity="0.95" />
+  <path d="M -80,1170 Q 960,613 2000,1170" fill="none" stroke="#8CCBFF" stroke-width="8" opacity="0.5" />
+  <path d="M -80,1170 Q 960,609 2000,1170" fill="none" stroke="#4FA8FF" stroke-width="16" opacity="0.25" />
+
+  <!-- Sunrise Core on Horizon (Sun cresting over the limb at x=1018, y=646) -->
+  <circle cx="1018" cy="646" r="180" fill="url(#sunCore)" />
+  <circle cx="1018" cy="646" r="24" fill="#FFFFFF" />
+
+  <!-- Horizontal Anamorphic Lens Flare Beam -->
+  <rect x="0" y="643" width="1920" height="7" fill="url(#lensBeam)" opacity="0.85" />
+  <rect x="500" y="644" width="1036" height="4" fill="#FFFFFF" opacity="0.9" />
+
+  <!-- Subtle Atmospheric Depth Gradients inside Earth Body -->
+  <path d="M 0,1080 Q 960,780 1920,1080 L 1920,1080 L 0,1080 Z" fill="#020610" opacity="0.85" />
+
+  <!-- Vignette -->
+  <rect width="1920" height="1080" fill="url(#introVignette)" />
+</svg>

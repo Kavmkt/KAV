@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" width="600" height="240" fill="none">
+  <!-- KAV Official White Logo Mark -->
+  <g fill="#FFFFFF">
+    <!-- K with custom lower-left scoop and sharp modern geometry -->
+    <path d="M 40,20 L 105,20 L 105,108 L 180,20 L 260,20 L 158,130 L 268,220 L 185,220 L 105,148 L 105,200 C 105,212 96,220 82,220 C 65,220 48,206 40,190 Z" />
+    
+    <!-- A with bold geometric stance and matching angle -->
+    <path d="M 268,220 L 340,20 L 420,20 L 492,220 L 418,220 L 398,162 L 332,162 L 312,220 Z M 346,120 L 384,120 L 365,62 Z" />
+    
+    <!-- V aligned seamlessly with A -->
+    <path d="M 495,20 L 565,20 L 485,220 L 425,220 Z" />
+  </g>
+</svg>
