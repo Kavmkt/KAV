@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://kavmkt.github.io/KAV/sitemap.xml
