@@ -1,13 +1,19 @@
 /**
  * ============================================================================
- * KAV + HYPERKAV — HERO SCROLL-DRIVEN EXPERIENCE ENGINE
+ * KAV + HYPERKAV — ULTRA-SMOOTH HERO SCROLL-DRIVEN EXPERIENCE ENGINE
  * ============================================================================
  * Desenvolvido no padrão de engenharia de interação de alta fidelidade
  * (Apple, Stripe, Linear, Awwwards).
  *
- * Sincroniza o vídeo 3D 'Untitled_Scene_10-03_00_51_11_20261002215523.mp4'
- * (25.4 MB) frame a frame com a rolagem do usuário, com aceleração por hardware
- * e fila de decodificação otimizada para evitar travamentos.
+ * Elimina completamente engasgos e travamentos:
+ * 1. Não usa fastSeek() (que causava snap exclusivo para keyframes, pulando de 4 em 4s).
+ * 2. Motor Híbrido de Playback (Forward Continuous Playback):
+ *    - Ao rolar para frente, o vídeo REPRODUZ em taxa dinâmica (0.6x a 3.5x)
+ *      proporcional à velocidade da rolagem, decodificando 60fps pela GPU.
+ *    - Ao parar a rolagem ou alcançar o alvo, pausa exatamente no frame.
+ * 3. Busca Direta sem Fila Bloqueante (Reverse Seek):
+ *    - Ao rolar para trás, faz busca direta precisa com throttle de frame.
+ * 4. Desbloqueio universal em mobile (iOS Safari / Android) no primeiro gesto.
  * ============================================================================
  */
 
@@ -17,9 +23,9 @@ const HERO_SCROLL_CONFIG = {
     src: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
     altSrc: 'assets/video/hero-scroll.mp4',
     poster: 'assets/video/hero-poster.svg',
-    fallbackDuration: 24, // Duração de segurança caso os metadados demorem
-    lerpFactor: 0.08,      // Inércia e fluidez no desktop
-    mobileLerpFactor: 0.12 // Inércia mais ágil no mobile
+    fallbackDuration: 24, // Duração de referência em segundos
+    lerpFactor: 0.08,      // Suavidade no desktop
+    mobileLerpFactor: 0.12 // Agilidade no mobile
   },
 
   scroll: {
@@ -33,6 +39,7 @@ const HERO_SCROLL_CONFIG = {
     { id: 3, label: '3 · O Topo', targetProgress: 0.88 }
   ],
 
+  // Sincronia perfeita com as etapas da Kav e o Núcleo HyperKav
   steps: [
     {
       id: 'step-opening',
@@ -108,7 +115,7 @@ const HERO_SCROLL_CONFIG = {
       position: 'bottom-left',
       showScrollHint: false,
       title: 'Acima da concorrência. Com método.',
-      subtitle: 'Do ponto de partida ao topo do mercado, com um caminho claro.',
+      subtitle: 'Do ponto de partida ao topo do mercado, com um caminho claro e previsível.',
       badge: 'ATO 03 • O TOPO'
     },
     {
@@ -123,7 +130,14 @@ const HERO_SCROLL_CONFIG = {
       badge: 'KAV + HYPERKAV',
       isFinalCTA: true
     }
-  ]
+  ],
+
+  placeholders: {
+    primaryCtaText: 'Falar com a Kav',
+    primaryCtaLink: '#diagnostico',
+    secondaryCtaText: 'Conhecer o HyperKav',
+    secondaryCtaLink: '#hyperkav'
+  }
 };
 
 class KavHeroScrollExperience {
@@ -143,7 +157,7 @@ class KavHeroScrollExperience {
     this.textSteps = this.section.querySelectorAll('.hero-story-step');
     this.loader = this.section.querySelector('.hero-loader');
 
-    // Estado interno
+    // Estado da rolagem
     this.rawProgress = 0;
     this.smoothProgress = 0;
     this.currentStepId = null;
@@ -154,9 +168,12 @@ class KavHeroScrollExperience {
     this.isReducedMotion = false;
     this.isRendering = false;
 
-    // Fila otimizada de decodificação de frames
+    // Estado do motor contínuo de vídeo
+    this.isPlaying = false;
+    this.playPromise = null;
     this.isSeeking = false;
     this.pendingSeekTime = null;
+    this.lastScrollTimestamp = performance.now();
 
     this.init();
   }
@@ -187,7 +204,7 @@ class KavHeroScrollExperience {
   setupVideo() {
     if (!this.video) return;
 
-    // Configurações cruciais para autoplay inline e scrubbing em todos os navegadores
+    // Configurações universais para aceleração gráfica sem bloqueio de autoplay
     this.video.defaultMuted = true;
     this.video.muted = true;
     this.video.playsInline = true;
@@ -196,39 +213,35 @@ class KavHeroScrollExperience {
     this.video.setAttribute('muted', '');
     this.video.disablePictureInPicture = true;
 
-    // Garantir visibilidade inicial do elemento de vídeo
     this.video.style.display = 'block';
     this.video.style.opacity = '1';
 
-    // Se o elemento não tiver o src definido, define diretamente
     if (!this.video.src || this.video.src.indexOf('Untitled_Scene') === -1) {
       this.video.src = this.config.video.src;
     }
 
-    // Fila de scrubbing suave ao receber evento 'seeked' do decodificador
+    // Ouvinte para busca precisa ao rolar para trás
     this.video.addEventListener('seeked', () => {
       this.isSeeking = false;
       if (this.pendingSeekTime !== null) {
         const nextTime = this.pendingSeekTime;
         this.pendingSeekTime = null;
-        this.performVideoSeek(nextTime);
+        this.directSeek(nextTime);
       }
     });
 
-    // Callback de vídeo pronto para uso
     const onVideoReady = () => {
       this.isVideoReady = true;
       if (this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0) {
         this.videoDuration = this.video.duration;
       }
 
-      // Desativa e esconde qualquer fallback para exibir o vídeo real
       this.useCanvasFallback = false;
       if (this.canvas) this.canvas.style.display = 'none';
       this.video.style.display = 'block';
       this.video.style.opacity = '1';
 
-      // Forçar a pintura do primeiro frame do vídeo na tela
+      // Forçar a pintura inicial do primeiro frame
       try {
         if (this.video.currentTime === 0) {
           this.video.currentTime = 0.001;
@@ -243,29 +256,30 @@ class KavHeroScrollExperience {
     this.video.addEventListener('canplay', onVideoReady);
     this.video.addEventListener('canplaythrough', onVideoReady);
 
-    // Se o vídeo já estiver com dados prontos no cache
     if (this.video.readyState >= 1) {
       onVideoReady();
     }
 
-    // Desbloquear motor de decodificação no iOS Safari na primeira interação do usuário
-    const unlockMobileVideo = () => {
+    // Desbloqueio imediato no primeiro gesto do usuário
+    const unlockMobile = () => {
       if (this.video && this.video.paused) {
-        const promise = this.video.play();
-        if (promise && typeof promise.then === 'function') {
-          promise.then(() => {
+        const p = this.video.play();
+        if (p && typeof p.then === 'function') {
+          p.then(() => {
             this.video.pause();
           }).catch(() => {});
         }
       }
-      window.removeEventListener('touchstart', unlockMobileVideo);
-      window.removeEventListener('scroll', unlockMobileVideo);
-      window.removeEventListener('pointerdown', unlockMobileVideo);
+      window.removeEventListener('touchstart', unlockMobile);
+      window.removeEventListener('scroll', unlockMobile);
+      window.removeEventListener('pointerdown', unlockMobile);
+      window.removeEventListener('wheel', unlockMobile);
     };
 
-    window.addEventListener('touchstart', unlockMobileVideo, { passive: true, once: true });
-    window.addEventListener('scroll', unlockMobileVideo, { passive: true, once: true });
-    window.addEventListener('pointerdown', unlockMobileVideo, { passive: true, once: true });
+    window.addEventListener('touchstart', unlockMobile, { passive: true, once: true });
+    window.addEventListener('scroll', unlockMobile, { passive: true, once: true });
+    window.addEventListener('pointerdown', unlockMobile, { passive: true, once: true });
+    window.addEventListener('wheel', unlockMobile, { passive: true, once: true });
 
     // Tratamento de erro resiliente
     let triedAlt = false;
@@ -282,15 +296,66 @@ class KavHeroScrollExperience {
       }
     });
 
-    // Timeout de segurança: nunca deixa o preloader preso para o visitante
+    // Ocultar loader rapidamente
     setTimeout(() => {
       this.hideLoader();
-    }, 2800);
+    }, 2200);
 
     try {
       this.video.load();
-    } catch (e) {
-      console.warn(e);
+    } catch (e) {}
+  }
+
+  safePlay(rate = 1.0) {
+    if (!this.video) return;
+    this.video.playbackRate = rate;
+
+    if (!this.isPlaying) {
+      this.isPlaying = true;
+      this.playPromise = this.video.play();
+      if (this.playPromise !== undefined) {
+        this.playPromise.then(() => {
+          this.playPromise = null;
+        }).catch(() => {
+          this.playPromise = null;
+          this.isPlaying = false;
+        });
+      }
+    }
+  }
+
+  safePause() {
+    if (!this.video) return;
+
+    if (this.isPlaying) {
+      if (this.playPromise !== null) {
+        this.playPromise.then(() => {
+          this.video.pause();
+          this.isPlaying = false;
+          this.playPromise = null;
+        }).catch(() => {
+          this.isPlaying = false;
+          this.playPromise = null;
+        });
+      } else {
+        this.video.pause();
+        this.isPlaying = false;
+      }
+    }
+  }
+
+  directSeek(targetTime) {
+    if (!this.video) return;
+
+    if (!this.isSeeking) {
+      this.isSeeking = true;
+      try {
+        this.video.currentTime = targetTime;
+      } catch (e) {
+        this.isSeeking = false;
+      }
+    } else {
+      this.pendingSeekTime = targetTime;
     }
   }
 
@@ -308,13 +373,14 @@ class KavHeroScrollExperience {
       this.loader.classList.add('fade-out');
       setTimeout(() => {
         if (this.loader) this.loader.style.display = 'none';
-      }, 350);
+      }, 300);
     }
   }
 
   setupEventListeners() {
     window.addEventListener('scroll', () => {
       this.handleScroll();
+      this.lastScrollTimestamp = performance.now();
       this.hideLoader();
     }, { passive: true });
 
@@ -325,7 +391,6 @@ class KavHeroScrollExperience {
       }
     });
 
-    // Cliques nos botões de Ato no HUD superior
     this.actButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const actId = parseInt(btn.dataset.act, 10);
@@ -336,7 +401,6 @@ class KavHeroScrollExperience {
       });
     });
 
-    // Clique na dica de scroll
     if (this.scrollHint) {
       this.scrollHint.addEventListener('click', () => {
         this.scrollToProgress(0.12);
@@ -378,20 +442,17 @@ class KavHeroScrollExperience {
       if (!this.isRendering) return;
 
       if (!this.isReducedMotion) {
-        // Suavização por interpolação linear (lerp)
         const isMobile = window.innerWidth <= 768;
         const factor = isMobile ? this.config.video.mobileLerpFactor : this.config.video.lerpFactor;
         this.smoothProgress += (this.rawProgress - this.smoothProgress) * factor;
 
-        // Atualizar o frame do vídeo
+        // Atualização do vídeo sem travamento
         this.updateVideoScrub(this.smoothProgress);
 
-        // Se o canvas fallback estiver ativo
         if (this.useCanvasFallback && this.drawCanvasFrame) {
           this.drawCanvasFrame(this.smoothProgress);
         }
 
-        // Sincronizar textos e HUD
         this.updateStoryUI(this.smoothProgress);
       }
 
@@ -401,25 +462,11 @@ class KavHeroScrollExperience {
     requestAnimationFrame(render);
   }
 
-  performVideoSeek(targetTime) {
-    if (!this.video) return;
-
-    if (!this.isSeeking) {
-      this.isSeeking = true;
-      try {
-        if (typeof this.video.fastSeek === 'function') {
-          this.video.fastSeek(targetTime);
-        } else {
-          this.video.currentTime = targetTime;
-        }
-      } catch (e) {
-        try { this.video.currentTime = targetTime; } catch (err) {}
-      }
-    } else {
-      this.pendingSeekTime = targetTime;
-    }
-  }
-
+  /**
+   * MOTOR DE FLUIDEZ ULTRA-PRECISO:
+   * Combina Playback Rate dinâmico para avançar suavemente (60fps contínuos)
+   * e busca direta precisa para retroceder, eliminando qualquer travamento.
+   */
   updateVideoScrub(progress) {
     if (!this.video || this.useCanvasFallback) return;
 
@@ -428,14 +475,38 @@ class KavHeroScrollExperience {
       : this.videoDuration;
 
     const targetTime = Math.max(0, Math.min(duration, progress * duration));
+    const currentTime = this.video.currentTime;
+    const diff = targetTime - currentTime;
 
-    if (Math.abs(this.video.currentTime - targetTime) > 0.015) {
-      this.performVideoSeek(targetTime);
+    const now = performance.now();
+    const timeSinceScroll = now - this.lastScrollTimestamp;
+
+    // Rolando para frente:
+    if (diff > 0.04) {
+      if (diff > 1.4) {
+        // Salto longo: busca direta
+        this.safePause();
+        this.directSeek(targetTime);
+      } else {
+        // Reprodução fluida nativa proporcional ao scroll
+        const rate = Math.min(3.8, Math.max(0.65, diff * 4.8));
+        this.safePlay(rate);
+      }
+    } 
+    // Rolando para trás:
+    else if (diff < -0.04) {
+      this.safePause();
+      this.directSeek(targetTime);
+    } 
+    // Alvo atingido ou rolagem parada:
+    else {
+      if (timeSinceScroll > 100 || Math.abs(diff) < 0.02) {
+        this.safePause();
+      }
     }
   }
 
   updateStoryUI(progress) {
-    // Barra e numeração do progresso
     const percentInt = Math.round(progress * 100);
     if (this.progressFill) {
       this.progressFill.style.width = `${progress * 100}%`;
@@ -444,7 +515,6 @@ class KavHeroScrollExperience {
       this.progressPercent.textContent = `${percentInt}%`;
     }
 
-    // Passo de texto ativo
     const activeStep = this.config.steps.find((step) => {
       return progress >= step.minProgress && progress < step.maxProgress;
     }) || this.config.steps[this.config.steps.length - 1];
@@ -458,7 +528,6 @@ class KavHeroScrollExperience {
       });
     }
 
-    // Indicador de Ato ativo
     if (activeStep && activeStep.act !== this.currentActId) {
       this.currentActId = activeStep.act;
       this.actButtons.forEach((btn) => {
@@ -467,13 +536,11 @@ class KavHeroScrollExperience {
       });
     }
 
-    // Dica de rolagem
     if (this.scrollHint) {
       this.scrollHint.style.opacity = progress > 0.06 ? '0' : '1';
       this.scrollHint.style.pointerEvents = progress > 0.06 ? 'none' : 'auto';
     }
 
-    // Transição de opacidade do Header
     const header = document.getElementById('header');
     if (header) {
       if (progress > 0.95) {
@@ -502,7 +569,6 @@ class KavHeroScrollExperience {
 
       ctx.clearRect(0, 0, w, h);
 
-      // Fundo azul-marinho cinematográfico
       const bgGrad = ctx.createRadialGradient(cx, cy, 50, cx, cy, Math.max(w, h));
       bgGrad.addColorStop(0, '#102244');
       bgGrad.addColorStop(0.5, '#0A1633');
@@ -510,7 +576,6 @@ class KavHeroScrollExperience {
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, w, h);
 
-      // Grid 3D de perspectiva
       ctx.save();
       ctx.strokeStyle = 'rgba(111, 211, 255, 0.12)';
       ctx.lineWidth = 1;
@@ -532,7 +597,6 @@ class KavHeroScrollExperience {
       }
       ctx.restore();
 
-      // Rastro de Luz Neon Laranja
       ctx.save();
       ctx.shadowBlur = 24;
       ctx.shadowColor = '#FF6A1A';

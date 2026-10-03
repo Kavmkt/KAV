@@ -273,188 +273,6 @@
     </div>
   </section>
 
-  <!-- Seção Detalhada: Modelo Interativo das 3 Etapas -->
-  <section class="process-3d-section" id="processo">
-    <div class="container section-header">
-      <div class="section-tag">A JORNADA DO EMPRESÁRIO</div>
-      <h2 class="section-title">
-        O que acontece quando sua PME entra na <span class="gradient-text">Kav</span>?
-      </h2>
-      <p class="section-description">
-        Esqueça a burocracia de agências comuns que vendem pacotes genéricos. Criamos uma esteira científica e modular para levar o seu negócio do diagnóstico ao topo do mercado.
-      </p>
-    </div>
-
-    <div class="container process-interactive-wrapper">
-      <!-- 3D Canvas Viewport -->
-      <div class="canvas-card">
-        <div class="canvas-header-bar">
-          <div class="terminal-dots">
-            <span class="dot dot-red"></span>
-            <span class="dot dot-yellow"></span>
-            <span class="dot dot-green"></span>
-          </div>
-          <div class="canvas-status">
-            <span class="status-indicator"></span>
-            <span id="canvasStatusText">Ambiente 3D Interativo: Etapa 1 Ativa</span>
-          </div>
-          <div class="canvas-controls">
-            <button id="toggleAutoRotate" class="control-btn" title="Alternar Rotação Automática">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              <span>Auto</span>
-            </button>
-            <button id="resetViewBtn" class="control-btn" title="Resetar Câmera">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-              <span>Foco</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="canvas-3d-container" id="canvas3DContainer">
-          <!-- WebGL Three.js attaches here -->
-          <div class="interaction-hint">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-            <span>Arraste para explorar o modelo 3D</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
-        </div>
-
-        <!-- 3D Navigation Bar beneath canvas -->
-        <div class="canvas-stages-tabs">
-          <button class="stage-tab active" data-stage="1">
-            <span class="tab-number">01</span>
-            <span class="tab-title">Estruturação & Análise</span>
-          </button>
-          <button class="stage-tab" data-stage="2">
-            <span class="tab-number">02</span>
-            <span class="tab-title">Núcleo HyperKav</span>
-          </button>
-          <button class="stage-tab" data-stage="3">
-            <span class="tab-number">03</span>
-            <span class="tab-title">Escalada & Crescimento</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Detailed Storytelling Cards (Synced with 3D) -->
-      <div class="story-cards-container">
-        <!-- Etapa 1 -->
-        <div class="story-card active" id="storyStage1" data-stage="1">
-          <div class="card-stage-indicator">
-            <span class="pill-badge pill-cyan">ETAPA 01</span>
-            <span class="card-duration">Primeiras 2 a 3 semanas</span>
-          </div>
-          <h3 class="story-title">Estruturação e Análise de Mercado</h3>
-          <p class="story-lead">
-            Antes de gastar um único real em anúncios, blindamos o seu terreno. O maior erro das PMEs é anunciar sem clareza de posicionamento, concorrentes e público-alvo.
-          </p>
-          <div class="story-features">
-            <div class="feature-item">
-              <div class="feature-icon">🔍</div>
-              <div>
-                <strong>Raio-X de Concorrência e Margem:</strong>
-                <p>Mapeamos onde os competidores falham e onde seu produto tem maior lucratividade.</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">⚙️</div>
-              <div>
-                <strong>Arquitetura de Conversão & Tracking:</strong>
-                <p>Implementamos rastreamento avançado (API de Conversões Meta, Google Analytics 4 e CRM).</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">🎯</div>
-              <div>
-                <strong>Modelagem da Oferta Irresistível:</strong>
-                <p>Refinamos a mensagem da sua marca para falar diretamente à dor do cliente ideal.</p>
-              </div>
-            </div>
-          </div>
-          <div class="story-quote">
-            "Você enxerga com precisão cirúrgica de onde virão os clientes antes do primeiro clique."
-          </div>
-        </div>
-
-        <!-- Etapa 2 -->
-        <div class="story-card" id="storyStage2" data-stage="2">
-          <div class="card-stage-indicator">
-            <span class="pill-badge pill-purple">ETAPA 02 • EXCLUSIVIDADE KAV</span>
-            <span class="card-duration">Otimização Contínua em Tempo Real</span>
-          </div>
-          <h3 class="story-title">Entrada no Núcleo HyperKav</h3>
-          <p class="story-lead">
-            O <strong>HyperKav</strong> é o coração tecnológico da Kav. Funciona como um verdadeiro laboratório de inteligência analítica onde cientistas de dados e estrategistas de tráfego testam e validam hipóteses diariamente.
-          </p>
-          <div class="story-features">
-            <div class="feature-item">
-              <div class="feature-icon">🔬</div>
-              <div>
-                <strong>O Laboratório de Testes Multivariados:</strong>
-                <p>Centenas de variações de criativos, públicos e páginas submetidos a algoritmos de atribuição.</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">📊</div>
-              <div>
-                <strong>Decisões 100% Livres de Achismo:</strong>
-                <p>Nada de opiniões subjetivas. O HyperKav identifica gargalos de funil com dados puros.</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">⚡</div>
-              <div>
-                <strong>Algoritmos de Proteção de Budget:</strong>
-                <p>Redistribuição instantânea de verba para os canais de maior retorno sobre investimento.</p>
-              </div>
-            </div>
-          </div>
-          <div class="story-quote">
-            "Sua empresa passa a ter o mesmo poder de inteligência e dados que gigantes do Vale do Silício possuem."
-          </div>
-        </div>
-
-        <!-- Etapa 3 -->
-        <div class="story-card" id="storyStage3" data-stage="3">
-          <div class="card-stage-indicator">
-            <span class="pill-badge pill-green">ETAPA 03</span>
-            <span class="card-duration">Consolidação & Domínio</span>
-          </div>
-          <h3 class="story-title">A Escalada Gradual do Crescimento</h3>
-          <p class="story-lead">
-            Com a máquina validada e o custo por aquisição estabilizado, iniciamos a fase de aceleração segura. Não existe salto no escuro: a escala é progressiva e sustentável.
-          </p>
-          <div class="story-features">
-            <div class="feature-item">
-              <div class="feature-icon">📈</div>
-              <div>
-                <strong>Alavancagem com Margem Segura:</strong>
-                <p>Aumentamos o volume de vendas sem canibalizar a sua operação ou diminuir o lucro.</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">🌐</div>
-              <div>
-                <strong>Diversificação Omnichannel:</strong>
-                <p>Expansão coordenada entre Google Search, YouTube, Meta, TikTok e Retargeting Dinâmico.</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">🤝</div>
-              <div>
-                <strong>Sócio Estratégico de Crescimento:</strong>
-                <p>Reuniões executivas com dashboards em tempo real: o empresário cresce com tranquilidade.</p>
-              </div>
-            </div>
-          </div>
-          <div class="story-quote">
-            "O empresário deixa de se preocupar com vendas e foca em gerir o negócio que não para de expandir."
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Deep Dive: Núcleo HyperKav Section -->
   <section class="hyperkav-section" id="hyperkav">
     <div class="container">
@@ -819,8 +637,8 @@
         <h4>Soluções</h4>
         <ul>
           <li><a href="#hyperkav">Engenharia de Dados & Tráfego</a></li>
-          <li><a href="#processo">Otimização de Taxa de Conversão (CRO)</a></li>
-          <li><a href="#processo">Estruturação de Funis de Alta Performance</a></li>
+          <li><a href="#hyperkav">Otimização de Taxa de Conversão (CRO)</a></li>
+          <li><a href="#heroScrollSection">Estruturação de Funis de Alta Performance</a></li>
           <li><a href="#hyperkav">Auditoria de Campanhas Google & Meta</a></li>
         </ul>
       </div>
@@ -849,10 +667,8 @@
     </div>
   </footer>
 
-  <!-- Scripts: Hero Scroll-Driven Engine, Three.js & Main Orchestration -->
+  <!-- Scripts: Hero Scroll-Driven Engine & Main Orchestration -->
   <script src="js/hero-scroll.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="js/three-scene.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
