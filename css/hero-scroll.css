@@ -178,9 +178,9 @@
   left: 0;
   width: 0%;
   height: 2px;
-  background: rgba(111, 211, 255, 0.35);
+  background: rgba(111, 211, 255, 0.45);
   z-index: 19;
-  transition: width 0.25s ease-out;
+  transition: width 0.25s ease-out, opacity 0.5s ease;
 }
 
 /* Barra de Progresso do Scroll no Topo */
@@ -217,9 +217,9 @@
   opacity: 0;
   visibility: hidden;
   transform: translateY(12px);
-  transition: opacity 0.24s ease-out, 
-              transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-              visibility 0.24s ease-out;
+  transition: opacity 0.2s ease-out, 
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.2s ease-out;
   pointer-events: none;
   will-change: opacity, transform;
 }
@@ -228,11 +228,12 @@
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 /* Variação Inferior Central (Com margem vertical generosa para não encostar na dica de scroll) */
 .hero-story-step.pos-bottom-center {
-  bottom: 110px;
+  bottom: 120px;
   left: 50%;
   transform: translate(-50%, 12px);
   text-align: center;
@@ -384,7 +385,7 @@
   font-size: 0.74rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
   cursor: pointer;
   pointer-events: auto;
 }
@@ -515,24 +516,24 @@
 }
 
 /* --------------------------------------------------------------------------
-   Responsividade: Breakpoints 1280px, 1024px, 768px, 480px, 390px
+   Responsividade: Breakpoints 1440px, 1280px, 1024px, 768px, 480px, 390px
    -------------------------------------------------------------------------- */
 @media (max-width: 1280px) {
   .hero-story-step.pos-bottom-center {
-    bottom: 105px;
+    bottom: 110px;
     max-width: 700px;
   }
 }
 
 @media (max-width: 1024px) {
   .hero-story-step.pos-bottom-center {
-    bottom: 96px;
+    bottom: 105px;
     max-width: 640px;
   }
 
   .hero-story-step.pos-bottom-left,
   .hero-story-step.pos-bottom-right {
-    bottom: 76px;
+    bottom: 84px;
     left: 24px;
     right: 24px;
     max-width: 90%;
@@ -561,7 +562,7 @@
   }
 
   .hero-story-step.pos-bottom-center {
-    bottom: 84px;
+    bottom: 96px;
     left: 20px;
     right: 20px;
     width: auto;
@@ -576,7 +577,7 @@
 
   .hero-story-step.pos-bottom-left,
   .hero-story-step.pos-bottom-right {
-    bottom: 84px;
+    bottom: 96px;
     left: 20px;
     right: 20px;
     width: auto;
@@ -616,14 +617,14 @@
   .hero-story-step.pos-bottom-center,
   .hero-story-step.pos-bottom-left,
   .hero-story-step.pos-bottom-right {
-    bottom: 76px;
+    bottom: 84px;
     left: 16px;
     right: 16px;
     max-width: calc(100% - 32px);
   }
 
   .story-step-title {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     line-height: 1.2;
   }
 

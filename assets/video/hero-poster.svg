@@ -1,133 +1,108 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <defs>
-    <!-- Background Gradient -->
-    <radialGradient id="bgGlow" cx="50%" cy="45%" r="60%">
-      <stop offset="0%" stop-color="#142952"/>
-      <stop offset="50%" stop-color="#0A1633"/>
-      <stop offset="100%" stop-color="#050B1A"/>
+    <!-- Deep Navy Ambient Gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#0A1633" />
+      <stop offset="40%" stop-color="#070E22" />
+      <stop offset="85%" stop-color="#050B1A" />
+      <stop offset="100%" stop-color="#03060E" />
     </radialGradient>
 
-    <!-- Orange Neon Trail Gradient -->
-    <linearGradient id="neonOrange" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#FF3B00"/>
-      <stop offset="40%" stop-color="#FF6A1A"/>
-      <stop offset="80%" stop-color="#FFA048"/>
-      <stop offset="100%" stop-color="#FFE6A8"/>
+    <!-- HyperKav Orange Core Glow -->
+    <radialGradient id="orangeCoreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+      <stop offset="15%" stop-color="#FFA048" stop-opacity="0.95" />
+      <stop offset="45%" stop-color="#FF6A1A" stop-opacity="0.75" />
+      <stop offset="75%" stop-color="#FF6A1A" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FF6A1A" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Cyan Telemetry Glow -->
+    <radialGradient id="cyanAmbient" cx="50%" cy="40%" r="40%">
+      <stop offset="0%" stop-color="#6FD3FF" stop-opacity="0.18" />
+      <stop offset="60%" stop-color="#6FD3FF" stop-opacity="0.04" />
+      <stop offset="100%" stop-color="#6FD3FF" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Horizon Beam -->
+    <linearGradient id="horizonGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6FD3FF" stop-opacity="0" />
+      <stop offset="35%" stop-color="#6FD3FF" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#FFA048" stop-opacity="0.5" />
+      <stop offset="65%" stop-color="#FF6A1A" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FF6A1A" stop-opacity="0" />
     </linearGradient>
 
-    <!-- Cyan Data Beam Gradient -->
-    <linearGradient id="cyanBeam" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#6FD3FF" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#6FD3FF" stop-opacity="0"/>
-    </linearGradient>
-
-    <!-- Glow Filter -->
-    <filter id="glowFilter" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="16" result="blur1"/>
-      <feGaussianBlur stdDeviation="40" result="blur2"/>
-      <feMerge>
-        <feMergeNode in="blur2"/>
-        <feMergeNode in="blur1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-
-    <filter id="intenseGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="28" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <!-- Vignette Gradient -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="60%">
+      <stop offset="40%" stop-color="#000000" stop-opacity="0" />
+      <stop offset="85%" stop-color="#050B1A" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#050B1A" stop-opacity="0.85" />
+    </radialGradient>
   </defs>
 
-  <!-- Deep Navy Base -->
-  <rect width="1920" height="1080" fill="url(#bgGlow)"/>
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#bgGlow)" />
+
+  <!-- Cyan Ambient Field -->
+  <circle cx="960" cy="460" r="600" fill="url(#cyanAmbient)" />
 
   <!-- 3D Perspective Grid -->
-  <g opacity="0.22" stroke="#6FD3FF" stroke-width="1.2">
-    <!-- Perspective lines toward vanishing point (960, 480) -->
-    <line x1="960" y1="480" x2="-200" y2="1100"/>
-    <line x1="960" y1="480" x2="100" y2="1100"/>
-    <line x1="960" y1="480" x2="400" y2="1100"/>
-    <line x1="960" y1="480" x2="700" y2="1100"/>
-    <line x1="960" y1="480" x2="960" y2="1100"/>
-    <line x1="960" y1="480" x2="1220" y2="1100"/>
-    <line x1="960" y1="480" x2="1520" y2="1100"/>
-    <line x1="960" y1="480" x2="1820" y2="1100"/>
-    <line x1="960" y1="480" x2="2120" y2="1100"/>
+  <g opacity="0.3" stroke="#6FD3FF" stroke-width="1">
+    <!-- Converging Perspective Lines -->
+    <line x1="960" y1="460" x2="-200" y2="1080" />
+    <line x1="960" y1="460" x2="100" y2="1080" />
+    <line x1="960" y1="460" x2="350" y2="1080" />
+    <line x1="960" y1="460" x2="580" y2="1080" />
+    <line x1="960" y1="460" x2="780" y2="1080" />
+    <line x1="960" y1="460" x2="960" y2="1080" stroke-width="1.5" stroke="#FFA048" opacity="0.5" />
+    <line x1="960" y1="460" x2="1140" y2="1080" />
+    <line x1="960" y1="460" x2="1340" y2="1080" />
+    <line x1="960" y1="460" x2="1570" y2="1080" />
+    <line x1="960" y1="460" x2="1820" y2="1080" />
+    <line x1="960" y1="460" x2="2120" y2="1080" />
 
-    <!-- Transverse grid rungs -->
-    <line x1="840" y1="520" x2="1080" y2="520"/>
-    <line x1="720" y1="570" x2="1200" y2="570"/>
-    <line x1="560" y1="640" x2="1360" y2="640"/>
-    <line x1="360" y1="740" x2="1560" y2="740"/>
-    <line x1="100" y1="880" x2="1820" y2="880"/>
-    <line x1="-150" y1="1060" x2="2070" y2="1060"/>
+    <!-- Isometric Transverse Curves -->
+    <path d="M 0,980 Q 960,860 1920,980" fill="none" opacity="0.4" />
+    <path d="M 0,860 Q 960,760 1920,860" fill="none" opacity="0.35" />
+    <path d="M 0,740 Q 960,660 1920,740" fill="none" opacity="0.3" />
+    <path d="M 0,640 Q 960,580 1920,640" fill="none" opacity="0.25" />
+    <path d="M 0,550 Q 960,510 1920,550" fill="none" opacity="0.2" />
+    <path d="M 0,480 Q 960,460 1920,480" fill="none" opacity="0.15" />
   </g>
 
-  <!-- Distant Cityscape & Market Buildings (Competitors in cool blues) -->
-  <g opacity="0.35" fill="#0E2347" stroke="#1C3D73" stroke-width="1.5">
-    <rect x="320" y="440" width="70" height="120"/>
-    <rect x="420" y="410" width="85" height="150"/>
-    <rect x="530" y="460" width="60" height="100"/>
-    <rect x="1320" y="420" width="75" height="140"/>
-    <rect x="1420" y="450" width="80" height="110"/>
-    <rect x="1530" y="390" width="90" height="170"/>
+  <!-- Horizon Line -->
+  <line x1="0" y1="460" x2="1920" y2="460" stroke="url(#horizonGlow)" stroke-width="2" />
+
+  <!-- Concentric Orbital Wireframe Rings around HyperKav Core -->
+  <g opacity="0.25" fill="none" stroke="#6FD3FF" stroke-width="1">
+    <ellipse cx="960" cy="460" rx="340" ry="110" transform="rotate(-8 960 460)" />
+    <ellipse cx="960" cy="460" rx="260" ry="85" transform="rotate(12 960 460)" stroke="#FF9A3C" opacity="0.4" />
+    <ellipse cx="960" cy="460" rx="160" ry="50" transform="rotate(-4 960 460)" stroke="#FFA048" opacity="0.6" />
   </g>
 
-  <!-- The Client's Small Store (The starting point) -->
-  <g transform="translate(680, 680)">
-    <rect x="0" y="0" width="110" height="85" rx="6" fill="#112750" stroke="#FF6A1A" stroke-width="2.5"/>
-    <path d="M-10,0 L55,-35 L120,0 Z" fill="#0D1E3D" stroke="#FF6A1A" stroke-width="2.5"/>
-    <circle cx="55" cy="42" r="14" fill="#FF6A1A" opacity="0.8" filter="url(#glowFilter)"/>
-    <text x="55" y="70" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="bold">SEU NEGÓCIO</text>
+  <!-- Core Orange Glowing Sphere (First Frame of 3D Scene) -->
+  <circle cx="960" cy="460" r="140" fill="url(#orangeCoreGlow)" />
+  <circle cx="960" cy="460" r="18" fill="#FFFFFF" />
+
+  <!-- Subtle Data Points / Constellations -->
+  <g fill="#6FD3FF" opacity="0.6">
+    <circle cx="820" cy="445" r="2.5" />
+    <circle cx="1100" cy="475" r="2.5" />
+    <circle cx="710" cy="470" r="2" />
+    <circle cx="1210" cy="440" r="2" />
+    <circle cx="910" cy="380" r="1.5" />
+    <circle cx="1020" cy="530" r="1.5" />
   </g>
 
-  <!-- The Monumental HyperKav Core at vanishing point -->
-  <g transform="translate(960, 420)">
-    <!-- Core Glow & Outer Rings -->
-    <circle cx="0" cy="0" r="90" fill="#FF6A1A" opacity="0.12" filter="url(#intenseGlow)"/>
-    <circle cx="0" cy="0" r="60" fill="#0A1633" stroke="#6FD3FF" stroke-width="2" opacity="0.6"/>
-    <circle cx="0" cy="0" r="42" fill="#0E2347" stroke="#FF6A1A" stroke-width="3" filter="url(#glowFilter)"/>
-    <!-- Glowing Core Pyramids -->
-    <polygon points="0,-32 28,16 -28,16" fill="url(#neonOrange)" opacity="0.9" filter="url(#glowFilter)"/>
-    <!-- Ascending Light Beam into clouds -->
-    <path d="M-25,16 L0,-400 L25,16 Z" fill="url(#cyanBeam)" opacity="0.4"/>
+  <!-- Peripheral Vignette Overlay -->
+  <rect width="1920" height="1080" fill="url(#vignette)" />
+
+  <!-- Cinematic Framing Corners -->
+  <g stroke="#6FD3FF" stroke-width="1.5" opacity="0.3" fill="none">
+    <path d="M 40,80 L 40,40 L 80,40" />
+    <path d="M 1880,80 L 1880,40 L 1840,40" />
+    <path d="M 40,1000 L 40,1040 L 80,1040" />
+    <path d="M 1880,1000 L 1880,1040 L 1840,1040" />
   </g>
-
-  <!-- The Vibrant Orange Neon Trail of Kav in Action -->
-  <path d="M735,720 C780,680 840,640 820,580 C800,520 890,510 930,480 C950,460 960,430 960,420 C960,340 1020,240 1150,160 C1280,80 1450,40 1600,20" 
-        fill="none" 
-        stroke="url(#neonOrange)" 
-        stroke-width="7" 
-        stroke-linecap="round" 
-        filter="url(#intenseGlow)"/>
-  
-  <!-- Core inner neon streak for intense brilliance -->
-  <path d="M735,720 C780,680 840,640 820,580 C800,520 890,510 930,480 C950,460 960,430 960,420 C960,340 1020,240 1150,160 C1280,80 1450,40 1600,20" 
-        fill="none" 
-        stroke="#FFFFFF" 
-        stroke-width="2.5" 
-        stroke-linecap="round"/>
-
-  <!-- Tech Floating Node Markers (Campanhas, IA, Métricas) -->
-  <g transform="translate(860, 560)">
-    <circle cx="0" cy="0" r="8" fill="#6FD3FF" filter="url(#glowFilter)"/>
-    <circle cx="0" cy="0" r="18" fill="none" stroke="#6FD3FF" stroke-width="1.5" opacity="0.7"/>
-    <text x="25" y="4" fill="#6FD3FF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="bold">DADOS &amp; IA</text>
-  </g>
-
-  <g transform="translate(1080, 310)">
-    <circle cx="0" cy="0" r="10" fill="#FF9A3C" filter="url(#glowFilter)"/>
-    <circle cx="0" cy="0" r="22" fill="none" stroke="#FF6A1A" stroke-width="1.5" opacity="0.8"/>
-    <text x="30" y="5" fill="#FFA048" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="bold">ESCALA &amp; TOPO</text>
-  </g>
-
-  <!-- Ambient Light Vignette overlay -->
-  <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
-    <stop offset="60%" stop-color="#000000" stop-opacity="0"/>
-    <stop offset="100%" stop-color="#030712" stop-opacity="0.75"/>
-  </radialGradient>
-  <rect width="1920" height="1080" fill="url(#vignette)"/>
 </svg>

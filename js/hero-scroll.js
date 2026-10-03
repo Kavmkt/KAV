@@ -1,28 +1,31 @@
 /**
  * ============================================================================
- * KAV + HYPERKAV — HERO SCROLL-DRIVEN EXPERIENCE ENGINE (v3.0 Robust)
+ * KAV + HYPERKAV — HERO SCROLL-DRIVEN EXPERIENCE ENGINE (v3.2 Production Ready)
  * ============================================================================
- * Desenvolvido no padrão de engenharia de alta performance:
+ * Design de Alta Fidelidade com scrub suave por hardware:
  * - Scrub com interpolação contínua (lerp) via requestAnimationFrame.
- * - Fila de seek não-bloqueante com sincronização via evento 'seeked' (100% compatível com iOS/Safari/Chrome).
- * - Monitoramento em tempo real de buffer (buffered/progress) com indicador de carregamento.
- * - Detecção automática de conexão (Save-Data, redes lentas) e seleção responsiva de arquivo.
- * - Fallback automático inteligente para Canvas / Poster caso o vídeo falhe ou demore.
+ * - Fila de seek não-bloqueante sincronizada pelo evento nativo 'seeked'.
+ * - Scrub ativado estritamente quando readyState >= 3 e duration confirmada.
+ * - Margens de respiro (deadband gaps) entre blocos de texto: ZERO colisão.
+ * - Bloco de abertura e hint de scroll saem completamente antes do Ato 01.
+ * - Monitoramento de buffer real com barra superior discreta.
+ * - Fallback automático inteligente para Canvas / Poster caso o vídeo falhe.
  * - Suporte nativo a prefers-reduced-motion.
- * - Modo debug silencioso (ativado apenas com ?debug=true).
  * ============================================================================
  */
 
 const HERO_SCROLL_CONFIG = {
   video: {
+    // Ordem de prioridade de fontes
     desktopSrc: 'assets/video/hero-desktop.mp4',
     mobileSrc: 'assets/video/hero-mobile.mp4',
+    // Arquivo original de alta fidelidade confirmado presente no repositório (HTTP 200)
     legacySrc: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
-    posterWebp: 'assets/video/hero-poster.webp',
+    posterJpg: 'assets/video/hero-poster.jpg',
     posterSvg: 'assets/video/hero-poster.svg',
     fallbackDuration: 24, // segundos estimados caso duration ainda seja desconhecida
-    lerpFactor: 0.08,     // suavidade no desktop
-    mobileLerpFactor: 0.12 // agilidade no mobile
+    lerpFactor: 0.08,     // suavidade fluida no desktop
+    mobileLerpFactor: 0.14 // agilidade e resposta tátil no mobile
   },
 
   scroll: {
@@ -31,27 +34,29 @@ const HERO_SCROLL_CONFIG = {
   },
 
   acts: [
-    { id: 1, label: '1 · Início', targetProgress: 0.14 },
-    { id: 2, label: '2 · Núcleo HyperKav', targetProgress: 0.56 },
+    { id: 1, label: '1 · Início', targetProgress: 0.15 },
+    { id: 2, label: '2 · Núcleo HyperKav', targetProgress: 0.55 },
     { id: 3, label: '3 · Sucesso', targetProgress: 0.88 }
   ],
 
+  // Janelas com margens deliberadas de respiro (gaps) para evitar qualquer sobreposição
   steps: [
     {
       id: 'step-opening',
       act: 1,
-      minProgress: 0.0,
-      maxProgress: 0.08,
+      minProgress: 0.00,
+      maxProgress: 0.06,  // Sai completamente aos 6%
       position: 'bottom-center',
       showScrollHint: true,
       badge: null,
       title: 'Marketing e performance que levam o seu negócio ao topo.',
       subtitle: 'Todo negócio começa em algum ponto do mapa. Role para ver para onde ele pode ir.'
     },
+    // GAP: 0.06 -> 0.10 (Respiro total: H1 e hint 100% ocultos, centro livre)
     {
       id: 'step-kav-enters',
       act: 1,
-      minProgress: 0.08,
+      minProgress: 0.10,  // Entra apenas aos 10%
       maxProgress: 0.20,
       position: 'bottom-left',
       showScrollHint: false,
@@ -59,94 +64,98 @@ const HERO_SCROLL_CONFIG = {
       title: 'A Kav entra em campo.',
       subtitle: 'Mapeamos o seu mercado, os seus concorrentes e o que realmente move os clientes da sua região.'
     },
+    // GAP: 0.20 -> 0.23 (Respiro)
     {
       id: 'step-first-leap',
       act: 1,
-      minProgress: 0.20,
-      maxProgress: 0.35,
+      minProgress: 0.23,
+      maxProgress: 0.34,
       position: 'bottom-right',
       showScrollHint: false,
       badge: 'TRAÇÃO INICIAL',
       title: 'O primeiro salto é ganhar visibilidade.',
       subtitle: 'Posicionamento, presença digital e campanhas que tiram seu negócio do anonimato.'
     },
+    // GAP: 0.34 -> 0.37 (Respiro)
     {
       id: 'step-data-appears',
       act: 2,
-      minProgress: 0.35,
-      maxProgress: 0.50,
+      minProgress: 0.37,
+      maxProgress: 0.48,
       position: 'bottom-left',
       showScrollHint: false,
       badge: 'ATO 02 • INTELIGÊNCIA',
       title: 'Cada campanha vira inteligência.',
       subtitle: 'Pesquisas, métricas e relatórios mostram o que os maiores do seu mercado fazem e onde existe espaço para você passar na frente.'
     },
+    // GAP: 0.48 -> 0.51 (Respiro)
     {
       id: 'step-hyperkav-core',
       act: 2,
-      minProgress: 0.50,
-      maxProgress: 0.65,
+      minProgress: 0.51,
+      maxProgress: 0.63,
       position: 'bottom-left',
       showScrollHint: false,
       badge: 'NÚCLEO HYPERKAV',
       title: 'Seu negócio está pronto para entrar no núcleo.',
       subtitle: 'O HyperKav é o núcleo de tecnologia, pesquisa e estratégia da Kav, onde dados viram decisão.'
     },
+    // GAP: 0.63 -> 0.66 (Respiro)
     {
       id: 'step-transformation',
       act: 2,
-      minProgress: 0.65,
-      maxProgress: 0.80,
+      minProgress: 0.66,
+      maxProgress: 0.77,
       position: 'bottom-right',
       showScrollHint: false,
       badge: 'TRANSFORMAÇÃO',
       title: 'Estratégia, tecnologia e criatividade juntas.',
       subtitle: 'Tráfego, conteúdo, automação e análise em um só sistema, desenhado para o seu negócio.'
     },
+    // GAP: 0.77 -> 0.80 (Respiro)
     {
       id: 'step-the-summit',
       act: 3,
       minProgress: 0.80,
-      maxProgress: 0.92,
+      maxProgress: 0.90,
       position: 'bottom-left',
       showScrollHint: false,
       badge: 'ATO 03 • O TOPO',
       title: 'Acima da concorrência. Com método.',
-      subtitle: 'Do ponto de partida ao topo do mercado, com um caminho claro e previsível.'
+      subtitle: 'Do ponto de partida ao topo do mercado, com um caminho claro e mensurável.'
     },
+    // GAP: 0.90 -> 0.92 (Respiro)
     {
       id: 'step-cta-finale',
       act: 3,
       minProgress: 0.92,
-      maxProgress: 1.00,
+      maxProgress: 1.01,
       position: 'bottom-center',
       showScrollHint: false,
       badge: 'KAV + HYPERKAV',
       title: 'Vamos levar o seu negócio ao topo?',
-      subtitle: 'Do ponto perdido ao topo do mercado — com método, dados e tecnologia.',
-      isFinalCTA: true
+      subtitle: 'Do ponto de partida ao topo do mercado — com método, dados e tecnologia.'
     }
   ]
 };
 
-class KavHeroScrollExperience {
-  constructor(sectionId, config) {
-    this.section = document.getElementById(sectionId);
+class KavHeroScrollEngine {
+  constructor(config = HERO_SCROLL_CONFIG) {
+    this.config = config;
+    this.section = document.getElementById('heroScrollSection');
     if (!this.section) return;
 
-    this.config = config;
-    this.debug = window.location.search.includes('debug=true') || window.KAV_DEBUG === true;
+    this.debug = new URLSearchParams(window.location.search).get('debug') === 'true';
 
-    this.video = this.section.querySelector('.hero-scroll-video');
+    // Elementos DOM
+    this.video = document.getElementById('heroScrollVideo');
     this.canvas = this.section.querySelector('.hero-fallback-canvas');
-    this.stickyContainer = this.section.querySelector('.hero-sticky-viewport');
-    this.progressBar = this.section.querySelector('.hero-scroll-progress-bar');
+    this.loader = this.section.querySelector('.hero-loader');
     this.progressFill = this.section.querySelector('.progress-fill');
     this.progressPercent = this.section.querySelector('.progress-percent-val');
-    this.scrollHint = this.section.querySelector('.hero-scroll-hint');
     this.actButtons = this.section.querySelectorAll('.act-pill-btn');
     this.textSteps = this.section.querySelectorAll('.hero-story-step');
-    this.loader = this.section.querySelector('.hero-loader');
+    this.scrollHint = this.section.querySelector('.hero-scroll-hint');
     this.bufferBar = this.section.querySelector('.hero-buffer-bar');
 
     // Estado da rolagem e renderização
@@ -207,12 +216,7 @@ class KavHeroScrollExperience {
     const isSlowConnection = conn && (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g');
     const isMobile = window.innerWidth <= 768;
 
-    let targetSrc = this.config.video.desktopSrc;
-    if (isSlowConnection || isMobile) {
-      targetSrc = this.config.video.mobileSrc;
-    }
-
-    // Configuração de atributos essenciais para reprodução inline e desbloqueio mobile
+    // Atributos vitais para autoplay inline no iOS / WebKit
     this.video.defaultMuted = true;
     this.video.muted = true;
     this.video.playsInline = true;
@@ -221,10 +225,10 @@ class KavHeroScrollExperience {
     this.video.setAttribute('muted', '');
     this.video.disablePictureInPicture = true;
 
-    // Se a fonte principal ainda for o vídeo renderizado enviado
+    // Fonte comprovada presente no servidor (HTTP 200)
+    // Se o elemento não tiver uma fonte válida ativa ou der erro, carrega o arquivo principal
     if (!this.video.src || this.video.src === '') {
-      // Prioridade: arquivo responsivo -> fallback legado do upload
-      this.video.src = targetSrc;
+      this.video.src = this.config.video.legacySrc;
     }
   }
 
@@ -241,66 +245,75 @@ class KavHeroScrollExperience {
       }
     });
 
-    // Monitoramento do carregamento e buffer real
+    // Monitoramento do buffer real de download (HTTP range)
     const onBufferProgress = () => {
       if (this.video.buffered && this.video.buffered.length > 0 && this.video.duration) {
         const bufferedEnd = this.video.buffered.end(this.video.buffered.length - 1);
         const percent = Math.min(100, Math.round((bufferedEnd / this.video.duration) * 100));
         if (this.bufferBar) {
           this.bufferBar.style.width = `${percent}%`;
+          if (percent >= 99) {
+            setTimeout(() => {
+              if (this.bufferBar) this.bufferBar.style.opacity = '0';
+            }, 800);
+          }
         }
         this.log(`Buffer carregado: ${percent}%`);
       }
     };
     this.video.addEventListener('progress', onBufferProgress);
 
-    const onReady = () => {
-      if (this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0) {
+    // Condição estrita: habilita o scrub somente quando readyState >= 3 e duração confirmada
+    const evaluateReadiness = () => {
+      if (this.video.readyState >= 3 && this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0) {
         this.videoDuration = this.video.duration;
+        this.isVideoReady = true;
+        this.log(`Vídeo totalmente pronto. Duração: ${this.videoDuration.toFixed(2)}s | readyState: ${this.video.readyState}`);
+
+        // Garante a decodificação do primeiro frame imediatamente
+        try {
+          if (this.video.currentTime === 0) {
+            this.video.currentTime = 0.001;
+          }
+        } catch (e) {}
+
+        this.hideLoader();
       }
-      this.isVideoReady = true;
-      this.log(`Vídeo pronto. Duração: ${this.videoDuration.toFixed(2)}s | readyState: ${this.video.readyState}`);
-
-      // Pintar primeiro frame
-      try {
-        if (this.video.currentTime === 0) {
-          this.video.currentTime = 0.001;
-        }
-      } catch (e) {}
-
-      this.hideLoader();
     };
 
-    this.video.addEventListener('loadedmetadata', onReady);
-    this.video.addEventListener('loadeddata', onReady);
-    this.video.addEventListener('canplay', onReady);
-    this.video.addEventListener('canplaythrough', onReady);
+    this.video.addEventListener('loadedmetadata', evaluateReadiness);
+    this.video.addEventListener('loadeddata', evaluateReadiness);
+    this.video.addEventListener('canplay', evaluateReadiness);
+    this.video.addEventListener('canplaythrough', evaluateReadiness);
 
-    if (this.video.readyState >= 2) {
-      onReady();
+    if (this.video.readyState >= 3) {
+      evaluateReadiness();
     }
 
-    // Fallback de erro resiliente
-    this.video.addEventListener('error', () => {
-      this.log('Erro ao carregar o vídeo. Tentando fallback legado...');
-      if (this.video.src.indexOf('Untitled_Scene') === -1) {
+    // Tratamento de falhas de rede resiliente
+    this.video.addEventListener('error', (e) => {
+      this.log('Falha de carregamento no vídeo:', e);
+      // Se estava tentando hero-desktop/hero-mobile e falhou, tenta imediatamente a URL do arquivo principal
+      if (this.video.src && this.video.src.indexOf('Untitled_Scene') === -1) {
+        this.log('Redirecionando para o vídeo principal comprovado...');
         this.video.src = this.config.video.legacySrc;
-        try { this.video.load(); } catch (e) {}
+        try { this.video.load(); } catch (err) {}
       } else {
+        this.log('Ativando fallback procedural...');
         this.activateFallbackMode();
       }
     });
 
-    // Timeout de segurança: se o vídeo não carregar em 4.5 segundos, ativa fallback
+    // Watchdog de segurança: só aciona fallback se o vídeo falhar completamente (readyState < 2 após 6s)
     setTimeout(() => {
       if (!this.isVideoReady && (!this.video.readyState || this.video.readyState < 2)) {
-        this.log('Timeout de carregamento do vídeo excedido. Ativando fallback.');
+        this.log('Timeout de carregamento do vídeo excedido. Ativando fallback procedural.');
         this.activateFallbackMode();
       }
       this.hideLoader();
-    }, 4500);
+    }, 6000);
 
-    // Desbloqueio mobile no primeiro gesto
+    // Desbloqueio mobile no primeiro gesto do usuário
     const unlockMobile = () => {
       if (this.video && this.video.paused) {
         const p = this.video.play();
@@ -319,7 +332,9 @@ class KavHeroScrollExperience {
 
   activateFallbackMode() {
     this.useCanvasFallback = true;
-    if (this.video) this.video.style.display = 'none';
+    if (this.video) {
+      this.video.style.display = 'none';
+    }
     if (this.canvas) {
       this.canvas.style.display = 'block';
       this.initProceduralFallback();
@@ -331,23 +346,19 @@ class KavHeroScrollExperience {
     if (this.loader) {
       this.loader.classList.add('fade-out');
       setTimeout(() => {
-        if (this.loader) this.loader.style.display = 'none';
-      }, 350);
+        this.loader.style.display = 'none';
+      }, 400);
     }
   }
 
   setupEventListeners() {
-    window.addEventListener('scroll', () => {
-      this.handleScroll();
-      this.hideLoader();
-    }, { passive: true });
-
+    window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
     window.addEventListener('resize', () => {
       this.applySectionHeight();
       if (this.useCanvasFallback && this.resizeCanvas) {
         this.resizeCanvas();
       }
-    });
+    }, { passive: true });
 
     this.actButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -361,7 +372,7 @@ class KavHeroScrollExperience {
 
     if (this.scrollHint) {
       this.scrollHint.addEventListener('click', () => {
-        this.scrollToProgress(0.12);
+        this.scrollToProgress(0.14);
       });
     }
   }
@@ -403,7 +414,7 @@ class KavHeroScrollExperience {
         const isMobile = window.innerWidth <= 768;
         const factor = isMobile ? this.config.video.mobileLerpFactor : this.config.video.lerpFactor;
         
-        // Interpolação suave (lerp)
+        // Interpolação contínua e suave (lerp)
         this.smoothProgress += (this.rawProgress - this.smoothProgress) * factor;
 
         // Atualização de vídeo ou canvas
@@ -424,10 +435,11 @@ class KavHeroScrollExperience {
 
   /**
    * MOTOR DE SCRUB PRECISO E FLUIDO
-   * Aplica busca no frame correto com throttle pelo ciclo do hardware
+   * Aplica busca no frame correto com throttle e sincronização por hardware
    */
   updateVideoFrame(progress) {
-    if (!this.video || !this.isVideoReady && this.video.readyState < 2) return;
+    // Só atualiza se o vídeo estiver pronto e com readyState >= 3
+    if (!this.video || !this.isVideoReady || this.video.readyState < 3) return;
 
     const duration = (this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0)
       ? this.video.duration
@@ -466,33 +478,46 @@ class KavHeroScrollExperience {
       this.progressPercent.textContent = `${percentInt}%`;
     }
 
-    // Identificar passo ativo
+    // Indicador "Role para explorar" some rapidamente antes de qualquer outro texto entrar (aos 4%)
+    if (this.scrollHint) {
+      if (progress > 0.04) {
+        this.scrollHint.style.opacity = '0';
+        this.scrollHint.style.pointerEvents = 'none';
+      } else {
+        this.scrollHint.style.opacity = '1';
+        this.scrollHint.style.pointerEvents = 'auto';
+      }
+    }
+
+    // Identificar passo ativo respeitando as margens de respiro
     const activeStep = this.config.steps.find((step) => {
       return progress >= step.minProgress && progress < step.maxProgress;
-    }) || this.config.steps[this.config.steps.length - 1];
+    }) || null;
 
-    if (activeStep && activeStep.id !== this.currentStepId) {
-      this.currentStepId = activeStep.id;
+    if (activeStep) {
+      if (activeStep.id !== this.currentStepId) {
+        this.currentStepId = activeStep.id;
 
+        this.textSteps.forEach((el) => {
+          const isCurrent = el.dataset.stepId === activeStep.id;
+          el.classList.toggle('active', isCurrent);
+        });
+      }
+
+      // Atualizar ato nos botões superiores
+      if (activeStep.act !== this.currentActId) {
+        this.currentActId = activeStep.act;
+        this.actButtons.forEach((btn) => {
+          const btnAct = parseInt(btn.dataset.act, 10);
+          btn.classList.toggle('active', btnAct === activeStep.act);
+        });
+      }
+    } else {
+      // Estamos em uma zona de transição/gap: nenhum texto fica ativo! Tela limpa!
+      this.currentStepId = null;
       this.textSteps.forEach((el) => {
-        const isCurrent = el.dataset.stepId === activeStep.id;
-        el.classList.toggle('active', isCurrent);
+        el.classList.remove('active');
       });
-    }
-
-    // Atualizar ato nos botões superiores
-    if (activeStep && activeStep.act !== this.currentActId) {
-      this.currentActId = activeStep.act;
-      this.actButtons.forEach((btn) => {
-        const btnAct = parseInt(btn.dataset.act, 10);
-        btn.classList.toggle('active', btnAct === activeStep.act);
-      });
-    }
-
-    // Indicador "Role para explorar" some suavemente após o início
-    if (this.scrollHint) {
-      this.scrollHint.style.opacity = progress > 0.06 ? '0' : '1';
-      this.scrollHint.style.pointerEvents = progress > 0.06 ? 'none' : 'auto';
     }
 
     // Elevação do header
@@ -519,64 +544,62 @@ class KavHeroScrollExperience {
     this.drawCanvasFrame = (progress) => {
       const w = this.canvas.width;
       const h = this.canvas.height;
-      const cx = w / 2;
-      const cy = h / 2;
 
-      ctx.clearRect(0, 0, w, h);
-
-      const bgGrad = ctx.createRadialGradient(cx, cy, 60, cx, cy, Math.max(w, h));
-      bgGrad.addColorStop(0, '#102244');
-      bgGrad.addColorStop(0.5, '#0A1633');
-      bgGrad.addColorStop(1, '#050B1A');
-      ctx.fillStyle = bgGrad;
+      // Fundo azul-marinho profundo da marca
+      ctx.fillStyle = '#050B1A';
       ctx.fillRect(0, 0, w, h);
 
-      // Grid perspectivo
+      // Linhas de perspectiva tridimensional
       ctx.save();
-      ctx.strokeStyle = 'rgba(111, 211, 255, 0.14)';
+      ctx.strokeStyle = 'rgba(111, 211, 255, 0.12)';
       ctx.lineWidth = 1;
-      const vpY = cy - 40;
-      for (let x = -w * 0.4; x <= w * 1.4; x += w * 0.1) {
+
+      const vanishingY = h * (0.35 + progress * 0.1);
+      const vanishingX = w * 0.5;
+
+      for (let i = -12; i <= 12; i++) {
         ctx.beginPath();
-        ctx.moveTo(cx, vpY);
-        ctx.lineTo(x, h + 200);
+        ctx.moveTo(vanishingX, vanishingY);
+        ctx.lineTo(vanishingX + (i * w * 0.12), h);
+        ctx.stroke();
+      }
+
+      // Linhas horizontais com recuo visual
+      const numRings = 14;
+      for (let j = 1; j <= numRings; j++) {
+        const ringProg = ((j / numRings) + progress * 0.5) % 1;
+        const y = vanishingY + Math.pow(ringProg, 2.2) * (h - vanishingY);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
         ctx.stroke();
       }
       ctx.restore();
 
-      // Trajetória de luz laranja de ascensão
+      // Núcleo energético laranja HyperKav no ponto de fuga
+      const coreRadius = 8 + (progress * 18);
+      const gradient = ctx.createRadialGradient(vanishingX, vanishingY, 2, vanishingX, vanishingY, coreRadius * 2.8);
+      gradient.addColorStop(0, '#FFA048');
+      gradient.addColorStop(0.35, '#FF6A1A');
+      gradient.addColorStop(1, 'transparent');
+
       ctx.save();
-      ctx.shadowBlur = 24;
-      ctx.shadowColor = '#FF6A1A';
-      ctx.strokeStyle = '#FF6A1A';
-      ctx.lineWidth = 6;
-      ctx.lineCap = 'round';
-
-      const startX = cx - 240;
-      const startY = h - 160;
-      const curX = startX + (progress * 480);
-      const curY = startY - (Math.pow(progress, 1.4) * (h - 260));
-
+      ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      ctx.quadraticCurveTo(cx - 50 + (progress * 80), startY - 120 - (progress * 150), curX, curY);
-      ctx.stroke();
-
-      // Ponto focal
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.arc(curX, curY, 8 + Math.sin(progress * 20) * 2, 0, Math.PI * 2);
+      ctx.arc(vanishingX, vanishingY, coreRadius * 2.8, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = '#FFA048';
+      // Ponto de luz focal
+      ctx.fillStyle = '#FFFFFF';
       ctx.beginPath();
-      ctx.arc(curX, curY, 16, 0, Math.PI * 2);
+      ctx.arc(vanishingX, vanishingY, coreRadius * 0.45, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     };
   }
 }
 
+// Inicialização automática protegida
 document.addEventListener('DOMContentLoaded', () => {
-  window.kavHeroExperience = new KavHeroScrollExperience('heroScrollSection', HERO_SCROLL_CONFIG);
+  window.kavHeroEngine = new KavHeroScrollEngine();
 });
