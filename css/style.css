@@ -1115,47 +1115,6 @@ h1, h2, h3, h4 {
   line-height: 1.5;
 }
 
-/* Faixa de Logos de Clientes */
-.logos-strip-section {
-  text-align: center;
-  padding: 30px 0 10px;
-}
-
-.logos-strip-title {
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 24px;
-}
-
-.logos-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 36px;
-  flex-wrap: wrap;
-}
-
-.partner-logo-item {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.45);
-  letter-spacing: -0.02em;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: var(--transition-fast);
-}
-
-.partner-logo-item:hover {
-  color: #fff;
-  border-color: rgba(111, 211, 255, 0.25);
-}
-
 /* ==========================================================================
    SEÇÃO PARA QUEM É
    ========================================================================== */
@@ -1735,45 +1694,6 @@ h1, h2, h3, h4 {
 }
 
 /* ==========================================================================
-   BOTÃO FLUTUANTE DE WHATSAPP (MOBILE FAB)
-   ========================================================================== */
-.mobile-whatsapp-fab {
-  position: fixed;
-  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  right: 20px;
-  z-index: 99;
-  background: #25d366;
-  color: #fff;
-  border-radius: 100px;
-  padding: 12px 18px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 0.9rem;
-  box-shadow: 0 6px 25px rgba(37, 211, 102, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(16px);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mobile-whatsapp-fab.visible {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.mobile-whatsapp-fab:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(37, 211, 102, 0.6);
-  color: #fff;
-}
-
-/* ==========================================================================
    RESPONSIVIDADE GERAL E OTIMIZAÇÃO MOBILE PROFUNDA
    ========================================================================== */
 @media (max-width: 1024px) {
@@ -1974,13 +1894,6 @@ h1, h2, h3, h4 {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-
-  .mobile-whatsapp-fab {
-    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-    right: 16px;
-    padding: 10px 16px;
-    font-size: 0.85rem;
-  }
 }
 
 @media (max-width: 360px) {
@@ -1997,4 +1910,81 @@ h1, h2, h3, h4 {
     max-width: 290px;
     height: 440px;
   }
+}
+
+/* ==========================================================================
+   SEÇÕES CLARAS (Cases reais + Para quem é): respiro na parte monocromática
+   Paleta da logo: branco → azul-claro (#DAF0FF) com títulos no navy da marca
+   ========================================================================== */
+.section-light {
+  background: linear-gradient(180deg, #F6FAFF 0%, #E7F3FF 100%);
+  color: #0A1633;
+}
+
+.section-light .section-title,
+.section-light h2,
+.section-light h3,
+.section-light .case-title,
+.section-light .sector-card h3 {
+  color: #0A1633;
+}
+
+.section-light .section-description,
+.section-light .case-desc,
+.section-light .sector-card p {
+  color: #3B4A68;
+}
+
+.section-light .section-tag {
+  background: rgba(10, 22, 51, 0.06);
+  border-color: rgba(10, 22, 51, 0.14);
+  color: #0E5FA8;
+}
+
+.section-light .case-card-featured,
+.section-light .sector-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(10, 22, 51, 0.08);
+  box-shadow: 0 10px 34px rgba(14, 60, 120, 0.09);
+}
+
+.section-light .case-card-featured:hover,
+.section-light .sector-card:hover {
+  border-color: rgba(255, 106, 26, 0.45);
+  box-shadow: 0 14px 40px rgba(14, 60, 120, 0.15);
+}
+
+.section-light .case-client-badge {
+  color: #C2410C;
+}
+
+.section-light .case-sub-detail {
+  color: #0E5FA8;
+}
+
+.section-light .case-stat-pill {
+  background: #F1F7FF;
+  border-color: rgba(10, 22, 51, 0.08);
+}
+
+.section-light .csp-val {
+  color: #E8590C;
+}
+
+.section-light .csp-lbl {
+  color: #52607C;
+}
+
+.section-light .case-visual-placeholder {
+  background: #F1F7FF;
+  border-color: rgba(10, 22, 51, 0.2);
+  color: #52607C;
+}
+
+.section-light .sector-link {
+  color: #0E5FA8;
+}
+
+.section-light .sector-link:hover {
+  color: #E8590C;
 }

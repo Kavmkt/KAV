@@ -17,6 +17,7 @@ const HERO_SCROLL_CONFIG = {
     legacySrc: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
     posterSvg: 'assets/video/hero-poster.svg',
     fallbackDuration: 24,
+    introLeadSeconds: 3,   // trecho do vídeo (s) tocado durante a dissolução do planeta
     lerpFactor: 0.10,      // suavidade no desktop
     mobileLerpFactor: 0.16 // agilidade no mobile
   },
@@ -24,6 +25,9 @@ const HERO_SCROLL_CONFIG = {
   scroll: {
     // 100vh extra no início: é a "abertura" (planeta) que se dissolve no sapato na mesma cena
     introScreens: 1,
+    // O sapato já começa a pisar enquanto o planeta dissolve: a partir desta fração da abertura,
+    // os primeiros `introLeadSeconds` do vídeo passam a andar junto com a dissolução
+    heroStartAt: 0.3,
     desktopHeight: '620vh',
     mobileHeight: '500vh'
   },
@@ -144,6 +148,7 @@ class KavHeroScrollEngine {
     this.introContent = document.getElementById('introContent');
     this.introCue = document.getElementById('introCue');
     this.introProgress = 0;
+    this.smoothIntro = 0;   // 0..1: avanço suavizado do trecho "lead" do vídeo durante a dissolução
     this.introHidden = false;
     this.bufferBar = this.section.querySelector('.hero-buffer-bar');
 
@@ -356,6 +361,11 @@ class KavHeroScrollEngine {
     return window.innerHeight * (this.config.scroll.introScreens || 0);
   }
 
+  // Scroll (px) a partir do topo da seção em que começam os textos/progresso do hero
+  getHeroStart() {
+    return this.getIntroDistance();
+  }
+
   handleScroll() {
     if (this.isReducedMotion) return;
 
@@ -364,23 +374,24 @@ class KavHeroScrollEngine {
     const windowHeight = window.innerHeight;
     const scrollableDistance = sectionHeight - windowHeight;
     const introDistance = this.getIntroDistance();
-    const heroDistance = scrollableDistance - introDistance;
+    const heroStart = this.getHeroStart();
+    const heroDistance = scrollableDistance - heroStart;
 
     if (heroDistance <= 0) return;
 
     const scrolled = -rect.top;
     this.introProgress = introDistance > 0 ? Math.max(0, Math.min(1, scrolled / introDistance)) : 1;
-    this.rawProgress = Math.max(0, Math.min(1, (scrolled - introDistance) / heroDistance));
+    this.rawProgress = Math.max(0, Math.min(1, (scrolled - heroStart) / heroDistance));
   }
 
   scrollToProgress(targetProg) {
     const sectionTop = this.section.offsetTop;
     const sectionHeight = this.section.offsetHeight;
     const windowHeight = window.innerHeight;
-    const introDistance = this.getIntroDistance();
-    const scrollableDistance = sectionHeight - windowHeight - introDistance;
+    const heroStart = this.getHeroStart();
+    const scrollableDistance = sectionHeight - windowHeight - heroStart;
 
-    const targetScrollY = sectionTop + introDistance + (targetProg * scrollableDistance);
+    const targetScrollY = sectionTop + heroStart + (targetProg * scrollableDistance);
     window.scrollTo({
       top: targetScrollY,
       behavior: 'smooth'
@@ -399,6 +410,10 @@ class KavHeroScrollEngine {
         
         // Interpolação contínua e suave (lerp)
         this.smoothProgress += (this.rawProgress - this.smoothProgress) * factor;
+
+        const startAt = this.config.scroll.heroStartAt || 0;
+        const leadTarget = Math.max(0, Math.min(1, (this.introProgress - startAt) / (1 - startAt)));
+        this.smoothIntro += (leadTarget - this.smoothIntro) * factor;
 
         // Atualização de vídeo ou canvas
         if (!this.useCanvasFallback && this.video) {
@@ -429,7 +444,9 @@ class KavHeroScrollEngine {
 
     if (!duration || duration <= 0) return;
 
-    const targetTime = Math.max(0, Math.min(duration, progress * duration));
+    // Trecho inicial (lead) acompanha a dissolução do planeta; o restante acompanha o scroll do hero
+    const lead = Math.min(this.config.video.introLeadSeconds || 0, duration * 0.3);
+    const targetTime = Math.max(0, Math.min(duration, this.smoothIntro * lead + progress * (duration - lead)));
 
     // Apenas busca se houver mudança perceptível de tempo (> 0.02s)
     if (Math.abs(targetTime - this.lastRenderedTime) > 0.02) {

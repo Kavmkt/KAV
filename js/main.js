@@ -51,12 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Botão específico de teste da IA
-  const btnIaTest = document.getElementById('btnIaTestWhatsApp');
-  if (btnIaTest) {
-    btnIaTest.setAttribute('href', getWhatsAppUrl('iaTest'));
-    btnIaTest.setAttribute('target', '_blank');
-    btnIaTest.setAttribute('rel', 'noopener noreferrer');
-  }
 
   // 2. Menu de Navegação Mobile com Bloqueio de Fundo
   const mobileToggle = document.getElementById('mobileToggle');
@@ -97,19 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeMobileMenu();
       }
     });
-  }
-
-  // 3. Botão Flutuante de WhatsApp (FAB) com ativação suave no scroll
-  const mobileFab = document.getElementById('mobileWhatsappFab');
-  if (mobileFab) {
-    window.addEventListener('scroll', () => {
-      // Exibe após rolar além da primeira tela (350px)
-      if (window.scrollY > 350) {
-        mobileFab.classList.add('visible');
-      } else {
-        mobileFab.classList.remove('visible');
-      }
-    }, { passive: true });
   }
 
   // 4. Simulação Dinâmica de Chat no Mockup de Celular (Seção WhatsApp)

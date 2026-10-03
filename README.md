@@ -20,7 +20,7 @@ O início da home apresenta um plano contínuo guiado pela rolagem do visitante 
 
 ## 🌍 Abertura imersiva (mesma cena do Hero Scroll)
 
-* **Uma cena só:** a abertura (`#introSection`, vídeo `intro-planeta.mp4` + logo + boas-vindas) é uma camada dentro do viewport sticky do hero. Nos primeiros 100vh de scroll o planeta faz zoom e se dissolve no primeiro frame do vídeo do sapato, sem corte entre "containers".
+* **Uma cena só:** a abertura (`#introSection`, vídeo `intro-planeta.mp4` + logo + boas-vindas) é uma camada dentro do viewport sticky do hero. Nos primeiros 100vh de scroll o planeta faz zoom e se dissolve, e o sapato já começa a pisar durante a dissolução (`video.introLeadSeconds` + `scroll.heroStartAt` em `js/hero-scroll.js`), sem corte entre "containers".
 * **Sem HUD:** não há mais barra de progresso, abas "1 · Começo…" nem texto/botão no primeiro take; só vídeo e as inserções de texto dos passos.
 * **Três barrinhas** no canto superior direito abrem um menu em tela cheia (`#immersiveMenu`) durante a abertura e o vídeo.
 * **Menu real fixo (`.site-chrome`)** só aparece no fim da rolagem do hero (progresso > 95%).
