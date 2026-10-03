@@ -1,51 +1,78 @@
-# KAV — Agência de Performance & Marketing Digital
+# KAV — Marketing e Performance com Tecnologia e Dados
 
-> **Website Institucional de Alta Performance com Experiência 3D Interativa e Foco em PMEs (Pequenas e Médias Empresas)**
+> **Website Institucional de Alta Performance com Hero 3D Scroll-Driven e Foco em PMEs (Pequenas e Médias Empresas)**
 
-Este repositório contém o código-fonte oficial do novo website institucional da **KAV**, desenvolvido com foco em velocidade de carregamento, conformidade rigorosa com **SEO do Google**, segurança sem dependências vulneráveis e uma narrativa visual em **3D com Three.js** que apresenta a jornada de aceleração de uma PME.
+Este repositório contém o código-fonte oficial do website institucional da **Kav**, desenvolvido com foco em velocidade extrema de carregamento, conformidade rigorosa com **SEO do Google**, segurança sem dependências vulneráveis e uma experiência cinematográfica de abertura por **rolagem contínua (Scroll-Driven Video)** narrando a jornada de aceleração com o **Núcleo HyperKav**.
 
 ---
 
-## 🚀 Destaques da Arquitetura
+## 🎬 A Experiência do Hero Scroll-Driven (Kav + HyperKav)
 
-1. **Jornada 3D Interativa para PMEs:**
-   - **Etapa 01: Estruturação & Análise de Mercado** — Visualização 3D de topografia em wireframe, radar de varredura e beacons de oportunidades de mercado.
-   - **Etapa 02: O Núcleo HyperKav** — Laboratório tecnológico proprietário da KAV representado por um núcleo quântico pulsante com anéis orbitais e nuvem de partículas de dados analíticos.
-   - **Etapa 03: Escalada Gradual de Crescimento** — Vetor exponencial ascendente com pilares hexagonais e anéis de aceleração de tração contínua.
-   - **Interatividade Total:** Arraste 3D no mouse/touchscreen, modo de rotação autônoma, troca instantânea de foco e fallback em Canvas 2D caso o WebGL não esteja disponível.
+O início da home apresenta um plano contínuo em 3D cinematográfico (azul-marinho profundo `#0A1633`, laranja neon `#FF6A1A` e ciano `#6FD3FF`), onde o progresso do scroll do visitante controla com suavidade o avanço do vídeo:
 
-2. **SEO & Prontidão para Campanhas:**
-   - Metatags Open Graph e Twitter Cards completas.
-   - Marcação Semântica e Dados Estruturados Schema.org (`MarketingAgency`).
-   - `sitemap.xml` e `robots.txt` inclusos.
-   - Layout de conversão otimizado para tráfego pago (Google Ads e Meta Ads).
+* **Ato 1 — O Início (0% a 35%):** O empresário dá o primeiro passo, a câmera revela o mapa 3D dos concorrentes e a Kav entra em ação com um rastro de luz neon laranja, dando o primeiro salto de visibilidade.
+* **Ato 2 — O Núcleo HyperKav (35% a 80%):** Conforme o rastro conecta os principais competidores, nascem gráficos, pesquisas, dados de campanhas e IA. A empresa mergulha no Núcleo HyperKav, onde dados brutos viram inteligência de negócio.
+* **Ato 3 — O Sucesso (80% a 100%):** Uma rampa de luz ascende aos céus, ultrapassando os concorrentes e consolidando a empresa no topo do mercado.
+* **Resiliência:** Se o vídeo MP4 ainda não tiver sido inserido na pasta ou se o navegador móvel restringir scrub rápido, um motor **Canvas 3D Procedural** entra em ação automaticamente renderizando a cena e o rastro de luz sem travar a navegação.
+* **Acessibilidade:** Suporte completo a `prefers-reduced-motion` desativando a rolagem forçada e entregando uma versão estática limpa e acessível.
 
-3. **Simulador de ROI e Potencial de Escala:**
-   - Ferramenta interativa onde o empresário simula o crescimento do seu negócio em 6 meses com base no faturamento atual e segmento.
+---
 
-4. **Geração de Leads com WhatsApp Integrado:**
-   - Formulário de captura com validação em tempo real e redirecionamento automático com mensagem pré-formatada para atendimento instantâneo.
+## ⚙️ Como Configurar e Ajustar o Hero (`js/hero-scroll.js`)
+
+No topo de `js/hero-scroll.js`, existe o objeto `HERO_SCROLL_CONFIG`. Você pode editar tudo sem tocar na lógica do código:
+
+```javascript
+const HERO_SCROLL_CONFIG = {
+  video: {
+    src: 'assets/video/hero-scroll.mp4', // Caminho do seu MP4 renderizado
+    altSrc: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
+    poster: 'assets/video/hero-poster.svg',
+    fallbackDuration: 24, // Duração em segundos se metadados demorarem
+    lerpFactor: 0.08       // Suavidade do scroll (0.05 a 0.12)
+  },
+  scroll: {
+    desktopHeight: '520vh', // Altura da rolagem no desktop
+    mobileHeight: '380vh'   // Altura da rolagem no mobile
+  },
+  steps: [
+    // Ajuste as faixas percentuais de cada momento do vídeo aqui:
+    { minProgress: 0.00, maxProgress: 0.08, title: "...", subtitle: "..." },
+    { minProgress: 0.08, maxProgress: 0.20, title: "...", subtitle: "..." },
+    // ...
+  ]
+};
+```
+
+---
+
+## 📌 Lista de Placeholders para Substituição
+
+1. **Arquivo de Vídeo MP4:**  
+   Basta colocar seu arquivo de vídeo renderizado na pasta `assets/video/hero-scroll.mp4` ou com o nome `Untitled_Scene_10-03_00_51_11_20261002215523.mp4`.
+2. **Número de WhatsApp da Kav:**  
+   No arquivo `js/main.js` (linha ~144) e no botão de CTA final, substitua `5511999999999` pelo WhatsApp comercial oficial da agência.
+3. **E-mail de Contato:**  
+   No rodapé de `index.html`, ajuste `contato@agenciakav.com.br` para o seu endereço preferido.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **HTML5 Semântico:** Acessibilidade, velocidade e SEO técnico.
-- **CSS3 Moderno:** Flexbox, CSS Grid, Glassmorphism (`backdrop-filter`), responsividade mobile-first e temas escuros de alto contraste.
-- **JavaScript ES6+:** Código limpo, modular, sem frameworks pesados para garantir pontuação máxima no Google PageSpeed / Lighthouse.
-- **Three.js (WebGL):** Renderização gráfica 3D com transições suaves via interpolação linear (*lerp*).
+- **HTML5 Semântico:** Único `<h1>` de alta conversão, metatags Open Graph, Twitter Cards e Schema.org (`MarketingAgency`).
+- **CSS3 Moderno:** Glassmorphism, CSS Grid, variáveis nativas, suporte a `prefers-reduced-motion` e responsividade mobile-first.
+- **JavaScript ES6+:** Scrubbing de vídeo com interpolação linear (*lerp*) via `requestAnimationFrame` sem dependências externas pesadas.
+- **Three.js & Canvas 2D/3D:** Modelos 3D de alta performance e fallback gráfico procedural.
 
 ---
 
-## 🌐 Como Publicar no GitHub Pages
-
-Para publicar este site gratuitamente no **GitHub Pages**:
+## 🌐 Publicação no GitHub Pages
 
 1. Acesse o repositório no GitHub: `https://github.com/Kavmkt/KAV`
-2. Vá em **Settings** (Configurações) > **Pages** (no menu lateral esquerdo).
+2. Vá em **Settings** > **Pages** (no menu lateral esquerdo).
 3. Na seção **Branch**, selecione `main` e a pasta `/ (root)`.
 4. Clique em **Save**.
-5. O site estará disponível em instantes no endereço:  
+5. O site estará disponível em instantes em:  
    👉 `https://kavmkt.github.io/KAV/`
 
 ---
@@ -54,17 +81,23 @@ Para publicar este site gratuitamente no **GitHub Pages**:
 
 ```
 KAV/
-├── index.html            # Estrutura principal da página institucional e landing page
+├── index.html            # Estrutura completa com o Hero Scroll-Driven integrado
 ├── robots.txt            # Diretrizes para indexadores do Google
 ├── sitemap.xml           # Mapeamento do site para SEO
+├── assets/
+│   └── video/
+│       ├── hero-poster.svg  # Poster e abertura do vídeo em alta resolução
+│       └── README.md        # Instruções de render e compressão do vídeo
 ├── css/
-│   └── style.css         # Folha de estilos responsiva com glassmorphism e neon
+│   ├── hero-scroll.css   # Estilos exclusivos do viewport sticky e textos
+│   └── style.css         # Estilização geral, componentes, formulários e dark tech
 ├── js/
-│   ├── three-scene.js    # Motor gráfico 3D da jornada e laboratório HyperKav
-│   └── main.js           # Orquestração da UI, simulador PME e captação de leads
+│   ├── hero-scroll.js    # Motor de sincronização scroll -> vídeo e fallback
+│   ├── three-scene.js    # Motor 3D Three.js do processo e núcleo HyperKav
+│   └── main.js           # Orquestrador da UI, simulador de ROI e WhatsApp
 └── README.md             # Documentação técnica do projeto
 ```
 
 ---
 
-&copy; 2026 KAV. Todos os direitos reservados.
+&copy; 2026 Kav. Todos os direitos reservados.
