@@ -33,7 +33,10 @@
     ['.cs-mock-card', '', 300],
     // Marcas e segmentos
     ['.brand-card', '', 0],
-    ['.sector-card', '', 0],
+    ['.fit-featured', 'block', 0],
+    ['.fit-checks li', '', 300],
+    ['.fit-card', '', 120],
+    ['.fit-segments, .fit-not', 'block', 0],
     // Demais blocos
     ['.comparison-table-wrapper', 'block', 0],
     ['.calc-wrapper', 'block', 0],
