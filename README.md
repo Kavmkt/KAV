@@ -26,6 +26,7 @@ O início da home apresenta um plano contínuo guiado pela rolagem do visitante 
 * **Menu real fixo (`.site-chrome`)** só aparece no fim da rolagem do hero (progresso > 95%).
 * Código: `css/intro.css`, `js/intro.js` (menu/autoplay) e `updateIntro` em `js/hero-scroll.js` (zoom/dissolve; ajuste `scroll.introScreens`).
 * **Fluidez do vídeo:** ao parar de rolar (ou rolar devagar), o vídeo do sapato continua tocando em câmera lenta, sem seek, até `video.driftMaxSeconds` à frente do scroll; rolando rápido ou subindo, volta ao modo scrub. Ajuste `driftRate` e `driftMaxSeconds` em `js/hero-scroll.js`.
+* **Revelações imersivas:** abaixo do hero, títulos, cards, cases e blocos sobem com fade + leve blur em sequência (`css/reveal.css`, `js/reveal.js`; lista de elementos em `GROUPS`). Os números dos cases contam até o valor e as barras do gráfico crescem. Respeita `prefers-reduced-motion` e, se o usuário pular direto para uma seção, o que ficou acima aparece sem animação.
 * Testes locais: use um servidor com suporte a HTTP Range (ex.: `npx http-server`), senão o scrub do vídeo não funciona.
 
 ---

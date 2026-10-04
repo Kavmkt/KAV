@@ -1,0 +1,62 @@
+/* ==========================================================================
+   KAV — REVELAÇÕES IMERSIVAS (fade + subida + leve blur, de baixo para cima)
+   Usa as propriedades `translate`/`scale` para não brigar com o `transform`
+   dos hovers, e `animation` (não `transition`) para preservar as transições
+   que os componentes já têm. Mesma curva de easing da abertura.
+   ========================================================================== */
+.rv {
+  --rv-y: 44px;
+  --rv-s: 1;
+  --rv-blur: 5px;
+  opacity: 0;
+  translate: 0 var(--rv-y);
+  scale: var(--rv-s);
+  filter: blur(var(--rv-blur));
+  will-change: opacity, translate;
+}
+
+/* Containers grandes: sobem mais, com leve zoom e sem blur (mais leve para a GPU) */
+.rv.rv-block {
+  --rv-y: 84px;
+  --rv-s: 0.965;
+  --rv-blur: 0px;
+}
+
+.rv.rv-in {
+  animation: rvIn 1s cubic-bezier(0.16, 1, 0.3, 1) var(--rv-d, 0s) both;
+}
+
+@keyframes rvIn {
+  from { opacity: 0; translate: 0 var(--rv-y); scale: var(--rv-s); filter: blur(var(--rv-blur)); }
+  to   { opacity: 1; translate: 0 0;           scale: 1;           filter: blur(0); }
+}
+
+/* Barras do gráfico crescem de baixo para cima quando o cartão aparece */
+.rv-ready .cs-bars i {
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+
+.rv-ready [data-seen] .cs-bars i {
+  animation: barGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(0.35s + var(--bi, 0) * 70ms);
+}
+
+.cs-bars i:nth-child(1) { --bi: 0; }
+.cs-bars i:nth-child(2) { --bi: 1; }
+.cs-bars i:nth-child(3) { --bi: 2; }
+.cs-bars i:nth-child(4) { --bi: 3; }
+.cs-bars i:nth-child(5) { --bi: 4; }
+.cs-bars i:nth-child(6) { --bi: 5; }
+.cs-bars i:nth-child(7) { --bi: 6; }
+
+@keyframes barGrow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv { opacity: 1; translate: none; scale: none; filter: none; }
+  .rv.rv-in { animation: none; }
+  .rv-ready .cs-bars i { transform: none; animation: none !important; }
+}
