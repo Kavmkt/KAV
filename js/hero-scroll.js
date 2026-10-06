@@ -23,12 +23,12 @@ const HERO_SCROLL_CONFIG = {
   video: {
     legacySrc: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
     fallbackDuration: 28,
-    introMs: 2400,        // planeta → primeiro texto (dissolução + vídeo tocando)
-    stepMs: 1500,         // duração mínima de uma etapa para a seguinte
-    maxMs: 4200,          // teto (pulos de várias etapas pelos pontos laterais)
-    maxRate: 2.4,         // velocidade máxima do vídeo entre etapas (desktop)
-    mobileMaxRate: 2,     // idem no celular
-    backMs: 900,          // voltar uma etapa
+    introMs: 1600,        // planeta → primeiro texto (dissolução + vídeo tocando)
+    stepMs: 950,          // duração mínima de uma etapa para a seguinte
+    maxMs: 3200,          // teto (pulos de várias etapas pelos pontos laterais)
+    maxRate: 3.2,         // velocidade máxima do vídeo entre etapas (desktop)
+    mobileMaxRate: 2.4,   // idem no celular
+    backMs: 650,          // voltar uma etapa
     holdRate: 0.3,        // câmera lenta enquanto o texto está na tela
     holdMaxSeconds: 1.6   // quanto o vídeo pode avançar em câmera lenta após chegar
   },
@@ -74,6 +74,7 @@ class KavHeroStages {
     this.animating = false;     // animação de scroll programática em andamento
     this.tr = null;             // transição ativa
     this.cooldownUntil = 0;
+    this.pending = 0;           // gestos feitos durante uma transição (máx. 2): executam assim que ela termina
     this.lastWheelAt = 0;
     this.lastWheelAbs = 0;
     this.playTarget = null;     // tempo-alvo do vídeo durante uma transição "tocar"
@@ -184,7 +185,7 @@ class KavHeroStages {
     clearTimeout(this.cueTimer);
     this.cue.classList.remove('show');
     if (this.stage === 0 || this.stage === this.LAST || this.mode !== 'stage') return;
-    this.cueTimer = setTimeout(() => this.cue.classList.add('show'), 3500);
+    this.cueTimer = setTimeout(() => this.cue.classList.add('show'), 2500);
   }
 
   // ---------------------------------------------------------------- vídeo
@@ -280,8 +281,19 @@ class KavHeroStages {
     this.lastWheelAt = now;
     this.lastWheelAbs = abs;
 
-    if (this.busy || now < this.cooldownUntil || !fresh || abs < 6) return;
-    this.intent(d > 0 ? 1 : -1);
+    if (!fresh || abs < 6) return;
+    this.request(d > 0 ? 1 : -1);
+  }
+
+  // Pedido de mudança de etapa: se ainda há transição em andamento, o gesto fica na fila
+  // (1 pedido) em vez de ser descartado, para o visitante nunca precisar repetir.
+  request(dir) {
+    if (this.busy || performance.now() < this.cooldownUntil) {
+      // até 2 gestos na fila; sentidos opostos se anulam
+      this.pending = Math.max(-2, Math.min(2, this.pending + dir));
+      return;
+    }
+    this.intent(dir);
   }
 
   onKey(e) {
@@ -296,7 +308,7 @@ class KavHeroStages {
     else if (e.key === 'Home') { e.preventDefault(); if (!this.busy && this.stage !== 0) this.goTo(0); return; }
     if (!dir) return;
     e.preventDefault();
-    if (!this.busy && performance.now() >= this.cooldownUntil) this.intent(dir);
+    this.request(dir);
   }
 
   onTouchStart(e) {
@@ -314,10 +326,10 @@ class KavHeroStages {
   onTouchEnd() {
     const t = this.touch;
     this.touch = null;
-    if (!t || this.mode !== 'stage' || this.busy || performance.now() < this.cooldownUntil) return;
+    if (!t || this.mode !== 'stage') return;
     const dy = t.y0 - t.y;
     const dt = Math.max(1, performance.now() - t.t0);
-    if (Math.abs(dy) > 38 || (Math.abs(dy) > 16 && Math.abs(dy) / dt > 0.35)) this.intent(dy > 0 ? 1 : -1);
+    if (Math.abs(dy) > 30 || (Math.abs(dy) > 14 && Math.abs(dy) / dt > 0.3)) this.request(dy > 0 ? 1 : -1);
   }
 
   onResize() {
@@ -468,7 +480,7 @@ class KavHeroStages {
 
     // Trava de segurança: nunca fica preso numa transição
     clearTimeout(this.safetyTimer);
-    this.safetyTimer = setTimeout(() => this.finish(), ms * 1.7 + 400);
+    this.safetyTimer = setTimeout(() => this.finish(), ms * 1.5 + 300);
   }
 
   finish() {
@@ -477,12 +489,12 @@ class KavHeroStages {
     clearTimeout(this.safetyTimer);
     this.tr = null;
     this.busy = false;
-    this.cooldownUntil = performance.now() + 260;
+    this.cooldownUntil = performance.now() + 100;
 
     const T = this.timeOf(tr.to);
     if (this.video && !this.useCanvasFallback) {
       if (this.playTarget !== null) { this.video.pause(); this.playTarget = null; }
-      if (Math.abs(this.video.currentTime - T) > 0.3) this.seekTo(T);
+      if (Math.abs(this.video.currentTime - T) > 0.6) this.seekTo(T);
     }
     this.introP = tr.to === 0 ? 0 : 1;
     this.updateIntro(this.introP);
@@ -491,6 +503,14 @@ class KavHeroStages {
     this.setChrome(tr.to === this.LAST);
     if (tr.to > 0) this.startHold();
     this.armCue();
+
+    // Gesto feito durante a transição: segue direto para a próxima etapa
+    if (this.pending) {
+      const d = Math.sign(this.pending);
+      this.pending -= d;
+      this.cooldownUntil = 0;
+      this.intent(d);
+    }
   }
 
   // ---------------------------------------------------------------- texto, chrome, câmera lenta
@@ -594,7 +614,7 @@ class KavHeroStages {
             v.pause();
             this.playTarget = null;
           } else {
-            const rate = Math.max(0.45, Math.min(this.playBase, rem * 1.8));
+            const rate = Math.max(0.7, Math.min(this.playBase, rem * 2.4));
             if (Math.abs(v.playbackRate - rate) > 0.04) v.playbackRate = rate;
           }
         } else if (this.holdOn) {
@@ -613,8 +633,10 @@ class KavHeroStages {
       // Transição: mostra o texto um pouco antes de chegar e conclui quando o vídeo chega
       if (this.tr) {
         const el = now - this.tr.start;
-        if (!this.tr.shown && el >= this.tr.ms * 0.68) { this.showStep(this.tr.to); this.tr.shown = true; }
-        const videoArrived = this.tr.kind === 'seek' || this.playTarget === null || this.useCanvasFallback;
+        if (!this.tr.shown && el >= this.tr.ms * 0.55) { this.showStep(this.tr.to); this.tr.shown = true; }
+        // Conclui no tempo planejado; o vídeo só precisa estar perto (a cauda de desaceleração não segura o visitante)
+        const near = this.playTarget === null || (this.playTarget - v.currentTime) < 0.45;
+        const videoArrived = this.tr.kind === 'seek' || near || this.useCanvasFallback || !v;
         if (el >= this.tr.ms && videoArrived) this.finish();
       }
 
