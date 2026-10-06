@@ -1,562 +1,552 @@
 /**
  * ============================================================================
- * KAV — HERO SCROLL-DRIVEN EXPERIENCE ENGINE (v5.0 Revisão Estratégica)
+ * KAV — HERO EM ETAPAS TRAVADAS (v6)
  * ============================================================================
- * - Zero telas de bloqueio: Carrega e exibe título + CTA no primeiro milissegundo.
- * - Linguagem 100% voltada ao dono de pequenos e médios negócios.
- * - 8 etapas contínuas com transições sem sobreposição (deadband gaps).
- * - Scrub fluido de vídeo com proteção contra congelamento (watchdog de 100ms).
- * - Suporte a prefers-reduced-motion e dispositivos móveis simples.
+ * Problema do modelo anterior: o vídeo era "pulado" (seek) a cada pixel de scroll,
+ * o que trava (frames congelados, principalmente no celular), e o scroll livre deixava
+ * o visitante passar dos textos rápido demais e se perder ao voltar.
+ *
+ * Modelo atual:
+ *  - A jornada é uma lista de ETAPAS (`stages`), cada uma com um texto e um ponto do vídeo.
+ *  - Um gesto (roda do mouse, deslize, tecla, ponto lateral) avança UMA etapa por vez.
+ *    O scroll "trava" de verdade em cada texto e não dá para pular nem se perder.
+ *  - Entre etapas o vídeo TOCA de verdade (reprodução nativa, sem seek) em velocidade
+ *    controlada, desacelerando ao chegar. Em cada texto ele segue em câmera lenta.
+ *  - Voltar usa um único seek, escondido por um "rebobinar" visual de 0,3s.
+ *  - A posição real do scroll acompanha a etapa (menu, âncoras e botão voltar funcionam).
+ *  - Ao fim da última etapa o scroll é liberado para o resto do site.
+ *  - prefers-reduced-motion: tudo vira conteúdo estático.
  * ============================================================================
  */
 
 const HERO_SCROLL_CONFIG = {
   video: {
-    desktopSrc: 'assets/video/hero-desktop.mp4',
-    mobileSrc: 'assets/video/hero-mobile.mp4',
     legacySrc: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
-    posterSvg: 'assets/video/hero-poster.svg',
-    fallbackDuration: 24,
-    // Fluidez: ao parar de rolar, o vídeo segue tocando devagar (sem seek) até esta folga à frente do scroll
-    driftRate: 0.5,        // velocidade do "seguir tocando" (1 = normal)
-    driftMaxSeconds: 2.5,  // quanto o vídeo pode ficar à frente da posição do scroll (s)
-    introLeadSeconds: 3,   // trecho do vídeo (s) tocado durante a dissolução do planeta
-    lerpFactor: 0.10,      // suavidade no desktop
-    mobileLerpFactor: 0.16 // agilidade no mobile
+    fallbackDuration: 28,
+    introMs: 2400,        // planeta → primeiro texto (dissolução + vídeo tocando)
+    stepMs: 1500,         // duração mínima de uma etapa para a seguinte
+    maxMs: 4200,          // teto (pulos de várias etapas pelos pontos laterais)
+    maxRate: 2.4,         // velocidade máxima do vídeo entre etapas (desktop)
+    mobileMaxRate: 2,     // idem no celular
+    backMs: 900,          // voltar uma etapa
+    holdRate: 0.3,        // câmera lenta enquanto o texto está na tela
+    holdMaxSeconds: 1.6   // quanto o vídeo pode avançar em câmera lenta após chegar
   },
 
-  scroll: {
-    // 100vh extra no início: é a "abertura" (planeta) que se dissolve no sapato na mesma cena
-    introScreens: 1,
-    // O sapato já começa a pisar enquanto o planeta dissolve: a partir desta fração da abertura,
-    // os primeiros `introLeadSeconds` do vídeo passam a andar junto com a dissolução
-    heroStartAt: 0.3,
-    desktopHeight: '620vh',
-    mobileHeight: '500vh'
-  },
-
-  acts: [
-    { id: 1, label: '1 · Começo', targetProgress: 0.15 },
-    { id: 2, label: '2 · Como funciona', targetProgress: 0.55 },
-    { id: 3, label: '3 · Resultado', targetProgress: 0.88 }
-  ],
-
-  // 8 Etapas da Jornada com margens deliberadas de respiro (gaps) para evitar qualquer sobreposição
-  steps: [
-    // GAP: 0.06 -> 0.09 (Respiro total: H1 e hint 100% ocultos, centro livre)
-    {
-      id: 'step-entender',
-      act: 1,
-      minProgress: 0.09,  // Entra aos 9%
-      maxProgress: 0.18,
-      position: 'bottom-left',
-      showScrollHint: false,
-      badge: 'Passo 1',
-      title: 'Primeiro, entendemos o seu cliente.',
-      subtitle: 'Olhamos o seu mercado, os seus concorrentes e por que o cliente da sua região escolhe você, ou o vizinho.'
-    },
-    // GAP: 0.18 -> 0.21 (Respiro)
-    {
-      id: 'step-encontrado',
-      act: 1,
-      minProgress: 0.21,
-      maxProgress: 0.31,
-      position: 'bottom-right',
-      showScrollHint: false,
-      badge: 'Passo 2',
-      title: 'Depois, fazemos você ser encontrado.',
-      subtitle: 'Anúncios e conteúdo para mais gente da sua cidade conhecer e procurar o seu negócio.'
-    },
-    // GAP: 0.31 -> 0.34 (Respiro)
-    {
-      id: 'step-acompanhado',
-      act: 2,
-      minProgress: 0.34,
-      maxProgress: 0.45,
-      position: 'bottom-left',
-      showScrollHint: false,
-      badge: 'Passo 3',
-      title: 'Cada real investido é acompanhado.',
-      subtitle: 'Você vê quanto gastou, quantos clientes chegaram e quanto vendeu. Sem número bonito que não vira venda.'
-    },
-    // GAP: 0.45 -> 0.48 (Respiro)
-    {
-      id: 'step-hyperkav',
-      act: 2,
-      minProgress: 0.48,
-      maxProgress: 0.59,
-      position: 'bottom-left',
-      showScrollHint: false,
-      badge: 'Passo 4',
-      title: 'O HyperKav é o nosso jeito de cuidar do seu dinheiro.',
-      subtitle: 'Acompanhamos tudo todos os dias e ajustamos o que não está dando resultado.'
-    },
-    // GAP: 0.59 -> 0.62 (Respiro)
-    {
-      id: 'step-atendimento',
-      act: 2,
-      minProgress: 0.62,
-      maxProgress: 0.73,
-      position: 'bottom-right',
-      showScrollHint: false,
-      badge: 'Passo 5',
-      title: 'E ninguém fica sem resposta.',
-      subtitle: 'Atendimento com inteligência artificial no WhatsApp: responde em segundos, de dia ou de madrugada, e passa para a sua equipe fechar a venda.'
-    },
-    // GAP: 0.73 -> 0.76 (Respiro)
-    {
-      id: 'step-prova',
-      act: 3,
-      minProgress: 0.76,
-      maxProgress: 0.88,
-      position: 'bottom-left',
-      showScrollHint: false,
-      badge: 'Passo 6',
-      title: 'Cada R$ 1 investido virou R$ 6,50.',
-      subtitle: 'Foi o que fizemos com a Almeida Cestas. Com a PontoCar, +7 mil contatos no WhatsApp e o faturamento dobrou.'
-    },
-    // GAP: 0.88 -> 0.91 (Respiro)
-    {
-      id: 'step-final',
-      act: 3,
-      minProgress: 0.91,
-      maxProgress: 1.01,
-      position: 'bottom-center',
-      showScrollHint: false,
-      badge: 'Resultado',
-      title: 'Vamos levar o seu negócio ao topo?',
-      subtitle: 'Análise gratuita do seu negócio, sem compromisso.'
-    }
+  // Cada etapa: id do texto (data-step-id) e o tempo do vídeo (s) em que ela fica.
+  // Trocou o vídeo? Ajuste só os `time` (e adicione/remova etapas aqui e no HTML).
+  stages: [
+    { id: 'intro',            step: null,               time: 0 },
+    { id: 'entender',         step: 'step-entender',    time: 5.6 },
+    { id: 'encontrado',       step: 'step-encontrado',  time: 8.6 },
+    { id: 'acompanhado',      step: 'step-acompanhado', time: 11.8 },
+    { id: 'hyperkav',         step: 'step-hyperkav',    time: 15.3 },
+    { id: 'atendimento',      step: 'step-atendimento', time: 18.8 },
+    { id: 'prova',            step: 'step-prova',       time: 22.3 },
+    { id: 'final',            step: 'step-final',       time: 26.0 }
   ]
 };
 
-class KavHeroScrollEngine {
+class KavHeroStages {
   constructor(config = HERO_SCROLL_CONFIG) {
-    this.config = config;
+    this.cfg = config;
     this.section = document.getElementById('heroScrollSection');
     if (!this.section) return;
 
     this.debug = new URLSearchParams(window.location.search).get('debug') === 'true';
+    this.stages = config.stages;
+    this.N = this.stages.length;
+    this.LAST = this.N - 1;
 
-    // Elementos DOM
     this.video = document.getElementById('heroScrollVideo');
     this.canvas = this.section.querySelector('.hero-fallback-canvas');
-    this.progressFill = this.section.querySelector('.progress-fill');
-    this.progressPercent = this.section.querySelector('.progress-percent-val');
-    this.actButtons = this.section.querySelectorAll('.act-pill-btn');
+    this.mediaWrap = this.section.querySelector('.hero-media-wrapper');
+    this.viewport = this.section.querySelector('.hero-sticky-viewport');
     this.textSteps = this.section.querySelectorAll('.hero-story-step');
-    this.scrollHint = this.section.querySelector('.hero-scroll-hint');
     this.introLayer = document.getElementById('introSection');
     this.introVideo = document.getElementById('introVideo');
     this.introContent = document.getElementById('introContent');
     this.introCue = document.getElementById('introCue');
-    this.introProgress = 0;
-    this.smoothIntro = 0;   // 0..1: avanço suavizado do trecho "lead" do vídeo durante a dissolução
-    this.introHidden = false;
-    this.bufferBar = this.section.querySelector('.hero-buffer-bar');
 
-    // Estado da rolagem e renderização
-    this.rawProgress = 0;
-    this.smoothProgress = 0;
-    this.currentStepId = null;
-    this.currentActId = 1;
+    this.stage = 0;             // etapa lógica atual (já é o destino durante uma transição)
+    this.mode = 'stage';        // 'stage' = travado nas etapas | 'free' = scroll liberado (resto do site)
+    this.busy = false;          // transição em andamento
+    this.animating = false;     // animação de scroll programática em andamento
+    this.tr = null;             // transição ativa
+    this.cooldownUntil = 0;
+    this.lastWheelAt = 0;
+    this.lastWheelAbs = 0;
+    this.playTarget = null;     // tempo-alvo do vídeo durante uma transição "tocar"
+    this.playBase = 1;
+    this.holdOn = false;        // câmera lenta ativa
     this.videoDuration = config.video.fallbackDuration;
-    this.isVideoReady = false;
     this.useCanvasFallback = false;
     this.isReducedMotion = false;
-    this.isRendering = false;
-
-    // Fila de seek precisa com proteção contra travamento (Watchdog)
-    this.isSeeking = false;
-    this.pendingSeekTime = null;
-    this.lastRenderedTime = -1;
-    this.lastScrolled = 0;
-    this.scrollDir = 1;     // 1 = descendo, -1 = subindo
-    this.isDrifting = false;
-    this.prevTargetTime = 0;
-    this.prevTargetAt = 0;
-    this.targetVelocity = 0; // s de vídeo por s real, suavizado
-    this.seekWatchdog = null;
+    this.visualP = 0;           // progresso visual (0..1) usado só pelo canvas de fallback
+    this.introP = 0;
+    this.introAnim = null;
+    this.introHidden = false;
+    this.isCoarse = window.matchMedia('(pointer: coarse)').matches;
 
     this.init();
   }
 
-  log(...args) {
-    if (this.debug) {
-      console.log('[KavHero]', ...args);
-    }
-  }
+  log(...a) { if (this.debug) console.log('[KavHero]', ...a); }
 
+  // ---------------------------------------------------------------- helpers
+  get vh() { return window.innerHeight; }
+  sectionTop() { return this.section.getBoundingClientRect().top + window.scrollY; }
+  anchor(i) { return this.sectionTop() + i * this.vh; }
+  timeOf(i) { return this.stages[i].time; }
+  // Etapa mais próxima de uma posição de scroll (robusto a viewport ainda sem tamanho)
+  stageAt(y) {
+    const raw = (y - this.sectionTop()) / this.vh;
+    if (!isFinite(raw)) return 0;
+    return Math.max(0, Math.min(this.LAST, Math.round(raw)));
+  }
+  menuOpen() { const m = document.getElementById('immersiveMenu'); return !!(m && m.classList.contains('open')); }
+  maxRate() { return window.innerWidth <= 768 ? this.cfg.video.mobileMaxRate : this.cfg.video.maxRate; }
+
+  // ---------------------------------------------------------------- init
   init() {
-    this.checkReducedMotion();
-    this.applySectionHeight();
-    this.setupVideoEvents();
-    this.setupEventListeners();
-    this.startRenderLoop();
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this.isReducedMotion = mq.matches;
+    if (this.isReducedMotion) {
+      this.section.classList.add('reduced-motion-mode');
+      document.body.classList.add('chrome-visible');
+      return;
+    }
+
+    if (!this.vh) {
+      // Aba aberta em segundo plano / janela ainda sem tamanho: espera ter dimensões
+      const wait = () => { if (this.vh) { window.removeEventListener('resize', wait); this.start(); } };
+      window.addEventListener('resize', wait);
+      return;
+    }
+    this.start();
   }
 
-  checkReducedMotion() {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    this.isReducedMotion = mediaQuery.matches;
-    if (this.isReducedMotion) {
-      this.log('Modo prefers-reduced-motion ativo. Desativando scrub contínuo.');
-      this.section.classList.add('reduced-motion-mode');
-      // Sem scrub: o hero vira conteúdo estático, então o menu real já fica disponível
-      document.body.classList.add('chrome-visible');
-    }
+  start() {
+    this.applySectionHeight();
+    this.buildUI();
+    this.setupVideo();
+    this.setupInput();
+    this.setLocked(true);
+    this.syncFromScroll(true);
+    this.startLoop();
   }
 
   applySectionHeight() {
-    const isMobile = window.innerWidth <= 768;
-    this.section.style.height = isMobile 
-      ? this.config.scroll.mobileHeight 
-      : this.config.scroll.desktopHeight;
+    this.section.style.height = `${this.N * this.vh}px`;
   }
 
-  setupVideoEvents() {
-    if (!this.video) return;
+  setLocked(on) {
+    document.body.classList.toggle('hero-locked', on);
+    // Dentro do hero o scroll é nosso (instantâneo); fora dele volta o suave do site
+    document.documentElement.style.scrollBehavior = on ? 'auto' : '';
+  }
 
-    // Atributos vitais para autoplay inline no iOS / WebKit
-    this.video.defaultMuted = true;
-    this.video.muted = true;
-    this.video.playsInline = true;
-    this.video.setAttribute('playsinline', '');
-    this.video.setAttribute('webkit-playsinline', '');
-    this.video.setAttribute('muted', '');
-    this.video.disablePictureInPicture = true;
+  // ---------------------------------------------------------------- UI (pontos + dica)
+  buildUI() {
+    const dots = document.createElement('nav');
+    dots.className = 'stage-dots';
+    dots.setAttribute('aria-label', 'Passos da jornada');
+    this.dotBtns = this.stages.map((s, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'stage-dot';
+      b.setAttribute('aria-label', i === 0 ? 'Início' : `Ir para o passo ${i}`);
+      b.addEventListener('click', () => { if (this.mode === 'stage' && !this.busy && i !== this.stage) this.goTo(i); });
+      dots.appendChild(b);
+      return b;
+    });
+    this.viewport.appendChild(dots);
 
-    // Se o elemento não tiver uma fonte válida ativa, carrega o arquivo principal confirmado (HTTP 200)
-    if (!this.video.src || this.video.src === '') {
-      this.video.src = this.config.video.legacySrc;
-    }
+    const cue = document.createElement('div');
+    cue.className = 'stage-cue';
+    cue.setAttribute('aria-hidden', 'true');
+    cue.innerHTML = `<span>${this.isCoarse ? 'Deslize para continuar' : 'Role para continuar'}</span>` +
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+    this.viewport.appendChild(cue);
+    this.cue = cue;
+    this.updateDots();
+  }
 
-    // Libera a fila de seek quando o frame foi decodificado
-    const onSeekComplete = () => {
-      this.isSeeking = false;
-      if (this.seekWatchdog) {
-        clearTimeout(this.seekWatchdog);
-        this.seekWatchdog = null;
-      }
-      if (this.pendingSeekTime !== null) {
-        const nextTime = this.pendingSeekTime;
-        this.pendingSeekTime = null;
-        this.applyDirectSeek(nextTime);
-      }
+  updateDots() {
+    if (!this.dotBtns) return;
+    this.dotBtns.forEach((b, i) => {
+      b.classList.toggle('active', i === this.stage);
+      b.classList.toggle('done', i < this.stage);
+    });
+  }
+
+  armCue() {
+    clearTimeout(this.cueTimer);
+    this.cue.classList.remove('show');
+    if (this.stage === 0 || this.stage === this.LAST || this.mode !== 'stage') return;
+    this.cueTimer = setTimeout(() => this.cue.classList.add('show'), 3500);
+  }
+
+  // ---------------------------------------------------------------- vídeo
+  setupVideo() {
+    const v = this.video;
+    if (!v) return;
+    v.defaultMuted = true;
+    v.muted = true;
+    v.playsInline = true;
+    v.loop = false;
+    v.setAttribute('playsinline', '');
+    v.setAttribute('webkit-playsinline', '');
+    v.disablePictureInPicture = true;
+    if (!v.src) v.src = this.cfg.video.legacySrc;
+
+    const onMeta = () => {
+      if (v.duration && !isNaN(v.duration) && v.duration > 0) this.videoDuration = v.duration;
     };
+    ['loadedmetadata', 'loadeddata', 'canplay'].forEach((e) => v.addEventListener(e, onMeta));
+    if (v.readyState >= 1) onMeta();
 
-    this.video.addEventListener('seeked', onSeekComplete);
-
-    // Eventos que indicam espera ou interrupção: NUNCA deixa isSeeking preso em true!
-    ['waiting', 'stalled', 'abort', 'suspend'].forEach(evt => {
-      this.video.addEventListener(evt, () => {
-        if (this.isSeeking && !this.seekWatchdog) {
-          this.seekWatchdog = setTimeout(() => {
-            this.isSeeking = false;
-            this.seekWatchdog = null;
-          }, 80);
-        }
-      });
+    v.addEventListener('error', () => {
+      this.log('Falha no vídeo, usando canvas');
+      this.activateFallbackMode();
     });
 
-    // Monitoramento do buffer real de download (HTTP range)
-    const onBufferProgress = () => {
-      if (this.video.buffered && this.video.buffered.length > 0 && this.video.duration) {
-        const bufferedEnd = this.video.buffered.end(this.video.buffered.length - 1);
-        const percent = Math.min(100, Math.round((bufferedEnd / this.video.duration) * 100));
-        if (this.bufferBar) {
-          this.bufferBar.style.width = `${percent}%`;
-          if (percent >= 99) {
-            setTimeout(() => {
-              if (this.bufferBar) this.bufferBar.style.opacity = '0';
-            }, 800);
-          }
-        }
-      }
+    // Destrava reprodução programática no iOS/Android no primeiro gesto
+    const unlock = () => {
+      const p = v.play();
+      if (p && p.then) p.then(() => { if (this.playTarget === null && !this.holdOn) v.pause(); }).catch(() => {});
+      ['touchstart', 'pointerdown', 'wheel', 'keydown'].forEach((e) => window.removeEventListener(e, unlock));
     };
-    this.video.addEventListener('progress', onBufferProgress);
-
-    // Ativação IMEDIATA assim que os metadados existirem (duração conhecida)
-    const onMetadataReady = () => {
-      if (this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0) {
-        this.videoDuration = this.video.duration;
-        this.isVideoReady = true;
-        this.log(`Vídeo pronto. Duração: ${this.videoDuration.toFixed(2)}s | readyState: ${this.video.readyState}`);
-
-        // Aquece o decodificador no primeiro milissegundo
-        try {
-          if (this.video.currentTime === 0) {
-            this.video.currentTime = 0.001;
-          }
-        } catch (e) {}
-      }
-    };
-
-    this.video.addEventListener('loadedmetadata', onMetadataReady);
-    this.video.addEventListener('loadeddata', onMetadataReady);
-    this.video.addEventListener('canplay', onMetadataReady);
-    this.video.addEventListener('canplaythrough', onMetadataReady);
-
-    if (this.video.readyState >= 1) {
-      onMetadataReady();
-    }
-
-    // Tratamento de falhas de rede resiliente
-    this.video.addEventListener('error', (e) => {
-      this.log('Falha de carregamento no vídeo:', e);
-      if (this.video.src && this.video.src.indexOf('Untitled_Scene') === -1) {
-        this.log('Redirecionando para o vídeo principal...');
-        this.video.src = this.config.video.legacySrc;
-        try { this.video.load(); } catch (err) {}
-      } else {
-        this.activateFallbackMode();
-      }
-    });
-
-    // Desbloqueio mobile no primeiro gesto do usuário
-    const unlockMobile = () => {
-      if (this.video && this.video.paused) {
-        const p = this.video.play();
-        if (p && typeof p.then === 'function') {
-          p.then(() => this.video.pause()).catch(() => {});
-        }
-      }
-      ['touchstart', 'scroll', 'pointerdown', 'wheel'].forEach(evt => {
-        window.removeEventListener(evt, unlockMobile);
-      });
-    };
-    ['touchstart', 'scroll', 'pointerdown', 'wheel'].forEach(evt => {
-      window.addEventListener(evt, unlockMobile, { passive: true, once: true });
-    });
+    ['touchstart', 'pointerdown', 'wheel', 'keydown'].forEach((e) =>
+      window.addEventListener(e, unlock, { passive: true, once: true }));
   }
 
   activateFallbackMode() {
     this.useCanvasFallback = true;
-    if (this.video) {
-      this.video.style.display = 'none';
-    }
+    if (this.video) this.video.style.display = 'none';
     if (this.canvas) {
       this.canvas.style.display = 'block';
       this.initProceduralFallback();
     }
   }
 
-  setupEventListeners() {
-    window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
-    window.addEventListener('resize', () => {
+  seekTo(t) {
+    const v = this.video;
+    if (!v || this.useCanvasFallback) return;
+    this.playTarget = null;
+    this.holdOn = false;
+    try { v.pause(); } catch (e) {}
+    try { v.currentTime = Math.max(0, Math.min(this.videoDuration - 0.05, t)); } catch (e) {}
+  }
+
+  playTo(t, ms) {
+    const v = this.video;
+    if (!v || this.useCanvasFallback) return false;
+    const dist = t - v.currentTime;
+    if (dist <= 0.05) { this.seekTo(t); return false; }
+    this.holdOn = false;
+    this.playTarget = t;
+    // 1.25x compensa a desaceleração no fim, para chegar perto do tempo planejado
+    this.playBase = Math.max(0.6, Math.min(this.maxRate(), (dist / (ms / 1000)) * 1.25));
+    v.playbackRate = this.playBase;
+    const p = v.play();
+    if (p && p.catch) p.catch(() => { this.playTarget = null; this.seekTo(t); });
+    return true;
+  }
+
+  // ---------------------------------------------------------------- entrada (gestos)
+  setupInput() {
+    window.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
+    window.addEventListener('keydown', (e) => this.onKey(e));
+    window.addEventListener('touchstart', (e) => this.onTouchStart(e), { passive: true });
+    window.addEventListener('touchmove', (e) => this.onTouchMove(e), { passive: false });
+    window.addEventListener('touchend', (e) => this.onTouchEnd(e), { passive: true });
+    window.addEventListener('scroll', () => this.onScroll(), { passive: true });
+    window.addEventListener('resize', () => this.onResize(), { passive: true });
+  }
+
+  onWheel(e) {
+    if (this.mode !== 'stage' || this.menuOpen() || e.ctrlKey) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    e.preventDefault();
+
+    const now = performance.now();
+    let d = e.deltaY;
+    if (e.deltaMode === 1) d *= 16;
+    const abs = Math.abs(d);
+    // Um "gesto novo" começa após uma pausa, ou quando o impulso volta a crescer
+    // (ignora a cauda de inércia do trackpad, que gerava saltos de várias etapas)
+    const fresh = now - this.lastWheelAt > 160 || (abs > this.lastWheelAbs * 1.6 && abs > 25);
+    this.lastWheelAt = now;
+    this.lastWheelAbs = abs;
+
+    if (this.busy || now < this.cooldownUntil || !fresh || abs < 6) return;
+    this.intent(d > 0 ? 1 : -1);
+  }
+
+  onKey(e) {
+    if (this.mode !== 'stage' || this.menuOpen() || e.altKey || e.ctrlKey || e.metaKey) return;
+    const t = e.target;
+    const tag = t && t.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+    let dir = 0;
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') dir = 1;
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') dir = -1;
+    else if (e.key === ' ' && tag !== 'BUTTON' && tag !== 'A') dir = e.shiftKey ? -1 : 1;
+    else if (e.key === 'Home') { e.preventDefault(); if (!this.busy && this.stage !== 0) this.goTo(0); return; }
+    if (!dir) return;
+    e.preventDefault();
+    if (!this.busy && performance.now() >= this.cooldownUntil) this.intent(dir);
+  }
+
+  onTouchStart(e) {
+    if (this.mode !== 'stage' || this.menuOpen() || e.touches.length !== 1) { this.touch = null; return; }
+    const t = e.touches[0];
+    this.touch = { y0: t.clientY, y: t.clientY, t0: performance.now() };
+  }
+
+  onTouchMove(e) {
+    if (!this.touch || this.mode !== 'stage' || this.menuOpen()) return;
+    if (e.cancelable) e.preventDefault();
+    this.touch.y = e.touches[0].clientY;
+  }
+
+  onTouchEnd() {
+    const t = this.touch;
+    this.touch = null;
+    if (!t || this.mode !== 'stage' || this.busy || performance.now() < this.cooldownUntil) return;
+    const dy = t.y0 - t.y;
+    const dt = Math.max(1, performance.now() - t.t0);
+    if (Math.abs(dy) > 38 || (Math.abs(dy) > 16 && Math.abs(dy) / dt > 0.35)) this.intent(dy > 0 ? 1 : -1);
+  }
+
+  onResize() {
+    clearTimeout(this.resizeTimer);
+    this.resizeTimer = setTimeout(() => {
       this.applySectionHeight();
-      if (this.useCanvasFallback && this.resizeCanvas) {
-        this.resizeCanvas();
-      }
-    }, { passive: true });
-
-    this.actButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const actId = parseInt(btn.dataset.act, 10);
-        const actConfig = this.config.acts.find(a => a.id === actId);
-        if (actConfig) {
-          this.scrollToProgress(actConfig.targetProgress);
-        }
-      });
-    });
-
-    if (this.scrollHint) {
-      this.scrollHint.addEventListener('click', () => {
-        this.scrollToProgress(0.14);
-      });
-    }
+      if (this.mode === 'stage' && !this.busy) this.jumpScroll(this.anchor(this.stage));
+    }, 120);
   }
 
-  getIntroDistance() {
-    return window.innerHeight * (this.config.scroll.introScreens || 0);
-  }
+  // Scroll que não veio de nós (barra de rolagem, âncora do menu, voltar do navegador…)
+  onScroll() {
+    if (this.animating || this.busy) return;
+    const y = window.scrollY;
+    const lastA = this.anchor(this.LAST);
 
-  // Scroll (px) a partir do topo da seção em que começam os textos/progresso do hero
-  getHeroStart() {
-    return this.getIntroDistance();
-  }
-
-  handleScroll() {
-    if (this.isReducedMotion) return;
-
-    const rect = this.section.getBoundingClientRect();
-    const sectionHeight = this.section.offsetHeight;
-    const windowHeight = window.innerHeight;
-    const scrollableDistance = sectionHeight - windowHeight;
-    const introDistance = this.getIntroDistance();
-    const heroStart = this.getHeroStart();
-    const heroDistance = scrollableDistance - heroStart;
-
-    if (heroDistance <= 0) return;
-
-    const scrolled = -rect.top;
-    if (scrolled !== this.lastScrolled) {
-      this.scrollDir = scrolled > this.lastScrolled ? 1 : -1;
-      this.lastScrolled = scrolled;
-    }
-    this.introProgress = introDistance > 0 ? Math.max(0, Math.min(1, scrolled / introDistance)) : 1;
-    this.rawProgress = Math.max(0, Math.min(1, (scrolled - heroStart) / heroDistance));
-  }
-
-  scrollToProgress(targetProg) {
-    const sectionTop = this.section.offsetTop;
-    const sectionHeight = this.section.offsetHeight;
-    const windowHeight = window.innerHeight;
-    const heroStart = this.getHeroStart();
-    const scrollableDistance = sectionHeight - windowHeight - heroStart;
-
-    const targetScrollY = sectionTop + heroStart + (targetProg * scrollableDistance);
-    window.scrollTo({
-      top: targetScrollY,
-      behavior: 'smooth'
-    });
-  }
-
-  startRenderLoop() {
-    this.isRendering = true;
-
-    const render = () => {
-      if (!this.isRendering) return;
-
-      if (!this.isReducedMotion) {
-        const isMobile = window.innerWidth <= 768;
-        const factor = isMobile ? this.config.video.mobileLerpFactor : this.config.video.lerpFactor;
-        
-        // Interpolação contínua e suave (lerp)
-        this.smoothProgress += (this.rawProgress - this.smoothProgress) * factor;
-
-        const startAt = this.config.scroll.heroStartAt || 0;
-        const leadTarget = Math.max(0, Math.min(1, (this.introProgress - startAt) / (1 - startAt)));
-        this.smoothIntro += (leadTarget - this.smoothIntro) * factor;
-
-        // Atualização de vídeo ou canvas
-        if (!this.useCanvasFallback && this.video) {
-          this.updateVideoFrame(this.smoothProgress);
-        } else if (this.useCanvasFallback && this.drawCanvasFrame) {
-          this.drawCanvasFrame(this.smoothProgress);
-        }
-
-        this.updateIntro(this.introProgress);
-        this.updateStoryUI(this.smoothProgress);
-      }
-
-      requestAnimationFrame(render);
-    };
-
-    requestAnimationFrame(render);
-  }
-
-  /**
-   * MOTOR DE SCRUB PRECISO E FLUIDO (Zero Congelamento)
-   */
-  updateVideoFrame(progress) {
-    if (!this.video) return;
-
-    const duration = (this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0)
-      ? this.video.duration
-      : this.videoDuration;
-
-    if (!duration || duration <= 0) return;
-
-    // Trecho inicial (lead) acompanha a dissolução do planeta; o restante acompanha o scroll do hero
-    const lead = Math.min(this.config.video.introLeadSeconds || 0, duration * 0.3);
-    const targetTime = Math.max(0, Math.min(duration, this.smoothIntro * lead + progress * (duration - lead)));
-
-    const cfg = this.config.video;
-    const current = this.video.currentTime;
-
-    // Velocidade com que o scroll empurra o vídeo (para o modo "tocar" nunca ficar atrás da rolagem)
-    const nowMs = performance.now();
-    const dtMs = nowMs - this.prevTargetAt;
-    if (dtMs >= 16) {
-      const inst = this.prevTargetAt ? Math.max(0, (targetTime - this.prevTargetTime) / (dtMs / 1000)) : 0;
-      this.targetVelocity += (inst - this.targetVelocity) * 0.25;
-      this.prevTargetTime = targetTime;
-      this.prevTargetAt = nowMs;
-    }
-    const canDrift = !this.isReducedMotion && this.video.readyState >= 3;
-
-    // Modo "tocar": descendo e com o vídeo já na posição do scroll (ou à frente).
-    // Em vez de pular quadro a quadro (seek, que trava), deixa o decodificador tocar devagar,
-    // com uma folga máxima à frente do scroll para o vídeo nunca ficar muito fora de contexto.
-    if (canDrift && this.scrollDir >= 0 && current >= targetTime - 0.06) {
-      const cap = Math.min(duration - 0.05, targetTime + cfg.driftMaxSeconds);
-      if (current < cap - 0.03) {
-        const rate = Math.max(cfg.driftRate, Math.min(2, this.targetVelocity * 1.15));
-        if (Math.abs(this.video.playbackRate - rate) > 0.05) this.video.playbackRate = rate;
-        if (!this.isDrifting || this.video.paused) {
-          const pl = this.video.play();
-          if (pl && pl.catch) pl.catch(() => { this.isDrifting = false; });
-          this.isDrifting = true;
-        }
-      } else if (this.isDrifting) {
-        this.video.pause();
-        this.isDrifting = false;
-      }
-      this.lastRenderedTime = current;
+    if (this.mode === 'free') {
+      if (y < lastA - 2) this.reenter(this.stageAt(y));
       return;
     }
-
-    // Modo "scrub": o scroll está à frente do vídeo (ou subindo) -> busca a posição exata
-    if (this.isDrifting) {
-      this.video.pause();
-      this.isDrifting = false;
+    if (y > lastA + 6) {
+      this.mode = 'free';
+      this.setLocked(false);
+      this.stage = this.LAST;
+      this.pauseHold();
+      this.showStep(this.LAST);
+      this.setChrome(true);
+      return;
     }
-
-    // Apenas busca se houver mudança perceptível de tempo (> 0.02s)
-    if (Math.abs(targetTime - this.lastRenderedTime) > 0.02) {
-      this.lastRenderedTime = targetTime;
-      this.applyDirectSeek(targetTime);
-    }
+    clearTimeout(this.settleTimer);
+    this.settleTimer = setTimeout(() => this.settle(), 180);
   }
 
-  applyDirectSeek(targetTime) {
-    if (!this.video) return;
-
-    if (!this.isSeeking) {
-      this.isSeeking = true;
-
-      // Watchdog de segurança: NUNCA permite que isSeeking fique travado em true por mais de 100ms
-      if (this.seekWatchdog) {
-        clearTimeout(this.seekWatchdog);
-      }
-      this.seekWatchdog = setTimeout(() => {
-        if (this.isSeeking) {
-          this.isSeeking = false;
-          this.seekWatchdog = null;
-          if (this.pendingSeekTime !== null) {
-            const next = this.pendingSeekTime;
-            this.pendingSeekTime = null;
-            this.applyDirectSeek(next);
-          }
-        }
-      }, 100);
-
-      try {
-        if ('fastSeek' in this.video) {
-          this.video.fastSeek(targetTime);
-        } else {
-          this.video.currentTime = targetTime;
-        }
-      } catch (e) {
-        this.isSeeking = false;
-      }
+  settle() {
+    if (this.busy || this.animating || this.mode !== 'stage') return;
+    const idx = this.stageAt(window.scrollY);
+    if (idx === this.stage) {
+      if (Math.abs(window.scrollY - this.anchor(idx)) > 2) this.animateScroll(this.anchor(idx), 280);
     } else {
-      // Guarda a última posição solicitada pelo usuário durante a rolagem
-      this.pendingSeekTime = targetTime;
+      this.goTo(idx);
     }
   }
 
-  /**
-   * Abertura contínua: o planeta faz zoom (como se mergulhássemos nele) e se dissolve,
-   * revelando o primeiro frame do vídeo do sapato que já está por baixo.
-   */
+  // Posição inicial / recarga no meio da página
+  syncFromScroll(initial) {
+    const y = window.scrollY;
+    const lastA = this.anchor(this.LAST);
+    if (y > lastA + 6) {
+      this.mode = 'free';
+      this.setLocked(false);
+      this.stage = this.LAST;
+      this.setStageInstant(this.LAST);
+      return;
+    }
+    const idx = this.stageAt(y);
+    this.stage = idx;
+    this.setStageInstant(idx);
+    this.jumpScroll(this.anchor(idx));
+  }
+
+  setStageInstant(i) {
+    this.stage = i;
+    this.introP = i === 0 ? 0 : 1;
+    this.updateIntro(this.introP);
+    this.updateDots();
+    this.setChrome(i === this.LAST || this.mode === 'free');
+    const apply = () => {
+      this.seekTo(this.timeOf(i));
+      this.showStep(i);
+      if (i > 0) this.startHold();
+    };
+    if (this.video && this.video.readyState < 1) {
+      this.video.addEventListener('loadedmetadata', apply, { once: true });
+      this.showStep(i);
+    } else {
+      apply();
+    }
+    this.armCue();
+  }
+
+  // Voltou para dentro do hero (rolando para cima ou pelo link "Início"): trava na etapa mais próxima
+  reenter(idx) {
+    this.mode = 'stage';
+    this.setLocked(true);
+    this.stage = idx;
+    this.jumpScroll(this.anchor(idx));
+    this.setStageInstant(idx);
+  }
+
+  // ---------------------------------------------------------------- navegação
+  intent(dir) {
+    const target = this.stage + dir;
+    if (target < 0) return;
+    if (target > this.LAST) { this.exitToSite(); return; }
+    this.goTo(target);
+  }
+
+  exitToSite() {
+    this.busy = true;
+    this.pauseHold();
+    this.animateScroll(this.anchor(this.LAST) + this.vh, 900, () => {
+      this.mode = 'free';
+      this.busy = false;
+      this.setLocked(false);
+    });
+  }
+
+  goTo(target) {
+    if (this.busy || target === this.stage) return;
+    const from = this.stage;
+    const forward = target > from;
+    const v = this.cfg.video;
+    const T = this.timeOf(target);
+    const cur = this.video && !this.useCanvasFallback ? this.video.currentTime : this.timeOf(from);
+
+    let ms;
+    if (!forward) ms = v.backMs;
+    else if (from === 0) ms = v.introMs;
+    else ms = Math.min(v.maxMs, Math.max(v.stepMs, ((T - cur) / this.maxRate()) * 1000 * 1.15));
+    if (from === 0 && forward) ms = Math.max(ms, ((T - cur) / this.maxRate()) * 1000 * 1.15);
+    ms = Math.min(v.maxMs, ms);
+
+    this.busy = true;
+    this.stage = target;
+    this.pauseHold();
+    this.hideSteps();
+    clearTimeout(this.cueTimer);
+    this.cue.classList.remove('show');
+    this.updateDots();
+    if (from === this.LAST) this.setChrome(false);
+
+    this.tr = { to: target, from, ms, start: performance.now(), shown: false, kind: forward ? 'play' : 'seek' };
+
+    // Scroll real acompanha a etapa (menu, âncoras e voltar do navegador continuam coerentes)
+    this.animateScroll(this.anchor(target), ms);
+
+    // Abertura (planeta): dissolve junto
+    if (from === 0 && forward) this.animateIntro(0, 1, ms);
+    else if (target === 0) this.animateIntro(1, 0, ms);
+
+    if (forward) {
+      if (!this.playTo(T, ms)) { /* sem vídeo: só texto/transição */ }
+    } else {
+      this.mediaWrap && this.mediaWrap.classList.add('rewinding');
+      this.seekTo(T);
+      setTimeout(() => this.mediaWrap && this.mediaWrap.classList.remove('rewinding'), Math.min(450, ms * 0.5));
+    }
+
+    // Trava de segurança: nunca fica preso numa transição
+    clearTimeout(this.safetyTimer);
+    this.safetyTimer = setTimeout(() => this.finish(), ms * 1.7 + 400);
+  }
+
+  finish() {
+    const tr = this.tr;
+    if (!tr) return;
+    clearTimeout(this.safetyTimer);
+    this.tr = null;
+    this.busy = false;
+    this.cooldownUntil = performance.now() + 260;
+
+    const T = this.timeOf(tr.to);
+    if (this.video && !this.useCanvasFallback) {
+      if (this.playTarget !== null) { this.video.pause(); this.playTarget = null; }
+      if (Math.abs(this.video.currentTime - T) > 0.3) this.seekTo(T);
+    }
+    this.introP = tr.to === 0 ? 0 : 1;
+    this.updateIntro(this.introP);
+    this.jumpScroll(this.anchor(tr.to));
+    if (!tr.shown) this.showStep(tr.to);
+    this.setChrome(tr.to === this.LAST);
+    if (tr.to > 0) this.startHold();
+    this.armCue();
+  }
+
+  // ---------------------------------------------------------------- texto, chrome, câmera lenta
+  hideSteps() { this.textSteps.forEach((el) => el.classList.remove('active')); }
+
+  showStep(i) {
+    const id = this.stages[i].step;
+    this.textSteps.forEach((el) => el.classList.toggle('active', el.dataset.stepId === id));
+  }
+
+  setChrome(on) { document.body.classList.toggle('chrome-visible', !!on); }
+
+  startHold() { this.holdOn = this.stage > 0; }
+
+  pauseHold() {
+    this.holdOn = false;
+    if (this.video && this.playTarget === null && !this.video.paused) this.video.pause();
+  }
+
+  // ---------------------------------------------------------------- animações de scroll e abertura
+  jumpScroll(y) {
+    this.animating = true;
+    window.scrollTo(0, y);
+    // libera após o evento de scroll gerado por nós
+    requestAnimationFrame(() => requestAnimationFrame(() => { this.animating = false; }));
+  }
+
+  animateScroll(to, ms, done) {
+    const from = window.scrollY;
+    const t0 = performance.now();
+    const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    this.animating = true;
+    clearTimeout(this.scrollTimer);
+    const step = (now) => {
+      const t = Math.min(1, (now - t0) / ms);
+      window.scrollTo(0, from + (to - from) * ease(t));
+      if (t < 1) { requestAnimationFrame(step); }
+      else { this.animating = false; if (done) done(); }
+    };
+    requestAnimationFrame(step);
+    // Se a aba estiver em segundo plano (rAF pausado), garante o destino
+    this.scrollTimer = setTimeout(() => {
+      if (this.animating) { window.scrollTo(0, to); this.animating = false; if (done) done(); }
+    }, ms + 500);
+  }
+
+  animateIntro(from, to, ms) {
+    this.introAnim = { from, to, t0: performance.now(), ms };
+  }
+
   updateIntro(p) {
     if (!this.introLayer) return;
     const smooth = (a, b, x) => {
       const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
       return t * t * (3 - 2 * t);
     };
-
     if (p >= 1) {
       if (!this.introHidden) {
         this.introHidden = true;
@@ -565,85 +555,78 @@ class KavHeroScrollEngine {
       }
       return;
     }
-
     this.introHidden = false;
     if (this.introVideo && this.introVideo.paused) {
       const pl = this.introVideo.play();
       if (pl && pl.catch) pl.catch(() => {});
     }
-
     this.introLayer.style.opacity = String(1 - smooth(0.3, 1, p));
-
     if (this.introContent) {
       const c = smooth(0, 0.35, p);
       this.introContent.style.opacity = String(1 - c);
       this.introContent.style.transform = `translateY(${-c * 60}px) scale(${1 - c * 0.05})`;
     }
     if (this.introCue) this.introCue.style.opacity = String(1 - smooth(0, 0.12, p));
-    if (this.introVideo) {
-      this.introVideo.style.transform = `scale(${1 + smooth(0, 1, p) * 0.9})`;
-    }
+    if (this.introVideo) this.introVideo.style.transform = `scale(${1 + smooth(0, 1, p) * 0.9})`;
   }
 
-  updateStoryUI(progress) {
-    const percentInt = Math.round(progress * 100);
-    if (this.progressFill) {
-      this.progressFill.style.width = `${progress * 100}%`;
-    }
-    if (this.progressPercent) {
-      this.progressPercent.textContent = `${percentInt}%`;
-    }
+  // ---------------------------------------------------------------- loop (vídeo + abertura + canvas)
+  startLoop() {
+    const tick = () => {
+      const now = performance.now();
 
-    // Indicador "Role para explorar" some rapidamente antes de qualquer outro texto entrar (aos 4%)
-    if (this.scrollHint) {
-      if (progress > 0.04) {
-        this.scrollHint.style.opacity = '0';
-        this.scrollHint.style.pointerEvents = 'none';
-      } else {
-        this.scrollHint.style.opacity = '1';
-        this.scrollHint.style.pointerEvents = 'auto';
-      }
-    }
-
-    // Identificar passo ativo respeitando as margens de respiro (gaps)
-    const activeStep = this.config.steps.find((step) => {
-      return progress >= step.minProgress && progress < step.maxProgress;
-    }) || null;
-
-    if (activeStep) {
-      if (activeStep.id !== this.currentStepId) {
-        this.currentStepId = activeStep.id;
-
-        this.textSteps.forEach((el) => {
-          const isCurrent = el.dataset.stepId === activeStep.id;
-          el.classList.toggle('active', isCurrent);
-        });
+      // Abertura
+      if (this.introAnim) {
+        const a = this.introAnim;
+        const t = Math.min(1, (now - a.t0) / a.ms);
+        const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        this.introP = a.from + (a.to - a.from) * e;
+        this.updateIntro(this.introP);
+        if (t >= 1) this.introAnim = null;
       }
 
-      // Atualizar ato nos botões superiores
-      if (activeStep.act !== this.currentActId) {
-        this.currentActId = activeStep.act;
-        this.actButtons.forEach((btn) => {
-          const btnAct = parseInt(btn.dataset.act, 10);
-          btn.classList.toggle('active', btnAct === activeStep.act);
-        });
+      const v = this.video;
+      if (v && !this.useCanvasFallback) {
+        if (this.playTarget !== null) {
+          // Tocando até o ponto da etapa, desacelerando na chegada
+          const rem = this.playTarget - v.currentTime;
+          if (rem <= 0.04 || v.ended) {
+            v.pause();
+            this.playTarget = null;
+          } else {
+            const rate = Math.max(0.45, Math.min(this.playBase, rem * 1.8));
+            if (Math.abs(v.playbackRate - rate) > 0.04) v.playbackRate = rate;
+          }
+        } else if (this.holdOn) {
+          // Câmera lenta com o texto na tela: nunca fica congelado
+          const next = this.stage < this.LAST ? this.timeOf(this.stage + 1) - 0.4 : this.videoDuration - 0.05;
+          const cap = Math.min(this.timeOf(this.stage) + this.cfg.video.holdMaxSeconds, next);
+          if (v.currentTime < cap - 0.03) {
+            if (v.playbackRate !== this.cfg.video.holdRate) v.playbackRate = this.cfg.video.holdRate;
+            if (v.paused && v.readyState >= 3) { const p = v.play(); if (p && p.catch) p.catch(() => {}); }
+          } else if (!v.paused) {
+            v.pause();
+          }
+        }
       }
-    } else {
-      // Estamos em uma zona de transição/gap: nenhum texto fica ativo! Tela limpa!
-      this.currentStepId = null;
-      this.textSteps.forEach((el) => {
-        el.classList.remove('active');
-      });
-    }
 
-    // Elevação do header
-    // Menu real (topo fixo) só entra no fim do vídeo; nas telas anteriores existe apenas o menu imersivo
-    const chromeVisible = progress > 0.95;
-    document.body.classList.toggle('chrome-visible', chromeVisible);
-    const header = document.getElementById('header');
-    if (header) {
-      header.classList.toggle('header-scrolled-past', chromeVisible);
-    }
+      // Transição: mostra o texto um pouco antes de chegar e conclui quando o vídeo chega
+      if (this.tr) {
+        const el = now - this.tr.start;
+        if (!this.tr.shown && el >= this.tr.ms * 0.68) { this.showStep(this.tr.to); this.tr.shown = true; }
+        const videoArrived = this.tr.kind === 'seek' || this.playTarget === null || this.useCanvasFallback;
+        if (el >= this.tr.ms && videoArrived) this.finish();
+      }
+
+      if (this.useCanvasFallback && this.drawCanvasFrame) {
+        const goal = this.stage / this.LAST;
+        this.visualP += (goal - this.visualP) * 0.06;
+        this.drawCanvasFrame(this.visualP);
+      }
+
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   initProceduralFallback() {
@@ -716,5 +699,5 @@ class KavHeroScrollEngine {
 
 // Inicialização automática protegida
 document.addEventListener('DOMContentLoaded', () => {
-  window.kavHeroEngine = new KavHeroScrollEngine();
+  window.kavHeroEngine = new KavHeroStages();
 });
