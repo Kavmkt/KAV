@@ -4,10 +4,8 @@ Este documento centraliza os dados, imagens e confirmações que dependem exclus
 
 ---
 
-### 1. Número Oficial de WhatsApp
-* **Local:** `js/main.js` (linha 16: `const WHATSAPP_NUMBER = '5511999999999';`)
-* **O que fazer:** Substituir pelo número comercial da Kav com DDI (55) e DDD (ex.: `5511912345678`), sem traços ou parênteses.
-* **Impacto:** Todas as chamadas primárias do site (*"Falar no WhatsApp"*, botões da calculadora, teste de IA e formulário) passam a direcionar imediatamente para o atendente correto.
+### 1. Número Oficial de WhatsApp — ✅ resolvido
+* **Número:** (11) 96640-5634 (`5511966405634`), definido em `js/main.js` (`WHATSAPP_NUMBER`) e nos links `wa.me` do `index.html`.
 
 ---
 

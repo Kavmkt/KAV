@@ -12,8 +12,8 @@
  * ============================================================================
  */
 
-// [CONFIRMAR: Número de WhatsApp oficial da Kav com DDI e DDD, ex: 5511999999999]
-const WHATSAPP_NUMBER = '5511999999999';
+// [CONFIRMAR: Número de WhatsApp oficial da Kav com DDI e DDD, ex: 5511966405634]
+const WHATSAPP_NUMBER = '5511966405634';
 
 // E-mail que recebe os leads do formulário (via FormSubmit, serviço gratuito para sites estáticos).
 // IMPORTANTE: na primeira vez, o FormSubmit envia um e-mail de ativação para este endereço;

@@ -2637,3 +2637,22 @@ h1, h2, h3, h4 {
   line-height: 1.5;
 }
 .form-error a { color: #fff; text-decoration: underline; }
+
+/* Foto do sócio (seção "Você fala direto com quem cuida do seu negócio") */
+.team-avatar-slot.has-photo {
+  width: 132px;
+  height: 132px;
+  padding: 0;
+  overflow: hidden;
+  background: none;
+  border: 3px solid var(--accent-orange);
+  box-shadow: 0 0 0 6px rgba(255, 106, 26, 0.12), 0 14px 34px rgba(0, 0, 0, 0.4);
+}
+.team-avatar-slot.has-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  display: block;
+}
+.footer-contact p a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
