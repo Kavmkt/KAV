@@ -302,3 +302,62 @@ body.chrome-visible .immersive-toggle {
     order: -1;
   }
 }
+
+/* ==========================================================================
+   Título da abertura: 2 níveis tipográficos + traçados de luz nas bordas das letras
+   ========================================================================== */
+.intro-headline {
+  width: min(92vw, 1100px);
+  margin-top: clamp(14px, 3vh, 30px);
+  animation: introSubIn 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+
+.hl-wrap { position: relative; }
+.hl-wrap .hl { display: block; width: 100%; height: auto; overflow: visible; }
+.hl-wrap .hl.trace-layer { position: absolute; inset: 0; pointer-events: none; }
+.hl-m { display: none; }
+
+.hl .l1, .hl .l2 { font-family: 'Montserrat', var(--font-heading), system-ui, sans-serif; }
+.hl .l1 { font-weight: 700; font-size: 96px; letter-spacing: -0.02em; }
+.hl .l2 { font-weight: 300; font-size: 50px; }
+.hl .b { font-weight: 700; }
+.hl-m .l1 { font-size: 88px; }
+.hl-m .l2 { font-size: 34px; }
+
+.hl .base { fill: #fff; }
+
+/* Traço de luz: um trecho curto de contorno percorre a borda de cada letra, bem rápido, com pausa */
+.hl .trace {
+  fill: none;
+  stroke: #E6F8FF;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 64 526;
+  animation: hlTrace 3.4s cubic-bezier(0.55, 0, 0.25, 1) infinite;
+}
+.trace-layer { filter: drop-shadow(0 0 5px rgba(111, 211, 255, 0.95)) drop-shadow(0 0 14px rgba(111, 211, 255, 0.45)); }
+.hl .trace { animation-delay: 1.6s; }
+.hl .trace:nth-of-type(2) { animation-delay: 1.82s; }
+.hl .trace:nth-of-type(3) { animation-delay: 2.04s; }
+.hl .trace:nth-of-type(4) { animation-delay: 2.26s; }
+
+@keyframes hlTrace {
+  0%   { stroke-dashoffset: 0; opacity: 0; }
+  4%   { opacity: 1; }
+  34%  { stroke-dashoffset: -590; opacity: 1; }
+  38%  { stroke-dashoffset: -590; opacity: 0; }
+  100% { stroke-dashoffset: -590; opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  .hl-d { display: none; }
+  .hl-m { display: block; }
+  .intro-headline { width: min(94vw, 520px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl .trace { animation: none; opacity: 0; }
+  .intro-headline { animation: none; }
+}
