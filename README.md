@@ -18,20 +18,17 @@ O início da home apresenta um plano contínuo guiado pela rolagem do visitante 
 
 ---
 
-## 🌍 Hero em etapas travadas (abertura + vídeo + textos)
+## 🌍 Abertura imersiva (mesma cena do Hero Scroll)
 
-O hero é uma jornada de **8 etapas** (`stages` em `js/hero-scroll.js`): abertura (planeta) + 7 textos.
-
-* **Scroll que trava de verdade:** cada gesto (roda do mouse, deslize no celular, setas/PageDown/Espaço ou pontos laterais) avança **uma** etapa. Não dá para pular textos nem se perder; voltar é um gesto para o outro lado. Rajadas e inércia do trackpad contam como um gesto só.
-* **Vídeo fluido:** entre etapas o vídeo **toca de verdade** (reprodução nativa, sem seek por pixel, que era o que travava), em velocidade controlada e desacelerando ao chegar. Com o texto na tela ele segue em câmera lenta. Voltar usa um único seek, escondido por um "rebobinar" visual de 0,3s.
-* **Orientação:** pontos laterais mostram em que passo o visitante está (clicáveis) e, após ~3,5s parado, aparece a dica "Role/Deslize para continuar".
-* **Sem armadilha:** depois do último texto, mais um gesto libera o site; rolando para cima o hero volta a travar na etapa certa. Menu, âncoras, barra de rolagem e botão voltar continuam funcionando (o scroll real acompanha a etapa).
-* **Abertura:** o planeta (`#introSection`) faz zoom e dissolve no vídeo do sapato durante a 1ª transição.
-* **Menu real fixo (`.site-chrome`)** só aparece na última etapa; antes disso há só as três barrinhas (`#immersiveMenu`).
-* **Trocou o vídeo?** Ajuste só os `time` (s) de cada etapa em `stages` (e velocidades em `video`: `maxRate`, `introMs`, `holdRate`...). Para ficar ainda mais liso, exporte o vídeo com quadro-chave curto (comando em `assets/video/README.md`).
-* **Acessibilidade:** com `prefers-reduced-motion` o hero vira conteúdo estático, sem travas.
-* **Revelações abaixo do hero:** títulos, cards, cases e blocos sobem com fade + leve blur em sequência (`css/reveal.css`, `js/reveal.js`); números dos cases contam até o valor.
-* Testes locais: use um servidor com suporte a HTTP Range (ex.: `npx http-server`).
+* **Uma cena só:** a abertura (`#introSection`, vídeo `intro-planeta.mp4` + logo + boas-vindas) é uma camada dentro do viewport sticky do hero. Nos primeiros 100vh de scroll o planeta faz zoom e se dissolve, e o sapato já começa a pisar durante a dissolução (`video.introLeadSeconds` + `scroll.heroStartAt` em `js/hero-scroll.js`), sem corte entre "containers".
+* **Sem HUD:** não há mais barra de progresso, abas "1 · Começo…" nem texto/botão no primeiro take; só vídeo e as inserções de texto dos passos.
+* **Três barrinhas** no canto superior direito abrem um menu em tela cheia (`#immersiveMenu`) durante a abertura e o vídeo.
+* **Menu real fixo (`.site-chrome`)** só aparece no fim da rolagem do hero (progresso > 95%).
+* Código: `css/intro.css`, `js/intro.js` (menu/autoplay) e `updateIntro` em `js/hero-scroll.js` (zoom/dissolve; ajuste `scroll.introScreens`).
+* **Ímã leve nos textos:** o scroll é livre e o vídeo contínuo; só quando a pessoa PARA dentro de um texto a página assenta suavemente no centro dele (`scroll.snapZone` em `js/hero-scroll.js`). Parar entre textos não mexe e qualquer novo gesto cancela.
+* **Fluidez do vídeo:** ao parar de rolar (ou rolar devagar), o vídeo do sapato continua tocando em câmera lenta, sem seek, até `video.driftMaxSeconds` à frente do scroll; rolando rápido ou subindo, volta ao modo scrub. Ajuste `driftRate` e `driftMaxSeconds` em `js/hero-scroll.js`.
+* **Revelações imersivas:** abaixo do hero, títulos, cards, cases e blocos sobem com fade + leve blur em sequência (`css/reveal.css`, `js/reveal.js`; lista de elementos em `GROUPS`). Os números dos cases contam até o valor e as barras do gráfico crescem. Respeita `prefers-reduced-motion` e, se o usuário pular direto para uma seção, o que ficou acima aparece sem animação.
+* Testes locais: use um servidor com suporte a HTTP Range (ex.: `npx http-server`), senão o scrub do vídeo não funciona.
 
 ---
 
