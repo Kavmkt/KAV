@@ -39,30 +39,40 @@ class KavFrameSeq {
     return `${this.base}/${m.prefix}${String(i).padStart(m.pad, '0')}.${m.ext}`;
   }
 
-  // Ordem "grossa → fina": primeiro 1 a cada 8, depois 1 a cada 4, 2 e o restante.
-  // Assim a jornada inteira já fica navegável rápido e o resto vai refinando.
+  // Dois tempos, para não gastar dados do celular à toa:
+  //  1) após a página carregar: só 1 quadro a cada 8 (~1 MB), o suficiente para a jornada funcionar;
+  //  2) quando a pessoa começa a rolar/tocar (ou após 8 s): o restante, que refina a fluidez.
   load() {
     const n = this.m.count;
-    const order = [];
-    const seen = new Set();
-    [8, 4, 2, 1].forEach((step) => {
-      for (let i = 0; i < n; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); }
+    const coarse = [], fine = [], seen = new Set();
+    [8, 4, 2, 1].forEach((step, k) => {
+      for (let i = 0; i < n; i += step) if (!seen.has(i)) { seen.add(i); (k === 0 ? coarse : fine).push(i); }
     });
-    let next = 0;
-    const worker = async () => {
-      while (next < order.length) {
-        const i = order[next++];
-        await new Promise((resolve) => {
-          const img = new Image();
-          img.decoding = 'async';
-          img.onload = () => { this.imgs[i] = img; if (this.firstLoaded === null) this.firstLoaded = i; this.lastKey = ''; resolve(); };
-          img.onerror = resolve;
-          img.src = this.url(i);
-        });
-      }
+    const loadList = (order, conc) => {
+      let next = 0;
+      const worker = async () => {
+        while (next < order.length) {
+          const i = order[next++];
+          await new Promise((resolve) => {
+            const img = new Image();
+            img.decoding = 'async';
+            img.fetchPriority = 'low';
+            img.onload = () => { this.imgs[i] = img; if (this.firstLoaded === null) this.firstLoaded = i; this.lastKey = ''; resolve(); };
+            img.onerror = resolve;
+            img.src = this.url(i);
+          });
+        }
+      };
+      for (let k = 0; k < conc; k++) worker();
     };
-    const conc = 6;
-    for (let k = 0; k < conc; k++) worker();
+    const startFine = () => { if (this._fineStarted) return; this._fineStarted = true; loadList(fine, 5); };
+    const startCoarse = () => {
+      loadList(coarse, 4);
+      ['scroll', 'touchstart', 'wheel', 'keydown', 'pointerdown'].forEach((e) => addEventListener(e, startFine, { once: true, passive: true }));
+      setTimeout(startFine, 8000);
+    };
+    const afterLoad = () => ('requestIdleCallback' in window) ? requestIdleCallback(startCoarse, { timeout: 2500 }) : setTimeout(startCoarse, 1500);
+    if (document.readyState === 'complete') afterLoad(); else addEventListener('load', afterLoad, { once: true });
   }
 
   nearest(i) {
