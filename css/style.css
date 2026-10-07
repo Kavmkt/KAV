@@ -2624,3 +2624,16 @@ h1, h2, h3, h4 {
 @media (max-width: 768px) {
   .top-bar { display: none; }
 }
+
+/* Mensagem de erro do formulário (envio falhou) */
+.form-error {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  color: #FECACA;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.form-error a { color: #fff; text-decoration: underline; }

@@ -15,6 +15,12 @@
 // [CONFIRMAR: Número de WhatsApp oficial da Kav com DDI e DDD, ex: 5511999999999]
 const WHATSAPP_NUMBER = '5511999999999';
 
+// E-mail que recebe os leads do formulário (via FormSubmit, serviço gratuito para sites estáticos).
+// IMPORTANTE: na primeira vez, o FormSubmit envia um e-mail de ativação para este endereço;
+// é preciso clicar em "Activate" nele para os leads passarem a chegar.
+const LEAD_EMAIL = 'somoskav@gmail.com';
+const LEAD_ENDPOINT = `https://formsubmit.co/ajax/${LEAD_EMAIL}`;
+
 // Mensagens padrão estruturadas
 const WHATSAPP_MSGS = {
   default: encodeURIComponent('Oi! Vim pelo site da Kav e quero conversar sobre o meu negócio.'),
@@ -241,46 +247,83 @@ document.addEventListener('DOMContentLoaded', () => {
   const directWhatsAppBtn = document.getElementById('directWhatsAppBtn');
 
   if (leadForm) {
-    leadForm.addEventListener('submit', (e) => {
+    const submitBtn = leadForm.querySelector('button[type="submit"]');
+    const formError = document.getElementById('formError');
+    const honey = document.getElementById('leadHoney');
+    const val = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+    leadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (formError) formError.style.display = 'none';
 
-      const name = document.getElementById('leadName') ? document.getElementById('leadName').value.trim() : '';
-      const whatsapp = document.getElementById('leadWhatsapp') ? document.getElementById('leadWhatsapp').value.trim() : '';
-      const company = document.getElementById('leadCompany') ? document.getElementById('leadCompany').value.trim() : '';
-      const email = document.getElementById('leadEmail') ? document.getElementById('leadEmail').value.trim() : '';
-      const businessType = document.getElementById('leadBusinessType') ? document.getElementById('leadBusinessType').value : '';
-      const revenue = document.getElementById('leadRevenue') ? document.getElementById('leadRevenue').value : '';
-      const challenge = document.getElementById('leadChallenge') ? document.getElementById('leadChallenge').value.trim() : '';
-      const aiInterest = document.getElementById('leadAiInterest') ? document.getElementById('leadAiInterest').checked : false;
+      const formData = {
+        name: val('leadName'),
+        whatsapp: val('leadWhatsapp'),
+        company: val('leadCompany'),
+        email: val('leadEmail'),
+        businessType: val('leadBusinessType'),
+        revenue: val('leadRevenue'),
+        challenge: val('leadChallenge'),
+        aiInterest: !!(document.getElementById('leadAiInterest') && document.getElementById('leadAiInterest').checked)
+      };
 
-      if (!name || !whatsapp) {
+      if (!formData.name || !formData.whatsapp) {
         alert('Por favor, preencha os campos obrigatórios (Seu Nome e WhatsApp).');
         return;
       }
 
-      const formData = {
-        name,
-        whatsapp,
-        company,
-        email,
-        businessType,
-        revenue,
-        challenge,
-        aiInterest
+      // Link de WhatsApp já preenchido (botão da tela de sucesso e plano B se o envio falhar)
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSGS.leadForm(formData)}`;
+      if (directWhatsAppBtn) directWhatsAppBtn.href = whatsappUrl;
+
+      // Anti-spam: robôs preenchem o campo escondido; para pessoas ele fica vazio
+      if (honey && honey.value) return;
+
+      const originalLabel = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Enviando…'; }
+
+      const payload = {
+        _subject: `Novo lead pelo site: ${formData.name}${formData.company ? ' (' + formData.company + ')' : ''}`,
+        _template: 'table',
+        _captcha: 'false',
+        Nome: formData.name,
+        WhatsApp: formData.whatsapp,
+        Negócio: formData.company || 'Não informado',
+        'Tipo de negócio': formData.businessType || 'Não informado',
+        'Faturamento mensal': formData.revenue || 'Não informado',
+        'Maior desafio': formData.challenge || 'Não informado',
+        'Interesse em atendimento no WhatsApp': formData.aiInterest ? 'Sim' : 'Não',
+        'Origem': 'Site agenciakav.com.br · formulário de análise gratuita'
       };
+      if (formData.email) payload.email = formData.email; // vira o "responder para" do e-mail
 
-      const customMsg = WHATSAPP_MSGS.leadForm(formData);
-      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${customMsg}`;
+      try {
+        const res = await fetch(LEAD_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || out.success === 'false' || out.success === false) throw new Error('envio falhou');
 
-      if (directWhatsAppBtn) {
-        directWhatsAppBtn.href = whatsappUrl;
-      }
+        // Medição de campanhas (Google Tag Manager / Meta Pixel quando instalados)
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'generate_lead', form: 'analise_gratuita', business_type: formData.businessType });
+        if (typeof window.fbq === 'function') window.fbq('track', 'Lead');
 
-      leadForm.style.display = 'none';
-      if (formSuccess) {
-        formSuccess.style.display = 'block';
-        formSuccess.classList.add('active');
-        formSuccess.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        leadForm.style.display = 'none';
+        if (formSuccess) {
+          formSuccess.style.display = 'block';
+          formSuccess.classList.add('active');
+          formSuccess.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      } catch (err) {
+        // Não perde o lead: avisa e oferece o WhatsApp já preenchido
+        if (formError) {
+          formError.innerHTML = 'Não conseguimos enviar agora. Tente de novo ou <a href="' + whatsappUrl + '" target="_blank" rel="noopener noreferrer"><strong>fale com a gente pelo WhatsApp</strong></a>.';
+          formError.style.display = 'block';
+        }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalLabel; }
       }
     });
   }

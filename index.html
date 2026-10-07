@@ -950,8 +950,12 @@
               </label>
             </div>
 
+            <!-- Anti-spam (campo escondido; só robôs preenchem) -->
+            <input type="text" id="leadHoney" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
+
             <!-- CTA Secundária do Formulário -->
             <button type="submit" class="btn btn-primary btn-block btn-glow">Pedir análise gratuita</button>
+            <p class="form-error" id="formError" role="alert" style="display:none;"></p>
             <p class="form-disclaimer">Sem pegadinhas, sem contratos forçados. Analisamos seu caso e te chamamos com ideias práticas.</p>
           </form>
 
