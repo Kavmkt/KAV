@@ -17,9 +17,6 @@ const HERO_SCROLL_CONFIG = {
     legacySrc: 'assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4',
     posterSvg: 'assets/video/hero-poster.svg',
     fallbackDuration: 24,
-    // Fluidez: ao parar de rolar, o vídeo segue tocando devagar (sem seek) até esta folga à frente do scroll
-    driftRate: 0.5,        // velocidade do "seguir tocando" (1 = normal)
-    driftMaxSeconds: 2.5,  // quanto o vídeo pode ficar à frente da posição do scroll (s)
     introLeadSeconds: 3,   // trecho do vídeo (s) tocado durante a dissolução do planeta
     lerpFactor: 0.10,      // suavidade no desktop
     mobileLerpFactor: 0.16 // agilidade no mobile
@@ -31,10 +28,14 @@ const HERO_SCROLL_CONFIG = {
     // O sapato já começa a pisar enquanto o planeta dissolve: a partir desta fração da abertura,
     // os primeiros `introLeadSeconds` do vídeo passam a andar junto com a dissolução
     heroStartAt: 0.3,
-    // Ímã leve: ao parar a até esta distância (fração do progresso) do centro de um texto, assenta nele
-    snapZone: 0.045,
-    desktopHeight: '620vh',
-    mobileHeight: '500vh'
+    // Resistência nos textos: no miolo de cada texto (centro ± holdHalf, em fração do progresso) o
+    // vídeo anda `holdFactor` vezes mais devagar em relação ao scroll. O visitante sente a "trava",
+    // precisa rolar mais para sair e consegue ler, mas tudo segue acoplado ao scroll (sem automático).
+    holdFactor: 3,
+    holdHalf: 0.025,
+    // Telas de scroll (em alturas de janela) para percorrer o hero sem resistência
+    heroScreensDesktop: 4.2,
+    heroScreensMobile: 3.0
   },
 
   acts: [
@@ -173,11 +174,7 @@ class KavHeroScrollEngine {
     this.pendingSeekTime = null;
     this.lastRenderedTime = -1;
     this.lastScrolled = 0;
-    this.scrollDir = 1;     // 1 = descendo, -1 = subindo
-    this.isDrifting = false;
-    this.prevTargetTime = 0;
-    this.prevTargetAt = 0;
-    this.targetVelocity = 0; // s de vídeo por s real, suavizado
+    this.progressMap = null;
     this.seekWatchdog = null;
 
     this.init();
@@ -208,11 +205,47 @@ class KavHeroScrollEngine {
     }
   }
 
+  // Mapa scroll -> progresso do vídeo com "resistência" no miolo de cada texto
+  buildProgressMap() {
+    const sc = this.config.scroll;
+    const holds = this.config.steps
+      .map((st) => {
+        const c = Math.min(0.985, st.minProgress + (st.maxProgress - st.minProgress) * 0.5);
+        return [Math.max(0, c - sc.holdHalf), Math.min(1, c + sc.holdHalf)];
+      })
+      .sort((a, b) => a[0] - b[0]);
+    const segs = [];
+    let pos = 0;
+    holds.forEach(([a, b]) => {
+      if (a > pos) segs.push({ a: pos, b: a, f: 1 });
+      segs.push({ a, b, f: sc.holdFactor });
+      pos = b;
+    });
+    if (pos < 1) segs.push({ a: pos, b: 1, f: 1 });
+    const W = segs.reduce((t, g) => t + (g.b - g.a) * g.f, 0);
+    this.progressMap = { segs, W };
+  }
+
+  // u (0..1) = fração do scroll do hero  ->  progresso do vídeo (0..1)
+  progressFromScroll(u) {
+    const { segs, W } = this.progressMap;
+    let acc = 0;
+    for (const g of segs) {
+      const frac = ((g.b - g.a) * g.f) / W;
+      if (u <= acc + frac) return g.a + ((u - acc) / frac) * (g.b - g.a);
+      acc += frac;
+    }
+    return 1;
+  }
+
   applySectionHeight() {
-    const isMobile = window.innerWidth <= 768;
-    this.section.style.height = isMobile 
-      ? this.config.scroll.mobileHeight 
-      : this.config.scroll.desktopHeight;
+    if (!this.progressMap) this.buildProgressMap();
+    const sc = this.config.scroll;
+    const vh = window.innerHeight;
+    const screens = window.innerWidth <= 768 ? sc.heroScreensMobile : sc.heroScreensDesktop;
+    const heroDistance = screens * vh * this.progressMap.W;
+    // altura = janela + abertura (planeta) + hero com resistência
+    this.section.style.height = `${Math.round(vh * (1 + sc.introScreens) + heroDistance)}px`;
   }
 
   setupVideoEvents() {
@@ -351,21 +384,6 @@ class KavHeroScrollEngine {
       }
     }, { passive: true });
 
-    this.actButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const actId = parseInt(btn.dataset.act, 10);
-        const actConfig = this.config.acts.find(a => a.id === actId);
-        if (actConfig) {
-          this.scrollToProgress(actConfig.targetProgress);
-        }
-      });
-    });
-
-    if (this.scrollHint) {
-      this.scrollHint.addEventListener('click', () => {
-        this.scrollToProgress(0.14);
-      });
-    }
   }
 
   getIntroDistance() {
@@ -391,94 +409,10 @@ class KavHeroScrollEngine {
     if (heroDistance <= 0) return;
 
     const scrolled = -rect.top;
-    if (scrolled !== this.lastScrolled) {
-      this.scrollDir = scrolled > this.lastScrolled ? 1 : -1;
-      this.lastScrolled = scrolled;
-    }
     this.introProgress = introDistance > 0 ? Math.max(0, Math.min(1, scrolled / introDistance)) : 1;
-    this.rawProgress = Math.max(0, Math.min(1, (scrolled - heroStart) / heroDistance));
-
-    this.scheduleSettle(rect, scrolled, heroStart, heroDistance);
-  }
-
-  /**
-   * "Ímã" leve nos textos: o vídeo continua fluido e contínuo com a rolagem, sem nada
-   * prendendo o scroll. Só quando a pessoa PARA de rolar dentro de um texto, a página
-   * assenta suavemente no centro dele (para dar tempo de ler). Qualquer novo gesto cancela.
-   */
-  scheduleSettle(rect, scrolled, heroStart, heroDistance) {
-    if (this.settleAnim) return; // nosso próprio assentamento em andamento
-    clearTimeout(this.settleTimer);
-    this.settleTimer = setTimeout(() => this.softSnap(rect, scrolled, heroStart, heroDistance), 160);
-  }
-
-  softSnap() {
-    if (this.isReducedMotion || this.settleAnim) return;
-    const rect = this.section.getBoundingClientRect();
-    const vh = window.innerHeight;
-    // Só dentro do hero (não na abertura nem depois do último texto)
-    if (rect.top > 0 || rect.bottom < vh * 0.6) return;
-    const heroStart = this.getHeroStart();
-    const heroDistance = (this.section.offsetHeight - vh) - heroStart;
-    if (heroDistance <= 0) return;
-    const scrolled = -rect.top;
-    const p = (scrolled - heroStart) / heroDistance;
-    if (p <= 0.04 || p >= 1) return;
-
-    const zone = this.config.scroll.snapZone || 0.045;
-    let best = null;
-    this.config.steps.forEach((st) => {
-      const center = Math.min(0.985, st.minProgress + (st.maxProgress - st.minProgress) * 0.5);
-      const d = Math.abs(p - center);
-      if (d <= zone && (!best || d < best.d)) best = { center, d };
-    });
-    if (!best || best.d < 0.004) return; // fora de qualquer texto, ou já centralizado: não mexe
-
-    const target = this.sectionTop() + heroStart + best.center * heroDistance;
-    this.runSettle(target);
-  }
-
-  sectionTop() { return this.section.getBoundingClientRect().top + window.scrollY; }
-
-  runSettle(target) {
-    const from = window.scrollY;
-    if (Math.abs(target - from) < 3) return;
-    const html = document.documentElement;
-    const prev = html.style.scrollBehavior;
-    html.style.scrollBehavior = 'auto';
-    const ms = 520;
-    const t0 = performance.now();
-    const ease = (t) => 1 - Math.pow(1 - t, 3); // desacelera suave
-    this.settleAnim = true;
-    const stop = () => {
-      this.settleAnim = false;
-      html.style.scrollBehavior = prev;
-      ['wheel', 'touchstart', 'mousedown', 'keydown'].forEach((e) => window.removeEventListener(e, cancel, true));
-    };
-    const cancel = () => { this.settleCancel = true; };
-    ['wheel', 'touchstart', 'mousedown', 'keydown'].forEach((e) => window.addEventListener(e, cancel, { capture: true, passive: true }));
-    this.settleCancel = false;
-    const step = (now) => {
-      if (this.settleCancel) { stop(); return; }
-      const t = Math.min(1, (now - t0) / ms);
-      window.scrollTo(0, from + (target - from) * ease(t));
-      if (t < 1) requestAnimationFrame(step); else stop();
-    };
-    requestAnimationFrame(step);
-  }
-
-  scrollToProgress(targetProg) {
-    const sectionTop = this.section.offsetTop;
-    const sectionHeight = this.section.offsetHeight;
-    const windowHeight = window.innerHeight;
-    const heroStart = this.getHeroStart();
-    const scrollableDistance = sectionHeight - windowHeight - heroStart;
-
-    const targetScrollY = sectionTop + heroStart + (targetProg * scrollableDistance);
-    window.scrollTo({
-      top: targetScrollY,
-      behavior: 'smooth'
-    });
+    const u = Math.max(0, Math.min(1, (scrolled - heroStart) / heroDistance));
+    // Scroll -> progresso com resistência no miolo dos textos
+    this.rawProgress = this.progressFromScroll(u);
   }
 
   startRenderLoop() {
@@ -527,50 +461,10 @@ class KavHeroScrollEngine {
 
     if (!duration || duration <= 0) return;
 
-    // Trecho inicial (lead) acompanha a dissolução do planeta; o restante acompanha o scroll do hero
+    // Trecho inicial (lead) acompanha a dissolução do planeta; o restante acompanha o scroll do hero.
+    // O vídeo é 100% controlado pelo scroll: nada toca sozinho.
     const lead = Math.min(this.config.video.introLeadSeconds || 0, duration * 0.3);
     const targetTime = Math.max(0, Math.min(duration, this.smoothIntro * lead + progress * (duration - lead)));
-
-    const cfg = this.config.video;
-    const current = this.video.currentTime;
-
-    // Velocidade com que o scroll empurra o vídeo (para o modo "tocar" nunca ficar atrás da rolagem)
-    const nowMs = performance.now();
-    const dtMs = nowMs - this.prevTargetAt;
-    if (dtMs >= 16) {
-      const inst = this.prevTargetAt ? Math.max(0, (targetTime - this.prevTargetTime) / (dtMs / 1000)) : 0;
-      this.targetVelocity += (inst - this.targetVelocity) * 0.25;
-      this.prevTargetTime = targetTime;
-      this.prevTargetAt = nowMs;
-    }
-    const canDrift = !this.isReducedMotion && this.video.readyState >= 3;
-
-    // Modo "tocar": descendo e com o vídeo já na posição do scroll (ou à frente).
-    // Em vez de pular quadro a quadro (seek, que trava), deixa o decodificador tocar devagar,
-    // com uma folga máxima à frente do scroll para o vídeo nunca ficar muito fora de contexto.
-    if (canDrift && this.scrollDir >= 0 && current >= targetTime - 0.06) {
-      const cap = Math.min(duration - 0.05, targetTime + cfg.driftMaxSeconds);
-      if (current < cap - 0.03) {
-        const rate = Math.max(cfg.driftRate, Math.min(2, this.targetVelocity * 1.15));
-        if (Math.abs(this.video.playbackRate - rate) > 0.05) this.video.playbackRate = rate;
-        if (!this.isDrifting || this.video.paused) {
-          const pl = this.video.play();
-          if (pl && pl.catch) pl.catch(() => { this.isDrifting = false; });
-          this.isDrifting = true;
-        }
-      } else if (this.isDrifting) {
-        this.video.pause();
-        this.isDrifting = false;
-      }
-      this.lastRenderedTime = current;
-      return;
-    }
-
-    // Modo "scrub": o scroll está à frente do vídeo (ou subindo) -> busca a posição exata
-    if (this.isDrifting) {
-      this.video.pause();
-      this.isDrifting = false;
-    }
 
     // Apenas busca se houver mudança perceptível de tempo (> 0.02s)
     if (Math.abs(targetTime - this.lastRenderedTime) > 0.02) {
