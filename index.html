@@ -142,21 +142,19 @@
       
       <!-- Mídia Principal: Vídeo MP4 Scroll-Driven com Fallback e Preload Seguro -->
       <div class="hero-media-wrapper">
+        <!-- Desktop: o MP4 é carregado pelo JS (data-src). Celular: sequência de quadros no canvas abaixo -->
         <video 
           class="hero-scroll-video" 
           id="heroScrollVideo"
-          src="assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4"
+          data-src="assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4"
           poster="assets/video/hero-poster.svg"
           muted 
           playsinline 
           webkit-playsinline 
-          preload="auto" 
+          preload="none" 
           disablepictureinpicture 
-          aria-hidden="true">
-          <source src="assets/video/hero-desktop.mp4" type="video/mp4" media="(min-width: 769px)">
-          <source src="assets/video/hero-mobile.mp4" type="video/mp4" media="(max-width: 768px)">
-          <source src="assets/video/Untitled_Scene_10-03_00_51_11_20261002215523.mp4" type="video/mp4">
-        </video>
+          aria-hidden="true"></video>
+        <canvas class="hero-frames-canvas" id="heroFramesCanvas" aria-hidden="true" style="display:none"></canvas>
         <!-- Canvas Fallback Procedural de Alta Fidelidade -->
         <canvas class="hero-fallback-canvas" aria-hidden="true"></canvas>
       </div>
@@ -732,28 +730,28 @@
           <tbody>
             <tr>
               <td><strong>O que você recebe</strong></td>
-              <td>Posts bonitos, mas pouca venda</td>
-              <td class="highlight-cell"><strong>Vendas, contatos e clientes de verdade</strong></td>
+              <td data-label="✗ Antes">Posts bonitos, mas pouca venda</td>
+              <td class="highlight-cell" data-label="✓ Com a Kav"><strong>Vendas, contatos e clientes de verdade</strong></td>
             </tr>
             <tr>
               <td><strong>Como decidimos</strong></td>
-              <td>Opinião e palpite</td>
-              <td class="highlight-cell"><strong>Testes e números do seu negócio</strong></td>
+              <td data-label="✗ Antes">Opinião e palpite</td>
+              <td class="highlight-cell" data-label="✓ Com a Kav"><strong>Testes e números do seu negócio</strong></td>
             </tr>
             <tr>
               <td><strong>Relatório</strong></td>
-              <td>Relatório que ninguém entende</td>
-              <td class="highlight-cell"><strong>Quanto gastou, quantos clientes e quanto vendeu</strong></td>
+              <td data-label="✗ Antes">Relatório que ninguém entende</td>
+              <td class="highlight-cell" data-label="✓ Com a Kav"><strong>Quanto gastou, quantos clientes e quanto vendeu</strong></td>
             </tr>
             <tr>
               <td><strong>Atendimento</strong></td>
-              <td>Cliente espera horas por resposta</td>
-              <td class="highlight-cell"><strong>Resposta em segundos no WhatsApp</strong></td>
+              <td data-label="✗ Antes">Cliente espera horas por resposta</td>
+              <td class="highlight-cell" data-label="✓ Com a Kav"><strong>Resposta em segundos no WhatsApp</strong></td>
             </tr>
             <tr>
               <td><strong>Conversa com a agência</strong></td>
-              <td>Você fala com um intermediário</td>
-              <td class="highlight-cell"><strong>Você fala direto com o dono</strong></td>
+              <td data-label="✗ Antes">Você fala com um intermediário</td>
+              <td class="highlight-cell" data-label="✓ Com a Kav"><strong>Você fala direto com o dono</strong></td>
             </tr>
           </tbody>
         </table>
@@ -1039,6 +1037,7 @@
 
 
   <!-- Scripts: Hero Scroll-Driven Engine & Main Orchestration -->
+  <script src="js/hero-frames.js"></script>
   <script src="js/hero-scroll.js"></script>
   <script src="js/main.js"></script>
   <script src="js/intro.js"></script>

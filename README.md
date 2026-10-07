@@ -27,6 +27,9 @@ O início da home apresenta um plano contínuo guiado pela rolagem do visitante 
 * Código: `css/intro.css`, `js/intro.js` (menu/autoplay) e `updateIntro` em `js/hero-scroll.js` (zoom/dissolve; ajuste `scroll.introScreens`).
 * **Resistência nos textos (sem automático):** o vídeo é 100% controlado pelo scroll; nada toca sozinho nem a página se move sem o comando do visitante. No miolo de cada texto o vídeo anda `scroll.holdFactor` vezes mais devagar em relação ao scroll (`holdHalf` define a largura), então o visitante sente a "trava", precisa rolar mais para sair e consegue ler.
 * **Revelações imersivas:** abaixo do hero, títulos, cards, cases e blocos sobem com fade + leve blur em sequência (`css/reveal.css`, `js/reveal.js`; lista de elementos em `GROUPS`). Os números dos cases contam até o valor e as barras do gráfico crescem. Respeita `prefers-reduced-motion` e, se o usuário pular direto para uma seção, o que ficou acima aparece sem animação.
+* **Celular = sequência de quadros:** em telas ≤768px o hero não baixa o MP4 de 24 MB; usa ~280 quadros WebP leves (~7 MB, recortados no miolo do vídeo) desenhados num `<canvas>` (`js/hero-frames.js`, `assets/frames/`). Trocar de quadro é instantâneo, então o dedo não trava; a zona de leitura dos textos é maior no celular (`holdFactorMobile`/`holdHalfMobile`). Se os quadros não carregarem, cai para o vídeo.
+* **Trocou o vídeo?** Regere os quadros do celular: `node tools/frame-receiver.mjs`, `npx http-server -p 8766` e abra `http://localhost:8766/tools/extract-frames.html` (deixe a aba visível até aparecer "PRONTO").
+* **Comparativo no celular:** a tabela vira cartões "Antes vs. Com a Kav" (sem rolagem lateral).
 * Testes locais: use um servidor com suporte a HTTP Range (ex.: `npx http-server`), senão o scrub do vídeo não funciona.
 
 ---

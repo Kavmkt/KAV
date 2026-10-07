@@ -33,9 +33,12 @@ const HERO_SCROLL_CONFIG = {
     // precisa rolar mais para sair e consegue ler, mas tudo segue acoplado ao scroll (sem automático).
     holdFactor: 3,
     holdHalf: 0.025,
+    // Celular: o dedo "voa" mais que a roda do mouse, então a zona de leitura é maior e mais pesada
+    holdFactorMobile: 4,
+    holdHalfMobile: 0.03,
     // Telas de scroll (em alturas de janela) para percorrer o hero sem resistência
     heroScreensDesktop: 4.2,
-    heroScreensMobile: 3.0
+    heroScreensMobile: 4.0
   },
 
   acts: [
@@ -143,6 +146,10 @@ class KavHeroScrollEngine {
 
     // Elementos DOM
     this.video = document.getElementById('heroScrollVideo');
+    this.framesCanvas = document.getElementById('heroFramesCanvas');
+    this.frameSeq = null;
+    // Celular: sequência de quadros no canvas (sem seek de MP4, que trava no telefone)
+    this.wantFrames = window.innerWidth <= 768 && !!this.framesCanvas && typeof KavFrameSeq === 'function';
     this.canvas = this.section.querySelector('.hero-fallback-canvas');
     this.progressFill = this.section.querySelector('.progress-fill');
     this.progressPercent = this.section.querySelector('.progress-percent-val');
@@ -189,9 +196,28 @@ class KavHeroScrollEngine {
   init() {
     this.checkReducedMotion();
     this.applySectionHeight();
-    this.setupVideoEvents();
+    if (this.wantFrames) {
+      this.setupFrames();      // se falhar, cai para o vídeo normalmente
+    } else {
+      this.setupVideoEvents();
+    }
     this.setupEventListeners();
     this.startRenderLoop();
+  }
+
+  setupFrames() {
+    const seq = new KavFrameSeq(this.framesCanvas, 'assets/frames');
+    seq.init().then((m) => {
+      this.frameSeq = seq;
+      this.videoDuration = m.duration;
+      this.framesCanvas.style.display = 'block';
+      if (this.video) this.video.style.display = 'none';
+      this.log('Modo quadros ativo:', m.count, 'quadros');
+    }).catch(() => {
+      this.log('Quadros indisponíveis; usando vídeo');
+      this.wantFrames = false;
+      this.setupVideoEvents();
+    });
   }
 
   checkReducedMotion() {
@@ -208,17 +234,21 @@ class KavHeroScrollEngine {
   // Mapa scroll -> progresso do vídeo com "resistência" no miolo de cada texto
   buildProgressMap() {
     const sc = this.config.scroll;
+    const mobile = window.innerWidth <= 768;
+    this.mapMobile = mobile;
+    const half = mobile ? sc.holdHalfMobile : sc.holdHalf;
+    const factor = mobile ? sc.holdFactorMobile : sc.holdFactor;
     const holds = this.config.steps
       .map((st) => {
         const c = Math.min(0.985, st.minProgress + (st.maxProgress - st.minProgress) * 0.5);
-        return [Math.max(0, c - sc.holdHalf), Math.min(1, c + sc.holdHalf)];
+        return [Math.max(0, c - half), Math.min(1, c + half)];
       })
       .sort((a, b) => a[0] - b[0]);
     const segs = [];
     let pos = 0;
     holds.forEach(([a, b]) => {
       if (a > pos) segs.push({ a: pos, b: a, f: 1 });
-      segs.push({ a, b, f: sc.holdFactor });
+      segs.push({ a, b, f: factor });
       pos = b;
     });
     if (pos < 1) segs.push({ a: pos, b: 1, f: 1 });
@@ -239,7 +269,7 @@ class KavHeroScrollEngine {
   }
 
   applySectionHeight() {
-    if (!this.progressMap) this.buildProgressMap();
+    if (!this.progressMap || this.mapMobile !== (window.innerWidth <= 768)) this.buildProgressMap();
     const sc = this.config.scroll;
     const vh = window.innerHeight;
     const screens = window.innerWidth <= 768 ? sc.heroScreensMobile : sc.heroScreensDesktop;
@@ -260,9 +290,10 @@ class KavHeroScrollEngine {
     this.video.setAttribute('muted', '');
     this.video.disablePictureInPicture = true;
 
-    // Se o elemento não tiver uma fonte válida ativa, carrega o arquivo principal confirmado (HTTP 200)
+    // O MP4 só é baixado quando necessário (no celular os quadros o substituem)
     if (!this.video.src || this.video.src === '') {
-      this.video.src = this.config.video.legacySrc;
+      this.video.preload = 'auto';
+      this.video.src = this.video.dataset.src || this.config.video.legacySrc;
     }
 
     // Libera a fila de seek quando o frame foi decodificado
@@ -377,7 +408,16 @@ class KavHeroScrollEngine {
 
   setupEventListeners() {
     window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
+    this.lastW = window.innerWidth;
+    this.lastH = window.innerHeight;
     window.addEventListener('resize', () => {
+      // No celular a barra do navegador esconde/mostra durante o scroll e muda só a altura (~50-100px):
+      // recalcular a seção nesse momento causa tranco, então só reage a mudanças reais de tamanho.
+      const dw = Math.abs(window.innerWidth - this.lastW);
+      const dh = Math.abs(window.innerHeight - this.lastH);
+      if (dw < 2 && dh < 150) return;
+      this.lastW = window.innerWidth;
+      this.lastH = window.innerHeight;
       this.applySectionHeight();
       if (this.useCanvasFallback && this.resizeCanvas) {
         this.resizeCanvas();
@@ -433,7 +473,7 @@ class KavHeroScrollEngine {
         this.smoothIntro += (leadTarget - this.smoothIntro) * factor;
 
         // Atualização de vídeo ou canvas
-        if (!this.useCanvasFallback && this.video) {
+        if (!this.useCanvasFallback && (this.video || this.frameSeq)) {
           this.updateVideoFrame(this.smoothProgress);
         } else if (this.useCanvasFallback && this.drawCanvasFrame) {
           this.drawCanvasFrame(this.smoothProgress);
@@ -453,6 +493,14 @@ class KavHeroScrollEngine {
    * MOTOR DE SCRUB PRECISO E FLUIDO (Zero Congelamento)
    */
   updateVideoFrame(progress) {
+    // Celular: desenha o quadro correspondente (instantâneo, sem seek)
+    if (this.frameSeq) {
+      const dur = this.frameSeq.duration;
+      const lead = Math.min(this.config.video.introLeadSeconds || 0, dur * 0.3);
+      const t = Math.max(0, Math.min(dur, this.smoothIntro * lead + progress * (dur - lead)));
+      this.frameSeq.draw(t);
+      return;
+    }
     if (!this.video) return;
 
     const duration = (this.video.duration && !isNaN(this.video.duration) && this.video.duration > 0)

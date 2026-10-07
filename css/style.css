@@ -2531,3 +2531,96 @@ h1, h2, h3, h4 {
   .fit-featured { border-radius: 28px; }
   .fit-cta { align-self: stretch; justify-content: center; }
 }
+
+/* ==========================================================================
+   COMPARATIVO NO CELULAR: a tabela vira cartões "Antes vs. Com a Kav"
+   (sem rolagem lateral — ninguém precisa descobrir que dá para deslizar)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .table-scroll-hint { display: none !important; }
+
+  .comparison-table-wrapper {
+    overflow: visible;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .comparison-table,
+  .comparison-table tbody { display: block; min-width: 0; width: 100%; }
+  .comparison-table thead { display: none; }
+
+  .comparison-table tbody { display: flex; flex-direction: column; gap: 16px; }
+
+  .comparison-table tr {
+    display: block;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 22px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+  }
+
+  .comparison-table td {
+    display: block;
+    border: 0;
+    padding: 14px 20px 16px;
+  }
+
+  /* Título do cartão (o tema da comparação) */
+  .comparison-table td:first-child {
+    padding: 13px 20px;
+    background: rgba(0, 0, 0, 0.35);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .comparison-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    width: fit-content;
+    margin-bottom: 8px;
+    padding: 3px 11px;
+    border-radius: 100px;
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .comparison-table td:nth-child(2) {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
+  .comparison-table td:nth-child(2)::before {
+    background: rgba(148, 163, 184, 0.16);
+    color: var(--text-muted);
+  }
+
+  .comparison-table td:nth-child(3) {
+    font-size: 1.08rem;
+    line-height: 1.45;
+    background: linear-gradient(135deg, rgba(255, 106, 26, 0.16), rgba(255, 154, 60, 0.06));
+    border-top: 1px solid rgba(255, 106, 26, 0.28);
+  }
+
+  .comparison-table td:nth-child(3)::before {
+    background: rgba(255, 106, 26, 0.22);
+    color: var(--accent-orange-light);
+  }
+}
+
+/* ==========================================================================
+   TOPO FIXO NO CELULAR: sem a faixa de aviso (ocupava ~80px em 2 linhas);
+   o botão de WhatsApp do próprio menu já é o chamado principal
+   ========================================================================== */
+@media (max-width: 768px) {
+  .top-bar { display: none; }
+}
