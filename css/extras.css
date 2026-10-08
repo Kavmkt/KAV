@@ -1,0 +1,42 @@
+/* Extras: aviso de cookies, barra fixa de WhatsApp, blog/artigos, faixa de resultados */
+.ex-narrow{max-width:760px}
+.ex-narrow-wide{max-width:900px}
+.ex-article h1{font-size:clamp(1.8rem,4.2vw,2.8rem);line-height:1.15;margin:0 0 12px}
+.ex-article h2{font-size:1.4rem;margin:34px 0 10px}
+.ex-article p,.ex-article li{color:var(--text-secondary);line-height:1.75;font-size:1.04rem}
+.ex-article ul{padding-left:22px;margin:0 0 16px}
+.ex-article a{color:var(--accent-cyan)}
+.ex-article strong{color:var(--text-primary)}
+.ex-meta{font-size:.88rem!important;color:var(--text-muted)!important;margin-bottom:28px!important}
+.ex-cta{margin:44px 0 28px;padding:28px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-color)}
+.ex-cta h2{margin:0 0 8px}
+.ex-cta .btn{margin:10px 10px 0 0}
+.ex-more-title{margin:30px 0 8px}
+.ex-more{list-style:none;padding:0!important}
+.ex-more li{margin:8px 0}
+.ex-post{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;transition:transform .25s,border-color .25s}
+.ex-post:hover{transform:translateY(-4px);border-color:var(--border-glow)}
+.ex-post h2{font-size:1.2rem;margin:0;color:var(--text-primary)}
+.ex-post span{color:var(--accent-orange-light);font-weight:600;font-size:.9rem;margin-top:auto}
+.ex-thanks{padding:110px 0 90px}
+
+/* Faixa de resultados acima do formulário (home) */
+.proof-strip{padding:46px 0 10px;background:var(--kav-navy-deep)}
+.proof-strip .container{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.proof-item{padding:22px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-color)}
+.proof-item strong{display:block;font-family:var(--font-heading);font-size:2rem;color:var(--accent-orange-light);margin-bottom:4px}
+.proof-item span{color:var(--text-secondary);font-size:.95rem;line-height:1.5}
+.proof-title{grid-column:1/-1;margin:0;font-family:var(--font-heading);font-size:1.15rem;color:var(--text-primary)}
+
+/* Barra fixa de WhatsApp (celular) */
+.wa-bar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:80;display:none;align-items:center;justify-content:center;gap:10px;padding:14px 18px;border-radius:99px;background:var(--gradient-green);color:#04121a;font-weight:700;text-decoration:none;box-shadow:0 8px 30px rgba(0,223,137,.35);transform:translateY(140%);transition:transform .35s ease}
+.wa-bar.show{transform:none}
+@media (max-width:768px){.wa-bar{display:flex}body.has-cookie-bar .wa-bar{bottom:calc(150px + env(safe-area-inset-bottom))}}
+
+/* Aviso de cookies */
+.ck-bar{position:fixed;left:12px;right:12px;bottom:12px;z-index:90;max-width:720px;margin:0 auto;padding:16px 18px;border-radius:var(--radius-md);background:rgba(10,22,51,.96);border:1px solid var(--border-color);backdrop-filter:blur(12px);color:var(--text-secondary);font-size:.9rem;line-height:1.5;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.ck-bar a{color:var(--accent-cyan)}
+.ck-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.ck-actions button{cursor:pointer;border-radius:99px;padding:9px 20px;font-weight:600;font-family:inherit;font-size:.9rem;border:1px solid var(--border-color);background:transparent;color:var(--text-primary)}
+.ck-actions .ck-accept{background:var(--gradient-brand);border:0;color:#fff}
+.ck-manage{background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;padding:0}

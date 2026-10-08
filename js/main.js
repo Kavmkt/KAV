@@ -311,6 +311,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.dataLayer.push({ event: 'generate_lead', form: 'analise_gratuita', business_type: formData.businessType });
         if (typeof window.fbq === 'function') window.fbq('track', 'Lead');
 
+        // Página de agradecimento (conta a conversão com precisão); pequeno atraso para os eventos saírem
+        setTimeout(() => { window.location.href = '/obrigado/'; }, 700);
+
         leadForm.style.display = 'none';
         if (formSuccess) {
           formSuccess.style.display = 'block';

@@ -210,6 +210,7 @@ def page(city):
   <noscript><link rel="stylesheet" href="{fonts}"></noscript>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/city.css">
+  <link rel="stylesheet" href="/css/extras.css">
 </head>
 <body class="city-page">
   <header class="cp-header">
@@ -218,6 +219,7 @@ def page(city):
       <nav class="cp-nav" aria-label="Navegação">
         <a href="/#como-funciona">Como funciona</a>
         <a href="/#resultados">Resultados</a>
+        <a href="/blog/">Blog</a>
         <a href="/#analise">Contato</a>
       </nav>
       <a href="{wa(n)}" class="btn btn-whatsapp-primary cp-wa" target="_blank" rel="noopener noreferrer"><span>Falar no WhatsApp</span></a>
@@ -301,11 +303,13 @@ def page(city):
         <a href="/" class="cp-logo" aria-label="Kav"><img src="/assets/img/kav-logo-intro.png" alt="Kav" width="700" height="343"></a>
         <p>Marketing para pequenos e médios negócios. Agência 100% online, atendendo Santana de Parnaíba, Cajamar, Barueri, Osasco e Carapicuíba.</p>
         <p><a href="https://wa.me/{WA}" target="_blank" rel="noopener noreferrer">WhatsApp: (11) 96640-5634</a><br>contato@agenciakav.com.br</p>
+        <p><a href="/politica-de-privacidade/">Política de privacidade</a> · <a href="/blog/">Blog</a> · <a href="#" data-cookie-manage>Gerenciar cookies</a></p>
       </div>
       <div class="footer-links"><h4>Cidades atendidas</h4><ul>{footer_cities}</ul></div>
     </div>
     <div class="container footer-bottom"><p>&copy; 2026 Kav - Marketing para pequenos e médios negócios. Todos os direitos reservados.</p></div>
   </footer>
+  <script src="/js/site-extras.js" defer></script>
 </body>
 </html>
 '''
