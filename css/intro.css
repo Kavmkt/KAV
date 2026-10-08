@@ -73,12 +73,14 @@ html {
   will-change: transform, opacity;
 }
 
-.intro-logo {
+.intro-logo-wrap {
+  position: relative;
   width: clamp(150px, 21vw, 300px);
-  height: auto;
+  margin-top: -2vh;
   filter: drop-shadow(0 6px 36px rgba(111, 211, 255, 0.35));
   animation: introLogoIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+.intro-logo { display: block; width: 100%; height: auto; }
 
 .intro-sub {
   margin-top: clamp(20px, 3.5vh, 34px);
@@ -308,7 +310,7 @@ body.chrome-visible .immersive-toggle {
    ========================================================================== */
 .intro-headline {
   width: min(92vw, 1100px);
-  margin-top: clamp(14px, 3vh, 30px);
+  margin-top: clamp(40px, 10vh, 104px);
   animation: introSubIn 1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -360,4 +362,63 @@ body.chrome-visible .immersive-toggle {
 @media (prefers-reduced-motion: reduce) {
   .hl .trace { animation: none; opacity: 0; }
   .intro-headline { animation: none; }
+}
+
+/* ==========================================================================
+   Logo: traço de luz nas bordas + brilho de superfície + respiração suave
+   ========================================================================== */
+.intro-logo-wrap::before {            /* halo suave que "respira" atrás do logo */
+  content: "";
+  position: absolute;
+  inset: -34%;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(111, 211, 255, 0.26), rgba(111, 211, 255, 0) 70%);
+  animation: logoBreath 4.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* brilho que atravessa a superfície das letras (usa o próprio logo como máscara) */
+.logo-shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask: url(../assets/img/kav-logo-intro.png) center / 100% 100% no-repeat;
+          mask: url(../assets/img/kav-logo-intro.png) center / 100% 100% no-repeat;
+  background: linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.95) 50%, rgba(255,255,255,0) 62%);
+  background-size: 260% 100%;
+  background-position: 160% 0;
+  animation: logoShine 5.6s cubic-bezier(0.55, 0, 0.3, 1) 2.2s infinite;
+}
+
+/* contornos reais do logo (extraídos do próprio PNG) */
+.logo-trace {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(111, 211, 255, 0.95)) drop-shadow(0 0 11px rgba(111, 211, 255, 0.5));
+}
+.logo-trace path { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.lt-base path { stroke: rgba(160, 225, 255, 0.34); stroke-width: 3.2; }
+
+/* entrada: o contorno "se desenha" uma vez e some */
+.lt-draw path { stroke: #fff; stroke-width: 7; stroke-dasharray: 100; stroke-dashoffset: 100; animation: logoDraw 1.7s cubic-bezier(0.5, 0, 0.2, 1) 0.15s both; }
+
+/* loop: um traço branco e outro laranja em sentidos opostos, rápidos, com pausa */
+.lt-a path { stroke: #fff; stroke-width: 6.5; stroke-dasharray: 15 85; animation: logoRunA 3.8s cubic-bezier(0.6, 0, 0.3, 1) infinite; animation-delay: 2.1s; }
+.lt-b path { stroke: #FF8A3C; stroke-width: 6; stroke-dasharray: 10 90; animation: logoRunB 3.8s cubic-bezier(0.6, 0, 0.3, 1) infinite; animation-delay: 3.0s; }
+.lt-a path:nth-child(1) { animation-delay: 2.1s; } .lt-a path:nth-child(2) { animation-delay: 2.35s; } .lt-a path:nth-child(3) { animation-delay: 2.6s; }
+.lt-b path:nth-child(1) { animation-delay: 3.4s; } .lt-b path:nth-child(2) { animation-delay: 3.65s; } .lt-b path:nth-child(3) { animation-delay: 3.9s; }
+
+@keyframes logoDraw { 0% { stroke-dashoffset: 100; opacity: 1; } 65% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes logoRunA { 0% { stroke-dashoffset: 0; opacity: 0; } 4% { opacity: 1; } 36% { stroke-dashoffset: -100; opacity: 1; } 40%, 100% { stroke-dashoffset: -100; opacity: 0; } }
+@keyframes logoRunB { 0% { stroke-dashoffset: 0; opacity: 0; } 4% { opacity: 1; } 36% { stroke-dashoffset: 100; opacity: 1; } 40%, 100% { stroke-dashoffset: 100; opacity: 0; } }
+@keyframes logoShine { 0% { background-position: 160% 0; } 28%, 100% { background-position: -60% 0; } }
+@keyframes logoBreath { 0%, 100% { opacity: .55; transform: scale(.96); } 50% { opacity: 1; transform: scale(1.06); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-draw, .lt-a, .lt-b, .logo-shine { display: none; }
+  .intro-logo-wrap::before { animation: none; opacity: .8; }
 }

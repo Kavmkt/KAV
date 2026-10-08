@@ -15,6 +15,7 @@
   const GROUPS = [
     // Cabeçalhos de seção: etiqueta → título → descrição
     ['.section-header > *', '', 0],
+    ['.area-card', '', 0],
     // Faixa de diferenciais
     ['.metrics-summary-bar .metric-card', '', 0],
     // O jeito Kav

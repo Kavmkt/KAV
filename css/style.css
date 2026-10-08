@@ -2656,3 +2656,11 @@ h1, h2, h3, h4 {
   display: block;
 }
 .footer-contact p a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Onde atendemos (SEO local) */
+.area-section{padding:72px 0}
+.area-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:8px}
+.area-card{display:flex;flex-direction:column;gap:6px;padding:22px;border-radius:var(--radius-md);background:#fff;border:1px solid rgba(10,22,51,.1);text-decoration:none;color:#0A1633;transition:transform .25s,box-shadow .25s}
+.area-card strong{font-family:var(--font-heading);font-size:1.1rem}
+.area-card span{font-size:.88rem;color:var(--accent-orange)}
+.area-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(10,22,51,.12)}
