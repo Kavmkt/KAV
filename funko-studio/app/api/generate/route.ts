@@ -65,19 +65,33 @@ export async function POST(req: NextRequest) {
     await new Promise((r) => setTimeout(r, 1800));
     image = demoImage();
   } else {
-    const body = new FormData();
-    body.append("model", process.env.OPENAI_IMAGE_MODEL || "gpt-image-1");
-    body.append("prompt", buildPrompt(notes));
-    body.append("size", "1536x1024");
-    body.append("quality", process.env.IMAGE_QUALITY || "medium");
-    body.append("n", "1");
-    for (const f of files) body.append("image[]", f, f.name || "ref.jpg");
+    const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1";
+    const quality = process.env.IMAGE_QUALITY || "high";
+    const prompt = buildPrompt(notes);
 
-    const r = await fetch("https://api.openai.com/v1/images/edits", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}` },
-      body,
-    });
+    const call = (withFidelity: boolean) => {
+      const body = new FormData();
+      body.append("model", model);
+      body.append("prompt", prompt);
+      body.append("size", "1536x1024");
+      body.append("quality", quality);
+      body.append("n", "1");
+      // "high" faz a IA preservar melhor as características das fotos (cabelo, óculos, roupa)
+      if (withFidelity) body.append("input_fidelity", "high");
+      for (const f of files) body.append("image[]", f, f.name || "ref.jpg");
+      return fetch("https://api.openai.com/v1/images/edits", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}` },
+        body,
+      });
+    };
+
+    let r = await call(true);
+    // Alguns modelos não aceitam input_fidelity: tenta de novo sem ele.
+    if (r.status === 400) {
+      const peek = await r.clone().json().catch(() => ({}));
+      if (String(peek?.error?.param || peek?.error?.message || "").includes("input_fidelity")) r = await call(false);
+    }
     const data = await r.json().catch(() => ({}));
     if (!r.ok) {
       console.error("OpenAI error", r.status, JSON.stringify(data).slice(0, 500));

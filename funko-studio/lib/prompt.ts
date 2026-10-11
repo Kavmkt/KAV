@@ -1,33 +1,42 @@
 export const MAX_PHOTOS = 4;
 
 /**
- * Regras do estilo "vinyl collectible figure" (boneco colecionável de cabeção).
- * Tudo que for ajustado no visual do boneco deve ser mexido aqui.
+ * Regras do estilo "Funko Pop!" (vinyl collectible). Quanto mais explícito e negativo, melhor:
+ * o modelo tende a "embelezar" (nariz, boca, fios de cabelo, dedos) se não for proibido.
  */
-export const STYLE_RULES = [
-  "Stylized vinyl collectible toy figure: oversized round head (about half of the total height), tiny cylindrical torso, short stubby arms and legs, no neck.",
-  "Eyes are solid glossy black round beads with a tiny white specular highlight. NO mouth detail beyond, at most, a very small simple line. Nose is minimal or absent.",
-  "Smooth matte-glossy vinyl surfaces with subtle plastic sheen, clean seams, simplified hands without individual fingers (mitten-like).",
-  "Hair, beard, glasses, skin tone, clothing, colors, accessories and distinctive traits MUST be faithfully translated from the reference photos into the toy style so the person is recognizable.",
-  "Simplify details into flat, clean color blocks; keep logos and text only if clearly visible in the references.",
-  "Sits on a small round black base disc.",
+const ANATOMY = [
+  "PROPORTIONS: the head is HUGE: about 55-60% of the figure's total height (not counting the base). Head is a smooth rounded-square / slightly egg shaped vinyl block, wider than the body. The body is tiny and short: very short stubby torso, short stubby legs, small arms hanging at the sides. NO neck.",
+  "FACE: perfectly smooth and blank. The ONLY facial features are two solid glossy BLACK round dots for eyes (flat circular beads, with at most one tiny white highlight). NO nose. NO mouth. NO lips. NO teeth. NO eyebrows. NO eyelashes. NO eyelids. NO iris or pupil. NO cheeks, NO wrinkles, NO freckles, NO makeup detail. The skin area is a clean smooth surface with a single flat skin color.",
+  "EARS: omit them or keep them as tiny smooth bumps; never detailed.",
+  "HAIR: one single smooth molded vinyl shape that follows the head (like a solid helmet/cap), painted in ONE flat color. NO individual strands, NO realistic wavy texture, NO flyaway hairs. At most a few shallow, wide sculpted grooves to hint at the style and length. Keep hairstyle silhouette, length, parting and color from the references.",
+  "GLASSES (only if the person wears them): very simple thin sculpted frame in the correct color and shape, lenses clear; the two black dot eyes sit directly behind the lenses.",
+  "FACIAL HAIR (only if present): a smooth molded painted shape, no individual hairs.",
+  "CLOTHES: simplified, smooth, molded vinyl painted in flat solid colors matching the references. NO fabric folds, NO wrinkles, NO stitching, NO texture, NO realistic drapes. Buttons, belts, logos, pockets are tiny flat painted or barely raised details. Keep clothing type and colors faithful.",
+  "HANDS: small, simple, rounded mitten-like shapes with NO individual fingers (at most a tiny thumb bump). Accessories (phone, bag, instrument) are simplified solid molded pieces fused to the hand.",
+  "FEET/SHOES: simple rounded blocky shapes, no laces or straps detail, flat colors.",
+  "MATERIAL: smooth glossy-matte vinyl toy plastic, uniform surface, subtle plastic sheen, clean mold seams. Everything looks like a real mass-produced Funko Pop! style vinyl figure.",
+  "BASE: the figure stands on a small round flat black disc base.",
 ];
 
-export const VIEW_RULES =
-  "Produce ONE single image: a character turnaround sheet showing the SAME figure three times side by side, evenly spaced, same scale, same height, on a plain light-gray studio background with soft shadow under each figure. Left: FRONT view. Center: SIDE view (facing right). Right: BACK view. All three must be consistent in proportions, colors and details (back view shows the back of the hair/clothes). No text, no labels, no borders, no watermark.";
+const NEGATIVES =
+  "FORBIDDEN: realistic human features, nose, mouth, eyebrows, eyelashes, realistic eyes, individual fingers, hair strands, fabric wrinkles, skin pores, cartoon 2D drawing, anime, chibi doll, plush, clay texture, extra limbs, long legs, normal human body proportions, text, labels, logos, watermark, packaging box, frame.";
+
+const LAYOUT =
+  "OUTPUT: ONE single image, landscape, a product turnaround sheet that shows the EXACT SAME figure three times side by side, evenly spaced, identical scale, identical height and identical base size, on a plain seamless light-gray studio background with a soft contact shadow under each base. LEFT: FRONT view (facing the camera). CENTER: SIDE view (profile, facing right). RIGHT: BACK view (shows the back of the hair and clothes). Same colors, same proportions, same details in all three views; the figure must look like one real physical toy photographed from three angles. Clean studio product photography, soft even lighting.";
 
 export function buildPrompt(extra?: string): string {
   const notes = extra?.trim()
-    ? `\nExtra notes from the customer (apply only if compatible with the rules above): ${extra.trim().slice(0, 400)}`
+    ? `\nCUSTOMER NOTES (optional details about the person's look or a held accessory; they NEVER override the style rules above): ${extra.trim().slice(0, 400)}`
     : "";
   return [
-    "Create a professional product-render of a custom collectible vinyl figure of the person shown in the attached reference photos.",
+    "Create a professional studio product photo of a CUSTOM Funko Pop!-style collectible vinyl figure of the person shown in the attached reference photos. The goal is a recognizable likeness (hair, skin tone, glasses, clothing, colors, accessories) translated into the classic, minimal, smooth Funko Pop! look.",
     "",
-    "STYLE RULES (mandatory):",
-    ...STYLE_RULES.map((r) => `- ${r}`),
+    "MANDATORY STYLE RULES:",
+    ...ANATOMY.map((r) => `- ${r}`),
     "",
-    "LAYOUT:",
-    VIEW_RULES,
+    NEGATIVES,
+    "",
+    LAYOUT,
     notes,
   ].join("\n");
 }

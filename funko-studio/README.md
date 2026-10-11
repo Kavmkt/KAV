@@ -16,7 +16,7 @@ Sem `OPENAI_API_KEY` o app roda em **modo demo** (devolve uma imagem de exemplo,
 ## Deploy na Vercel (grátis)
 1. Import do repositório → **Root Directory = `funko-studio`** (se a pasta virar repo próprio, deixe em branco).
 2. Variáveis de ambiente: `OPENAI_API_KEY`, `QUOTA_SECRET` (texto aleatório longo), opcionais `OPENAI_IMAGE_MODEL`, `MAX_ATTEMPTS`, `IMAGE_QUALITY`.
-3. Deploy. A rota de geração usa `maxDuration = 120`; no plano Hobby a Vercel pode limitar a ~60 s. Se estourar, use `IMAGE_QUALITY=low`.
+3. Deploy. A rota de geração usa `maxDuration = 120`; no plano Hobby a Vercel pode limitar a ~60 s. Se estourar o tempo, use `IMAGE_QUALITY=medium`.
 
 ## Onde mexer
 - `lib/prompt.ts`: regras do estilo do boneco e do layout 3 vistas (enviadas à IA junto com as fotos).
