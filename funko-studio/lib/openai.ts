@@ -10,7 +10,7 @@ export class AIError extends Error {
 export async function editImage(files: File[], prompt: string): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY!;
   const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1";
-  const quality = process.env.IMAGE_QUALITY || "high";
+  const quality = process.env.IMAGE_QUALITY || "medium";
 
   const call = (withFidelity: boolean) => {
     const body = new FormData();

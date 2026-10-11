@@ -60,12 +60,13 @@ export default function Studio() {
 
   const exhausted = quota ? quota.remaining <= 0 : false;
 
-  async function callView(view: View, front?: string): Promise<string> {
+  async function callView(view: View, front?: string, side?: string): Promise<string> {
     const fd = new FormData();
     fd.append("step", view);
     fd.append("notes", notes);
     photos.forEach((p) => fd.append("photos", p.file));
     if (front) fd.append("front", await dataUrlToJpeg(front, "front.jpg"));
+    if (side) fd.append("side", await dataUrlToJpeg(side, "side.jpg"));
     const r = await fetch("/api/generate", { method: "POST", body: fd });
     const data = await r.json().catch(() => ({}));
     if (!r.ok) {
@@ -83,10 +84,11 @@ export default function Studio() {
     try {
       setPhase("Criando a frente do seu boneco… (1/3)");
       const front = await callView("front");
-      setPhase("Girando o MESMO boneco para lateral e traseira… (2/3)");
-      // lateral e traseira partem da frente aprovada, por isso saem idênticas
-      const [side, back] = await Promise.all([callView("side", front), callView("back", front)]);
-      setPhase("Montando as 3 vistas… (3/3)");
+      setPhase("Girando o mesmo boneco para a lateral… (2/3)");
+      const side = await callView("side", front);
+      setPhase("Criando a traseira a partir da frente e da lateral… (3/3)");
+      const back = await callView("back", front, side);
+      setPhase("Montando as 3 vistas…");
       const sheet = await composeSheet([front, side, back]);
       const r: Result = { sheet, front, side, back };
       setResult(r);
@@ -182,7 +184,7 @@ export default function Studio() {
         <button className="cta" disabled={!photos.length || busy || exhausted} onClick={generate}>
           {busy ? <><span className="spin" /> Criando…</> : exhausted ? "Tentativas esgotadas" : result ? "✨ Gerar outra versão" : "✨ Criar meu boneco"}
         </button>
-        {busy && <small className="wait">{phase}<br />Leva 1–3 minutos para ficar em alta definição. Não feche a página.</small>}
+        {busy && <small className="wait">{phase}<br />Leva cerca de 1–2 minutos. Não feche a página.</small>}
       </section>
 
       <section className="card result" id="resultado">

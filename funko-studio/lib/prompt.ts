@@ -13,10 +13,10 @@ const LOOK = [
 
 const ANATOMY = [
   "PROPORTIONS: the head is HUGE: about 55-60% of the figure's total height (base not counted). Head is a smooth rounded-square / slightly egg-shaped vinyl block, wider than the body. The body is tiny and short: very short stubby torso, short stubby legs, short arms. NO neck.",
-  "FACE: a completely smooth, flat blank surface. The ONLY facial features are two solid glossy BLACK round dot eyes (perfect circles, one tiny white highlight each). The area between and below the eyes is perfectly flat: NO nose (no bump, no shading, no nostril, no line), NO mouth, NO lips, NO teeth, NO eyebrows, NO eyelashes, NO eyelids, NO iris, NO cheeks, NO wrinkles, NO freckles, NO makeup. One flat uniform skin color.",
+  "FACE: the face is one smooth, blank, perfectly flat vinyl surface in a single flat skin color, like a mannequin or egg: no relief, no shading changes. On it sit exactly TWO small solid black round dot eyes (each about 1/8 of the head width, flat, with one tiny white highlight), placed wide apart at mid-head. Nothing else on the face: the whole area between the eyes and the chin is completely clean and featureless.",
   "EARS: omitted or tiny smooth bumps, never detailed.",
-  "HAIR: a rigid, hard, solid sculpted vinyl hair piece with a smooth glossy surface, painted in one color matching the reference. It is NOT flowing, NOT soft, NOT fabric-like: no draping folds, no waves, no individual strands, no flyaways. At most a few wide shallow sculpted grooves. Keep the reference hairstyle silhouette, length, parting and color.",
-  "GLASSES (only if the person wears them in the references): simple thin sculpted frame in the right shape and color, clear lenses, the black dot eyes directly behind the lenses.",
+  "HAIR: a rigid, hard, solid sculpted vinyl hair piece with a smooth glossy surface, like a helmet, painted in ONE single flat color (pick the dominant color from the references; no gradient, no ombre, no highlights, no streaks). Smooth simple silhouette following the reference length and parting, with only 2-4 wide shallow sculpted grooves. The surface is smooth and continuous.",
+  "GLASSES (only if the person wears them in the references): simple thin sculpted frame in the right shape and color, clear lenses, the small black dot eyes directly behind the lenses; glasses never change the eye size.",
   "FACIAL HAIR (only if present): smooth molded painted shape, no individual hairs.",
   "CLOTHES: simplified molded vinyl in flat solid colors matching the references (same garment types and colors). NO fabric folds, wrinkles, stitching or texture. Buttons, belts, logos are tiny flat painted or barely raised details.",
   "HANDS: small, simple, rounded mitten-like shapes, NO individual fingers. Both hands are EMPTY.",
@@ -26,7 +26,7 @@ const ANATOMY = [
 ];
 
 const NEGATIVES =
-  "FORBIDDEN: nose, mouth, eyebrows, realistic eyes, individual fingers, hair strands, flowing or fabric-like hair, fabric wrinkles, skin pores, held objects, raised arms, 2D drawing, anime, chibi, plush, clay, blurry or low-detail image, soft focus, washed-out colors, extra limbs, long legs, normal human proportions, text, labels, logos, watermark, packaging, frame, multiple figures.";
+  "AVOID: any realistic human facial features, fingers, hair strands, gradients, fabric folds, skin texture, held objects, raised arms, 2D drawing, anime, plush, blurry or low-detail image, washed-out colors, long legs, normal human proportions, text, logos, watermark, packaging, multiple figures.";
 
 const FRAMING =
   "FRAMING: one single figure, the WHOLE figure including the base fully visible and centered, occupying about 80% of the image height, straight horizontal camera at mid-height of the figure (no top-down or low angle, no perspective distortion), on a plain seamless uniform light-gray (#E8E8EC) studio background with a soft contact shadow under the base. No other objects.";
@@ -61,13 +61,16 @@ const TURN: Record<Exclude<View, "front">, string> = {
   back: "Rotate the figure exactly 180 degrees to show the BACK VIEW: seen perfectly from behind, showing the back of the head, hair and clothes.",
 };
 
-export function buildTurnPrompt(view: Exclude<View, "front">, extra?: string): string {
+export function buildTurnPrompt(view: Exclude<View, "front">, extra?: string, hasSide = false): string {
+  const refs = hasSide
+    ? "The FIRST attached image is the APPROVED FRONT VIEW and the SECOND attached image is the APPROVED SIDE VIEW of the same collectible vinyl figure. The remaining attached images are reference photos of the real person (use them only to infer what the hidden back looks like, e.g. the back of the hair and clothes)."
+    : "The FIRST attached image is the APPROVED FRONT VIEW of a collectible vinyl figure. The other attached images are reference photos of the real person (use them only to infer what the hidden side/back looks like, e.g. the back of the hair and clothes).";
   return [
-    "The FIRST attached image is the APPROVED FRONT VIEW of a collectible vinyl figure. The other attached images are reference photos of the real person (use them only to infer what the hidden side/back looks like, e.g. the back of the hair and clothes).",
+    refs,
     "",
     `Produce the SAME EXACT figure, ${TURN[view]}`,
     "",
-    "IDENTICAL-FIGURE RULES (critical): it must be the very same physical toy as in the first image: same head shape and size, same hair piece (same color, length and silhouette), same skin color, same glasses, same clothes and colors, same shoes, same black base, same proportions, same scale, same pose (arms straight down, hands empty), same material finish, same lighting, same camera distance, same background color. Do NOT redesign or reinterpret anything. Do NOT add any detail that is not in the first image. Only the viewing angle changes.",
+    "IDENTICAL-FIGURE RULES (critical): it must be the very same physical toy as in the approved views: same head shape and size, same hair piece (same single flat color, length and silhouette, same smooth finish), same skin color, same glasses, same clothes and colors, same shoes, same black base, same proportions, same scale, same pose (arms straight down, hands empty), same material finish, same lighting, same camera distance, same background color. Do NOT redesign or reinterpret anything and do NOT add any detail that is not in the approved views. Only the viewing angle changes.",
     "",
     "LOOK:",
     ...LOOK.map((r) => `- ${r}`),

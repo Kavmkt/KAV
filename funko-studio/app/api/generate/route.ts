@@ -13,7 +13,7 @@ const err = (error: string, status: number, extra: object = {}) => NextResponse.
 /**
  * POST multipart:
  *  - step=front : photos[] (+notes)            → gera a frente. CONTA 1 tentativa.
- *  - step=side|back : front (imagem) + photos[] → gira o MESMO boneco. Não conta tentativa (limitado por MAX_SUBS).
+ *  - step=side : front + photos[]; step=back : front + side + photos[] → gira o MESMO boneco, em sequência. Não conta tentativa (limitado por MAX_SUBS).
  */
 export async function POST(req: NextRequest) {
   const { id, used, subs } = decode(req.cookies.get(COOKIE_NAME)?.value);
@@ -30,11 +30,12 @@ export async function POST(req: NextRequest) {
 
   const photos = form.getAll("photos").filter((f): f is File => f instanceof File);
   const front = form.get("front");
+  const sideRef = form.get("side");
   const notes = String(form.get("notes") ?? "");
 
   if (photos.length === 0) return err("Envie ao menos 1 foto de referência.", 400);
   if (photos.length > MAX_PHOTOS) return err(`Máximo de ${MAX_PHOTOS} fotos.`, 400);
-  for (const f of [...photos, ...(front instanceof File ? [front] : [])]) {
+  for (const f of [...photos, ...(front instanceof File ? [front] : []), ...(sideRef instanceof File ? [sideRef] : [])]) {
     if (!f.type.startsWith("image/") || f.size > MAX_FILE_BYTES) {
       return err("Use imagens (JPG/PNG/WebP) de até 4 MB.", 400);
     }
@@ -62,8 +63,11 @@ export async function POST(req: NextRequest) {
       image =
         step === "front"
           ? await editImage(photos, buildFrontPrompt(notes))
-          : // a frente vai PRIMEIRO: é a referência de identidade; no máximo 2 fotos para caber no limite de upload
-            await editImage([front as File, ...photos.slice(0, 2)], buildTurnPrompt(step, notes));
+          : // frente (e lateral, se houver) vão PRIMEIRO: são a referência de identidade; no máximo 2 fotos para caber no limite de upload
+            await editImage(
+              [front as File, ...(sideRef instanceof File ? [sideRef] : []), ...photos.slice(0, 2)],
+              buildTurnPrompt(step as "side" | "back", notes, sideRef instanceof File),
+            );
     } catch (e) {
       if (e instanceof AIError) return err(e.message, e.status);
       console.error(e);
