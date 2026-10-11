@@ -176,7 +176,7 @@ export default function Studio() {
             <b>{quota ? `${quota.remaining} de ${quota.max}` : "…"}</b>
           </div>
           <div className="bar"><i style={{ width: `${pct}%` }} /></div>
-          {quota?.demo && <small className="demo">Modo demonstração: a IA real entra quando a chave da OpenAI for configurada.</small>}
+          {quota?.demo && <small className="demo">Modo demonstração: a IA real entra quando a chave da IA for configurada.</small>}
         </div>
 
         {error && <div className="error" role="alert">{error}</div>}

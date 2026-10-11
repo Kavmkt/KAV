@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isDemo } from "@/lib/imageai";
 import { COOKIE_NAME, MAX_ATTEMPTS, cookieOptions, decode, encode } from "@/lib/quota";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +10,7 @@ export async function GET(req: NextRequest) {
     used,
     max: MAX_ATTEMPTS,
     remaining: Math.max(0, MAX_ATTEMPTS - used),
-    demo: !process.env.OPENAI_API_KEY,
+    demo: isDemo(),
   });
   res.cookies.set(COOKIE_NAME, encode(id, used, subs), cookieOptions);
   return res;

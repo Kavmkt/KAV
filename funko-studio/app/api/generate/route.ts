@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME, MAX_ATTEMPTS, MAX_SUBS, cookieOptions, decode, encode } from "@/lib/quota";
 import { MAX_PHOTOS, View, buildFrontPrompt, buildTurnPrompt } from "@/lib/prompt";
-import { AIError, editImage } from "@/lib/openai";
+import { AIError } from "@/lib/openai";
+import { editImage, isDemo } from "@/lib/imageai";
 import { demoImage } from "@/lib/demo";
 
 export const runtime = "nodejs";
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
   }
 
   let image: string;
-  if (!process.env.OPENAI_API_KEY) {
+  if (isDemo()) {
     await new Promise((r) => setTimeout(r, 1200));
     image = demoImage(step);
   } else {
