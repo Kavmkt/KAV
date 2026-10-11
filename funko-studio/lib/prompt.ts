@@ -1,42 +1,80 @@
 export const MAX_PHOTOS = 4;
+export type View = "front" | "side" | "back";
 
 /**
- * Regras do estilo "Funko Pop!" (vinyl collectible). Quanto mais explícito e negativo, melhor:
- * o modelo tende a "embelezar" (nariz, boca, fios de cabelo, dedos) se não for proibido.
+ * Prompts do boneco. Duas ideias centrais:
+ *  1) Geometria SIMPLIFICADA de Funko Pop! (rosto liso, cabelo sólido, mãos de luva)...
+ *  2) ...mas FOTOGRAFADA em hiper-realismo, nítida e em alta definição (não pode ficar "lavada" ou borrada).
+ * Lateral e traseira são geradas a partir da FRENTE já gerada, para os três ângulos serem o mesmo boneco.
  */
+const LOOK = [
+  "PHOTOGRAPHY: ultra-sharp, high-resolution, hyper-realistic studio product photograph of a REAL physical Funko Pop! vinyl figure on a table. Crisp focus across the whole figure, fine realistic material detail, believable glossy vinyl with natural specular highlights and soft reflections, accurate paint finish, clean mold seams. 85mm lens, soft diffused studio lighting. It must look like a photo of a physical collectible, NOT a soft blurry render, NOT matte or washed-out, NOT a painting, NOT a cartoon illustration.",
+];
+
 const ANATOMY = [
-  "PROPORTIONS: the head is HUGE: about 55-60% of the figure's total height (not counting the base). Head is a smooth rounded-square / slightly egg shaped vinyl block, wider than the body. The body is tiny and short: very short stubby torso, short stubby legs, small arms hanging at the sides. NO neck.",
-  "FACE: perfectly smooth and blank. The ONLY facial features are two solid glossy BLACK round dots for eyes (flat circular beads, with at most one tiny white highlight). NO nose. NO mouth. NO lips. NO teeth. NO eyebrows. NO eyelashes. NO eyelids. NO iris or pupil. NO cheeks, NO wrinkles, NO freckles, NO makeup detail. The skin area is a clean smooth surface with a single flat skin color.",
-  "EARS: omit them or keep them as tiny smooth bumps; never detailed.",
-  "HAIR: one single smooth molded vinyl shape that follows the head (like a solid helmet/cap), painted in ONE flat color. NO individual strands, NO realistic wavy texture, NO flyaway hairs. At most a few shallow, wide sculpted grooves to hint at the style and length. Keep hairstyle silhouette, length, parting and color from the references.",
-  "GLASSES (only if the person wears them): very simple thin sculpted frame in the correct color and shape, lenses clear; the two black dot eyes sit directly behind the lenses.",
-  "FACIAL HAIR (only if present): a smooth molded painted shape, no individual hairs.",
-  "CLOTHES: simplified, smooth, molded vinyl painted in flat solid colors matching the references. NO fabric folds, NO wrinkles, NO stitching, NO texture, NO realistic drapes. Buttons, belts, logos, pockets are tiny flat painted or barely raised details. Keep clothing type and colors faithful.",
-  "HANDS: small, simple, rounded mitten-like shapes with NO individual fingers (at most a tiny thumb bump). Accessories (phone, bag, instrument) are simplified solid molded pieces fused to the hand.",
-  "FEET/SHOES: simple rounded blocky shapes, no laces or straps detail, flat colors.",
-  "MATERIAL: smooth glossy-matte vinyl toy plastic, uniform surface, subtle plastic sheen, clean mold seams. Everything looks like a real mass-produced Funko Pop! style vinyl figure.",
+  "PROPORTIONS: the head is HUGE: about 55-60% of the figure's total height (base not counted). Head is a smooth rounded-square / slightly egg-shaped vinyl block, wider than the body. The body is tiny and short: very short stubby torso, short stubby legs, short arms. NO neck.",
+  "FACE: a completely smooth, flat blank surface. The ONLY facial features are two solid glossy BLACK round dot eyes (perfect circles, one tiny white highlight each). The area between and below the eyes is perfectly flat: NO nose (no bump, no shading, no nostril, no line), NO mouth, NO lips, NO teeth, NO eyebrows, NO eyelashes, NO eyelids, NO iris, NO cheeks, NO wrinkles, NO freckles, NO makeup. One flat uniform skin color.",
+  "EARS: omitted or tiny smooth bumps, never detailed.",
+  "HAIR: a rigid, hard, solid sculpted vinyl hair piece with a smooth glossy surface, painted in one color matching the reference. It is NOT flowing, NOT soft, NOT fabric-like: no draping folds, no waves, no individual strands, no flyaways. At most a few wide shallow sculpted grooves. Keep the reference hairstyle silhouette, length, parting and color.",
+  "GLASSES (only if the person wears them in the references): simple thin sculpted frame in the right shape and color, clear lenses, the black dot eyes directly behind the lenses.",
+  "FACIAL HAIR (only if present): smooth molded painted shape, no individual hairs.",
+  "CLOTHES: simplified molded vinyl in flat solid colors matching the references (same garment types and colors). NO fabric folds, wrinkles, stitching or texture. Buttons, belts, logos are tiny flat painted or barely raised details.",
+  "HANDS: small, simple, rounded mitten-like shapes, NO individual fingers. Both hands are EMPTY.",
+  "FEET/SHOES: simple rounded blocky shapes in flat colors, matching the shoe type and color of the references, no laces detail.",
+  "POSE (always the same neutral turnaround pose): standing straight, legs together, both arms hanging straight down relaxed at the sides, hands empty, head level, body symmetric. NEVER raise an arm or hand. IGNORE any phone, bag, cup, camera or other object the person holds in the references: do NOT include held objects (unless the customer notes explicitly ask for one). Ignore the original pose, facial expression, background and other people.",
   "BASE: the figure stands on a small round flat black disc base.",
 ];
 
 const NEGATIVES =
-  "FORBIDDEN: realistic human features, nose, mouth, eyebrows, eyelashes, realistic eyes, individual fingers, hair strands, fabric wrinkles, skin pores, cartoon 2D drawing, anime, chibi doll, plush, clay texture, extra limbs, long legs, normal human body proportions, text, labels, logos, watermark, packaging box, frame.";
+  "FORBIDDEN: nose, mouth, eyebrows, realistic eyes, individual fingers, hair strands, flowing or fabric-like hair, fabric wrinkles, skin pores, held objects, raised arms, 2D drawing, anime, chibi, plush, clay, blurry or low-detail image, soft focus, washed-out colors, extra limbs, long legs, normal human proportions, text, labels, logos, watermark, packaging, frame, multiple figures.";
 
-const LAYOUT =
-  "OUTPUT: ONE single image, landscape, a product turnaround sheet that shows the EXACT SAME figure three times side by side, evenly spaced, identical scale, identical height and identical base size, on a plain seamless light-gray studio background with a soft contact shadow under each base. LEFT: FRONT view (facing the camera). CENTER: SIDE view (profile, facing right). RIGHT: BACK view (shows the back of the hair and clothes). Same colors, same proportions, same details in all three views; the figure must look like one real physical toy photographed from three angles. Clean studio product photography, soft even lighting.";
+const FRAMING =
+  "FRAMING: one single figure, the WHOLE figure including the base fully visible and centered, occupying about 80% of the image height, straight horizontal camera at mid-height of the figure (no top-down or low angle, no perspective distortion), on a plain seamless uniform light-gray (#E8E8EC) studio background with a soft contact shadow under the base. No other objects.";
 
-export function buildPrompt(extra?: string): string {
-  const notes = extra?.trim()
-    ? `\nCUSTOMER NOTES (optional details about the person's look or a held accessory; they NEVER override the style rules above): ${extra.trim().slice(0, 400)}`
+function notesBlock(extra?: string): string {
+  return extra?.trim()
+    ? `\nCUSTOMER NOTES (optional details about the person's look; they NEVER override the style, pose and no-held-objects rules above): ${extra.trim().slice(0, 400)}`
     : "";
+}
+
+export function buildFrontPrompt(extra?: string): string {
   return [
-    "Create a professional studio product photo of a CUSTOM Funko Pop!-style collectible vinyl figure of the person shown in the attached reference photos. The goal is a recognizable likeness (hair, skin tone, glasses, clothing, colors, accessories) translated into the classic, minimal, smooth Funko Pop! look.",
+    "Using the attached reference photos of a person, create the FRONT VIEW of a CUSTOM Funko Pop!-style collectible vinyl figure of that person. Goal: a clearly recognizable likeness (hair color/length/style, skin tone, glasses, clothing and its colors, shoes) translated into the classic minimal Funko Pop! look.",
     "",
-    "MANDATORY STYLE RULES:",
+    "VIEW: FRONT, the figure faces the camera straight on, perfectly symmetric.",
+    "",
+    "LOOK:",
+    ...LOOK.map((r) => `- ${r}`),
+    "",
+    "FIGURE RULES (mandatory):",
     ...ANATOMY.map((r) => `- ${r}`),
     "",
     NEGATIVES,
     "",
-    LAYOUT,
-    notes,
+    FRAMING,
+    notesBlock(extra),
+  ].join("\n");
+}
+
+const TURN: Record<Exclude<View, "front">, string> = {
+  side: "Rotate the figure exactly 90 degrees to show the RIGHT SIDE PROFILE: the figure faces the right edge of the image, seen perfectly from the side.",
+  back: "Rotate the figure exactly 180 degrees to show the BACK VIEW: seen perfectly from behind, showing the back of the head, hair and clothes.",
+};
+
+export function buildTurnPrompt(view: Exclude<View, "front">, extra?: string): string {
+  return [
+    "The FIRST attached image is the APPROVED FRONT VIEW of a collectible vinyl figure. The other attached images are reference photos of the real person (use them only to infer what the hidden side/back looks like, e.g. the back of the hair and clothes).",
+    "",
+    `Produce the SAME EXACT figure, ${TURN[view]}`,
+    "",
+    "IDENTICAL-FIGURE RULES (critical): it must be the very same physical toy as in the first image: same head shape and size, same hair piece (same color, length and silhouette), same skin color, same glasses, same clothes and colors, same shoes, same black base, same proportions, same scale, same pose (arms straight down, hands empty), same material finish, same lighting, same camera distance, same background color. Do NOT redesign or reinterpret anything. Do NOT add any detail that is not in the first image. Only the viewing angle changes.",
+    "",
+    "LOOK:",
+    ...LOOK.map((r) => `- ${r}`),
+    "",
+    NEGATIVES,
+    "",
+    FRAMING,
+    notesBlock(extra),
   ].join("\n");
 }

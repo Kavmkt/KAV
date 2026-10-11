@@ -1,12 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { shrink } from "@/lib/image";
+import { composeSheet, dataUrlToJpeg, shrink } from "@/lib/image";
 
 const MAX_PHOTOS = 4;
 
 type Photo = { id: string; file: File; url: string };
 type Quota = { used: number; max: number; remaining: number; demo?: boolean };
+type View = "front" | "side" | "back";
+type Result = { sheet: string; front: string; side: string; back: string };
+const VIEW_LABEL: Record<View, string> = { front: "frente", side: "lateral", back: "traseira" };
 
 const TIPS = [
   { i: "☀️", t: "Luz natural", d: "Prefira fotos bem iluminadas, sem sombras fortes no rosto." },
@@ -21,8 +24,9 @@ export default function Studio() {
   const [quota, setQuota] = useState<Quota | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<string | null>(null);
-  const [history, setHistory] = useState<string[]>([]);
+  const [result, setResult] = useState<Result | null>(null);
+  const [history, setHistory] = useState<Result[]>([]);
+  const [phase, setPhase] = useState("");
   const [drag, setDrag] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
@@ -56,36 +60,58 @@ export default function Studio() {
 
   const exhausted = quota ? quota.remaining <= 0 : false;
 
+  async function callView(view: View, front?: string): Promise<string> {
+    const fd = new FormData();
+    fd.append("step", view);
+    fd.append("notes", notes);
+    photos.forEach((p) => fd.append("photos", p.file));
+    if (front) fd.append("front", await dataUrlToJpeg(front, "front.jpg"));
+    const r = await fetch("/api/generate", { method: "POST", body: fd });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      if (typeof data.remaining === "number") setQuota((q) => (q ? { ...q, remaining: data.remaining } : q));
+      throw new Error(data.error || "Algo deu errado. Tente novamente.");
+    }
+    if (view === "front") setQuota((q) => ({ ...(q as Quota), used: data.used, max: data.max, remaining: data.remaining }));
+    return data.image as string;
+  }
+
   async function generate() {
     if (!photos.length || busy || exhausted) return;
     setBusy(true);
     setError("");
     try {
-      const fd = new FormData();
-      photos.forEach((p) => fd.append("photos", p.file));
-      fd.append("notes", notes);
-      const r = await fetch("/api/generate", { method: "POST", body: fd });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        if (typeof data.remaining === "number") setQuota((q) => (q ? { ...q, remaining: data.remaining } : q));
-        throw new Error(data.error || "Algo deu errado. Tente novamente.");
-      }
-      setResult(data.image);
-      setHistory((h) => [data.image, ...h].slice(0, 15));
-      setQuota((q) => ({ ...(q as Quota), used: data.used, max: data.max, remaining: data.remaining }));
+      setPhase("Criando a frente do seu boneco… (1/3)");
+      const front = await callView("front");
+      setPhase("Girando o MESMO boneco para lateral e traseira… (2/3)");
+      // lateral e traseira partem da frente aprovada, por isso saem idênticas
+      const [side, back] = await Promise.all([callView("side", front), callView("back", front)]);
+      setPhase("Montando as 3 vistas… (3/3)");
+      const sheet = await composeSheet([front, side, back]);
+      const r: Result = { sheet, front, side, back };
+      setResult(r);
+      setHistory((h) => [r, ...h].slice(0, 15));
       setTimeout(() => document.getElementById("resultado")?.scrollIntoView({ behavior: "smooth" }), 100);
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setBusy(false);
+      setPhase("");
     }
   }
 
-  function download(src: string) {
+  function save(src: string, name: string) {
     const a = document.createElement("a");
     a.href = src;
-    a.download = src.startsWith("data:image/svg") ? "meu-boneco-demo.svg" : "meu-boneco.png";
+    a.download = name + (src.startsWith("data:image/svg") ? ".svg" : ".png");
     a.click();
+  }
+
+  function downloadAll(r: Result) {
+    save(r.sheet, "meu-boneco-3-vistas");
+    (["front", "side", "back"] as View[]).forEach((v, i) =>
+      setTimeout(() => save(r[v], `meu-boneco-${VIEW_LABEL[v]}`), 300 * (i + 1)),
+    );
   }
 
   const pct = quota ? (quota.remaining / quota.max) * 100 : 100;
@@ -154,21 +180,21 @@ export default function Studio() {
         {error && <div className="error" role="alert">{error}</div>}
 
         <button className="cta" disabled={!photos.length || busy || exhausted} onClick={generate}>
-          {busy ? <><span className="spin" /> Criando seu boneco…</> : exhausted ? "Tentativas esgotadas" : result ? "✨ Gerar outra versão" : "✨ Criar meu boneco"}
+          {busy ? <><span className="spin" /> Criando…</> : exhausted ? "Tentativas esgotadas" : result ? "✨ Gerar outra versão" : "✨ Criar meu boneco"}
         </button>
-        {busy && <small className="wait">Isso leva cerca de 30–60 segundos. Não feche a página.</small>}
+        {busy && <small className="wait">{phase}<br />Leva 1–3 minutos para ficar em alta definição. Não feche a página.</small>}
       </section>
 
       <section className="card result" id="resultado">
         <div className="card-head">
           <h2>3 · Seu boneco</h2>
-          {result && <button className="ghost" onClick={() => download(result)}>⬇ Baixar</button>}
+          {result && <button className="ghost" onClick={() => downloadAll(result)}>⬇ Baixar (folha + 3 vistas)</button>}
         </div>
 
         <div className={`stage ${busy ? "busy" : ""}`}>
           {result ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={result} alt="Boneco colecionável em três vistas: frente, lateral e traseira" />
+            <img src={result.sheet} alt="Boneco colecionável em três vistas: frente, lateral e traseira" />
           ) : (
             <div className="empty">
               <div className="views">
@@ -187,7 +213,7 @@ export default function Studio() {
               {history.map((h, i) => (
                 <button key={i} className={`thumb ${h === result ? "sel" : ""}`} onClick={() => setResult(h)}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={h} alt={`Versão ${history.length - i}`} />
+                  <img src={h.sheet} alt={`Versão ${history.length - i}`} />
                 </button>
               ))}
             </div>

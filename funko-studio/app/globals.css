@@ -54,12 +54,12 @@ textarea:focus{outline:2px solid var(--b)}
 @keyframes r{to{transform:rotate(360deg)}}
 .ghost{padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:#ffffff10;color:var(--text);font:inherit;cursor:pointer}
 .ghost:hover{border-color:var(--c)}
-.stage{position:relative;aspect-ratio:3/2;border-radius:18px;overflow:hidden;background:#e9e9ee;display:grid;place-items:center}
+.stage{position:relative;aspect-ratio:3/1;border-radius:18px;overflow:hidden;background:#e9e9ee;display:grid;place-items:center}
 .stage img{width:100%;height:100%;object-fit:contain;display:block}
 .stage.busy img{opacity:.35}
 .empty{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;color:#555;padding:16px}
 .views{display:flex;gap:12px;width:100%;justify-content:center}
-.views span{flex:1;max-width:150px;aspect-ratio:3/4;border-radius:16px;background:repeating-linear-gradient(45deg,#d9d9e3,#d9d9e3 8px,#e3e3ec 8px,#e3e3ec 16px);display:grid;place-items:end center;padding-bottom:8px;font-size:.8rem;font-weight:700;color:#777}
+.views span{flex:1;max-width:150px;aspect-ratio:1;border-radius:16px;background:repeating-linear-gradient(45deg,#d9d9e3,#d9d9e3 8px,#e3e3ec 8px,#e3e3ec 16px);display:grid;place-items:end center;padding-bottom:8px;font-size:.8rem;font-weight:700;color:#777}
 .shimmer{position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#ffffffaa 50%,transparent 70%);background-size:200% 100%;animation:s 1.4s infinite}
 @keyframes s{from{background-position:200% 0}to{background-position:-200% 0}}
 .hist{margin-top:14px}.hist small{color:var(--mut)}

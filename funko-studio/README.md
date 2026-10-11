@@ -1,7 +1,9 @@
 # Toy Studio (nome provisório)
 
 App web em que o cliente envia até 4 fotos e recebe um boneco colecionável de vinil em 3 vistas
-(frente, lateral e traseira) numa única imagem. Limite de 15 tentativas por cliente.
+(frente, lateral e traseira). Limite de 15 tentativas por cliente.
+
+**Como gera:** 1) cria a FRENTE a partir das fotos; 2) cria LATERAL e TRASEIRA a partir da frente aprovada (assim são o mesmo boneco); 3) o navegador monta a folha com as 3 vistas. Entrega a folha + cada vista em PNG separado (1024×1024), prontas para a IA de 3D. Cada tentativa gasta 3 imagens da OpenAI.
 
 Stack: Next.js 14 (App Router) + TypeScript, sem banco de dados.
 
@@ -20,7 +22,7 @@ Sem `OPENAI_API_KEY` o app roda em **modo demo** (devolve uma imagem de exemplo,
 
 ## Onde mexer
 - `lib/prompt.ts`: regras do estilo do boneco e do layout 3 vistas (enviadas à IA junto com as fotos).
-- `app/api/generate/route.ts`: chamada à OpenAI (`/v1/images/edits`, fotos como referência) e contagem de tentativas.
+- `app/api/generate/route.ts` + `lib/openai.ts`: chamadas à OpenAI (`/v1/images/edits`) e contagem de tentativas (só a frente conta; lateral/traseira são limitadas a 6 chamadas por tentativa).
 - `lib/quota.ts`: contador em cookie assinado (HMAC).
 - `components/Studio.tsx` + `app/globals.css`: interface.
 
